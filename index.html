@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MadeByMitzi — Designs That Tell Your Story ✨</title>
+  <meta name="description"
+    content="MadeByMitzi — Premium sticker designs and birthday invitation designs. Shop beautiful, customizable digital designs perfect for any occasion." />
+  <meta name="keywords"
+    content="stickers, birthday invitations, digital designs, custom stickers, party invitations, MadeByMitzi" />
+  <meta property="og:title" content="MadeByMitzi — Designs That Tell Your Story" />
+  <meta property="og:description"
+    content="Premium sticker designs and birthday invitation designs. Shop beautiful, customizable digital designs." />
+  <link rel="icon" type="image/jpeg" href="images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ── Hero Pixel Background ── */
+    .hero {
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+      background: none !important;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('images/background.jpg');
+      background-size: cover;
+      background-position: center bottom;
+      transform: scale(1.08);
+      transition: transform 0.1s linear;
+      will-change: transform;
+      z-index: 0;
+    }
+
+    /* Animated green gradient overlay */
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg,
+          rgba(0, 80, 0, 0.72) 0%,
+          rgba(0, 168, 107, 0.65) 25%,
+          rgba(0, 200, 83, 0.55) 50%,
+          rgba(15, 82, 186, 0.60) 75%,
+          rgba(255, 215, 0, 0.40) 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* Pixel scanline effect for fun */
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg,
+          transparent,
+          transparent 3px,
+          rgba(0, 0, 0, 0.06) 3px,
+          rgba(0, 0, 0, 0.06) 4px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      flex: 1;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-visual {
+      flex: 0 0 380px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .features-strip {
+      background: var(--yellow);
+      padding: 20px clamp(16px, 5vw, 80px);
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--blue-dark);
+    }
+
+    .feature-icon {
+      font-size: 1.3rem;
+    }
+
+    /* Showcase strip */
+    .showcase-section {
+      background: var(--gray-50);
+    }
+
+    .showcase-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      scrollbar-color: var(--blue) var(--gray-200);
+    }
+
+    .showcase-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .showcase-card {
+      flex: 0 0 260px;
+      scroll-snap-align: start;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: white;
+      box-shadow: var(--shadow-sm);
+      border: 2px solid var(--gray-200);
+      transition: var(--transition-bounce);
+      cursor: pointer;
+    }
+
+    .showcase-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: var(--yellow);
+      box-shadow: var(--shadow-md);
+    }
+
+    .showcase-card-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: var(--gray-100);
+    }
+
+    .showcase-card-body {
+      padding: 14px 16px;
+    }
+
+    .showcase-card-name {
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .showcase-card-price {
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 1rem;
+      font-family: var(--font-head);
+    }
+
+    /* Reviews section */
+    .reviews-section {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+    }
+
+    .reviews-section .section-title {
+      color: white;
+    }
+
+    .reviews-section .section-title span {
+      color: var(--yellow);
+    }
+
+    .reviews-section .section-tag {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .reviews-section .section-sub {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .reviews-section .review-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .reviews-section .review-card:hover {
+      border-color: var(--yellow);
+    }
+
+    .reviews-section .review-name {
+      color: white;
+    }
+
+    .reviews-section .review-text {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .reviews-section .review-date {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Overall rating */
+    .overall-rating {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: 24px 32px;
+      margin-bottom: 40px;
+      border: 1.5px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .rating-num {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: 4rem;
+      color: var(--yellow);
+      line-height: 1;
+    }
+
+    .rating-stars {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .rating-stars .stars {
+      display: flex;
+      gap: 4px;
+    }
+
+    .rating-stars .star {
+      color: var(--yellow);
+      font-size: 1.4rem;
+    }
+
+    .rating-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+    }
+
+    /* CTA section */
+    .cta-section {
+      background: linear-gradient(135deg,
+          #FFFFFF 0%,
+          #1E40AF 28%,
+          #DC2626 62%,
+          #EC4899 100%);
+      background-size: 300% 300%;
+      animation: ctaGradientShift 8s ease infinite;
+      text-align: center;
+      padding: clamp(48px, 8vw, 96px) clamp(16px, 5vw, 80px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes ctaGradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 120%, rgba(255, 255, 255, 0.25), transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 2px 14px rgba(15, 23, 42, 0.45);
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 1px 8px rgba(15, 23, 42, 0.35);
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.22);
+      color: white;
+      text-shadow: 0 1px 4px rgba(15, 23, 42, 0.3);
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(8px);
+    }
+
+    .platforms {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .platform-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 28px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+      font-size: 0.95rem;
+      font-family: var(--font-head);
+      transition: var(--transition-bounce);
+      text-decoration: none;
+    }
+
+    /* Facebook Brand Blue */
+    .platform-btn.facebook-btn {
+      background: #1877F2;
+      color: #FFFFFF !important;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(24, 119, 242, 0.45);
+    }
+
+    .platform-btn.facebook-btn:hover {
+      background: #0d65d9;
+      color: #FFFFFF !important;
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 14px 32px rgba(24, 119, 242, 0.65);
+      border-color: #FFFFFF;
+    }
+
+    /* Etsy Brand Orange */
+    .platform-btn.etsy-btn {
+      background: #F1641E;
+      color: #FFFFFF !important;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(241, 100, 30, 0.45);
+    }
+
+    .platform-btn.etsy-btn:hover {
+      background: #d85210;
+      color: #FFFFFF !important;
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 14px 32px rgba(241, 100, 30, 0.65);
+      border-color: #FFFFFF;
+    }
+
+    @media(max-width:1024px) {
+      .hero-visual {
+        flex: 0 0 auto;
+        max-width: 340px;
+      }
+    }
+
+    @media(max-width:768px) {
+      /* Mobile mode: show left-most side of background image */
+      .hero-bg {
+        background-image: url('images/background.jpg') !important;
+        background-size: cover !important;
+        background-position: left bottom !important;
+        transform: none !important;
+      }
+
+      .hero-bg::before {
+        display: none !important;
+      }
+
+      .hero-bg::after {
+        display: block !important;
+        opacity: 0.72;
+      }
+
+      .features-strip {
+        gap: 16px;
+      }
+
+      .hero-float-cards {
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" style="display:none;"></canvas>
+
+  <!-- Toast Container -->
+  <div class="toast-container"></div>
+
+  <!-- ════════════════════ NAVBAR ════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="images/madebymitzi.jpg" alt="Mitzi"
+        style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;image-rendering:pixelated;" />
+      MadeByMitzi
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="index.html#how-it-works">How It Works</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+    <div class="nav-actions">
+      <a href="cart.html" class="cart-btn" title="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="cart-badge">0</span>
+      </a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+    <a href="shop.html"><i class="fas fa-store"></i> Shop</a>
+    <a href="index.html#how-it-works"><i class="fas fa-info-circle"></i> How It Works</a>
+    <a href="index.html#reviews"><i class="fas fa-star"></i> Reviews</a>
+    <a href="index.html#contact"><i class="fas fa-envelope"></i> Contact</a>
+    <a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+  </nav>
+
+  <!-- ════════════════════ HERO ════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span>✨</span> New designs every week!
+      </div>
+      <h1>Designs That<br /><span>Tell Your Story</span> 🎉</h1>
+      <p>Premium sticker packs & birthday invitation designs — made with love by Mitzi. Customizable, printable, and
+        delivered digitally!</p>
+      <div class="hero-actions">
+        <a href="shop.html" class="btn btn-primary btn-lg">
+          <i class="fas fa-store"></i> Shop Now
+        </a>
+        <a href="#how-it-works" class="btn btn-secondary btn-lg">
+          <i class="fas fa-play-circle"></i> How It Works
+        </a>
+      </div>
+      <div style="display:flex;gap:24px;margin-top:32px;flex-wrap:wrap;">
+        <div style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
+          <span style="color:var(--yellow);font-weight:800;font-size:1.1rem;"
+            id="hero-products-count">6</span><br />Products
+        </div>
+        <div style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
+          <span style="color:var(--yellow);font-weight:800;font-size:1.1rem;"
+            id="hero-orders-count">400+</span><br />Happy Customers
+        </div>
+        <div style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
+          <span style="color:var(--yellow);font-weight:800;font-size:1.1rem;">⭐ 5.0</span><br />Rating
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-float-cards">
+        <div class="hero-float-card">
+          <div class="card-emoji">🎨</div>
+          <div class="card-label">Sticker Packs</div>
+        </div>
+        <div class="hero-float-card">
+          <div class="card-emoji">💌</div>
+          <div class="card-label">Invitations</div>
+        </div>
+        <div class="hero-float-card">
+          <div class="card-emoji">✏️</div>
+          <div class="card-label">Editable</div>
+        </div>
+        <div class="hero-float-card">
+          <div class="card-emoji">📱</div>
+          <div class="card-label">Digital + Print</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════ MARQUEE ════════════════════ -->
+  <div class="marquee-bar">
+    <div class="marquee-track" id="marquee">
+      <span class="marquee-item"><span class="marquee-dot">★</span> Custom Sticker Designs</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Birthday Invitations</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Editable Canva Templates</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Printable PDF Designs</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> GCash & Bank Transfer</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Fast Digital Delivery</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> 100% Customer Satisfaction</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Custom Sticker Designs</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Birthday Invitations</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Editable Canva Templates</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Printable PDF Designs</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> GCash & Bank Transfer</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> Fast Digital Delivery</span>
+      <span class="marquee-item"><span class="marquee-dot">★</span> 100% Customer Satisfaction</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ FEATURES STRIP ════════════════════ -->
+  <div class="features-strip">
+    <div class="feature-item"><span class="feature-icon">⚡</span> Fast Digital Delivery</div>
+    <div class="feature-item"><span class="feature-icon">🎨</span> Fully Customizable</div>
+    <div class="feature-item"><span class="feature-icon">💳</span> GCash & Bank Transfer</div>
+    <div class="feature-item"><span class="feature-icon">🖨️</span> Print-Ready Files</div>
+    <div class="feature-item"><span class="feature-icon">💬</span> Friendly Support</div>
+  </div>
+
+  <!-- ════════════════════ FEATURED PRODUCTS ════════════════════ -->
+  <section class="section showcase-section" id="featured">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">🔥 Featured</div>
+        <h2 class="section-title">Our <span>Bestsellers</span></h2>
+        <p class="section-sub">The most loved designs from our collection — scroll to explore!</p>
+      </div>
+      <div class="showcase-scroll" id="featured-scroll"></div>
+      <div style="text-align:center;margin-top:32px;" class="reveal">
+        <a href="shop.html" class="btn btn-blue btn-lg">
+          <i class="fas fa-th-large"></i> View All Products
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════ STATS ════════════════════ -->
+  <div class="stats-bar">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="stat-num" id="stat-products">6</div>
+        <div class="stat-label">Products Available</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-num">400+</div>
+        <div class="stat-label">Happy Customers</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-num">⭐ 5.0</div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Product Categories</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ HOW IT WORKS ════════════════════ -->
+  <section class="section" id="how-it-works">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">📋 Process</div>
+        <h2 class="section-title">How It <span>Works</span></h2>
+        <p class="section-sub">Getting your dream designs is easy! Just follow these simple steps.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card reveal">
+          <div class="step-num">1</div>
+          <div class="step-icon">🛍️</div>
+          <div class="step-title">Browse & Choose</div>
+          <div class="step-text">Explore our beautiful collection of sticker packs and birthday invitations. Find the
+            perfect design for your occasion!</div>
+        </div>
+        <div class="step-card reveal reveal-delay-1">
+          <div class="step-num">2</div>
+          <div class="step-icon">💳</div>
+          <div class="step-title">Pay via GCash or Bank</div>
+          <div class="step-text">Send payment through GCash or bank transfer. Upload your proof of payment — it's quick
+            and secure!</div>
+        </div>
+        <div class="step-card reveal reveal-delay-2">
+          <div class="step-num">3</div>
+          <div class="step-icon">✅</div>
+          <div class="step-title">We Verify Payment</div>
+          <div class="step-text">Our team verifies your payment quickly. You'll receive a confirmation once everything's
+            good to go!</div>
+        </div>
+        <div class="step-card reveal reveal-delay-3">
+          <div class="step-num">4</div>
+          <div class="step-icon">📩</div>
+          <div class="step-title">Receive Your Design</div>
+          <div class="step-text">Get your design file delivered digitally! Download, print, or use your Canva template
+            right away.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════ CATEGORIES ════════════════════ -->
+  <section class="section bg-light" id="categories">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">📂 Browse</div>
+        <h2 class="section-title">Shop by <span>Category</span></h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;" class="reveal">
+        <a href="shop.html?cat=Stickers" class="category-card"
+          style="background:linear-gradient(135deg,#0F52BA,#3A6FD8);border-radius:var(--radius-xl);padding:40px 32px;text-align:center;color:white;transition:var(--transition-bounce);display:block;border:2px solid transparent;">
+          <div style="font-size:4rem;margin-bottom:16px;">🎨</div>
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker Packs</h3>
+          <p style="opacity:0.8;font-size:0.9rem;margin-bottom:20px;">Birthday, kawaii, floral, themed sticker collections</p>
+          <span
+            style="background:var(--yellow);color:var(--blue-dark);padding:8px 20px;border-radius:var(--radius-pill);font-weight:700;font-size:0.85rem;">Shop Stickers →</span>
+        </a>
+        <a href="shop.html?cat=Invitations" class="category-card"
+          style="background:linear-gradient(135deg,#00553A,#00A86B);border-radius:var(--radius-xl);padding:40px 32px;text-align:center;color:white;transition:var(--transition-bounce);display:block;border:2px solid transparent;">
+          <div style="font-size:4rem;margin-bottom:16px;">💌</div>
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Invitation Designs</h3>
+          <p style="opacity:0.8;font-size:0.9rem;margin-bottom:20px;">Birthday, wedding, party — editable & printable</p>
+          <span
+            style="background:var(--yellow);color:var(--blue-dark);padding:8px 20px;border-radius:var(--radius-pill);font-weight:700;font-size:0.85rem;">Shop Invitations →</span>
+        </a>
+        <a href="shop.html?cat=Sticker%20(File%20only)" class="category-card"
+          style="background:linear-gradient(135deg,#6D28D9,#8B5CF6);border-radius:var(--radius-xl);padding:40px 32px;text-align:center;color:white;transition:var(--transition-bounce);display:block;border:2px solid transparent;">
+          <div style="font-size:4rem;margin-bottom:16px;">✂️</div>
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker (File only)</h3>
+          <p style="opacity:0.8;font-size:0.9rem;margin-bottom:20px;">Instant download PNG cut files, SVG & printable sheets</p>
+          <span
+            style="background:var(--yellow);color:var(--blue-dark);padding:8px 20px;border-radius:var(--radius-pill);font-weight:700;font-size:0.85rem;">Shop Digital Files →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════ REVIEWS ════════════════════ -->
+  <section class="section reviews-section" id="reviews">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">⭐ Testimonials</div>
+        <h2 class="section-title">What Our <span>Customers Say</span></h2>
+        <p class="section-sub">Join hundreds of happy customers who love our designs!</p>
+      </div>
+      <!-- Overall rating -->
+      <div class="overall-rating reveal">
+        <div class="rating-num">5.0</div>
+        <div class="rating-stars">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span
+              class="star">★</span><span class="star">★</span>
+          </div>
+          <div style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:4px;">Based on customer reviews</div>
+        </div>
+        <div style="margin-left:auto;color:rgba(255,255,255,0.7);font-size:0.88rem;text-align:right;">
+          <span style="font-size:1.5rem;font-weight:800;color:var(--yellow);" id="total-reviews">6</span><br />Total
+          Reviews
+        </div>
+      </div>
+      <div class="reviews-grid" id="reviews-grid"></div>
+      <div style="text-align:center;margin-top:32px;" class="reveal">
+        <a href="shop.html" class="btn btn-primary btn-lg">
+          <i class="fas fa-star"></i> Shop & Leave a Review
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════ CTA ════════════════════ -->
+  <section class="cta-section" id="contact">
+    <div class="container">
+      <div class="cta-badge">🌟 Also find us on</div>
+      <h2>Let's Create Something <br />Beautiful Together!</h2>
+      <p>Find us on Facebook and Etsy for more designs and updates</p>
+      <div class="platforms">
+        <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank" class="platform-btn facebook-btn">
+          <i class="fab fa-facebook-f"></i> Facebook Page
+        </a>
+        <a href="https://www.etsy.com/shop/MadeBymitzidigital" target="_blank" class="platform-btn etsy-btn">
+          <i class="fab fa-etsy"></i> Etsy Shop
+        </a>
+      </div>
+      <div style="margin-top:40px;">
+        <a href="shop.html" class="btn btn-primary btn-lg">
+          <i class="fas fa-shopping-bag"></i> Start Shopping Now
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════ FOOTER ════════════════════ -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">🎨 MadeByMitzi</div>
+        <p>Premium sticker designs and birthday invitation designs made with love. Quality digital products for every
+          celebration!</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank" class="social-btn"><i
+              class="fab fa-facebook-f"></i></a>
+          <a href="https://www.etsy.com/shop/MadeBymitzidigital" target="_blank" class="social-btn"><i
+              class="fas fa-store"></i></a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Quick Links</div>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="shop.html">Shop</a>
+          <a href="index.html#how-it-works">How It Works</a>
+          <a href="index.html#reviews">Reviews</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Categories</div>
+        <div class="footer-links">
+          <a href="shop.html?cat=Stickers">Sticker Packs</a>
+          <a href="shop.html?cat=Invitations">Birthday Invitations</a>
+          <a href="shop.html?cat=Sticker%20(File%20only)">Sticker (File only)</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Payment Methods</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:0.88rem;"><span
+              style="font-size:1.2rem;">📱</span> GCash</div>
+          <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:0.88rem;"><span
+              style="font-size:1.2rem;">🏦</span> Bank Transfer</div>
+        </div>
+        <div style="margin-top:20px;">
+          <div class="footer-heading">Admin</div>
+          <a href="login.html" style="color:rgba(255,255,255,0.5);font-size:0.82rem;transition:var(--transition);">Admin
+            Login →</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MadeByMitzi. All rights reserved.</span>
+      <span>Made with 💛 for celebrations!</span>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Featured products showcase
+      const featuredScroll = document.getElementById('featured-scroll');
+      const products = DB.getProducts().filter(p => p.status === 'active');
+
+      // Update stats
+      document.getElementById('stat-products').textContent = products.length;
+      document.getElementById('hero-products-count').textContent = products.length;
+
+      // Build showcase cards
+      products.forEach((p, i) => {
+        const { avg, count } = DB.getAvgRating(p.id);
+        const imgSrc = p.images?.[0] && !p.images[0].includes('placeholder') ? p.images[0] : getPlaceholderSVG(p.category, i);
+        const card = document.createElement('a');
+        card.href = `product.html?id=${p.id}`;
+        card.className = 'showcase-card';
+        card.innerHTML = `
+      <img src="${imgSrc}" alt="${p.name}" class="showcase-card-img" onerror="this.src='${getPlaceholderSVG(p.category, i)}'" />
+      <div class="showcase-card-body">
+        <div style="font-size:0.72rem;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:4px;">${p.category}</div>
+        <div class="showcase-card-name">${p.name}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin:4px 0 8px;">
+          ${renderStars(avg)}
+          <span style="font-size:0.75rem;color:var(--gray-600)">(${count})</span>
+        </div>
+        <div class="showcase-card-price">${formatPrice(p.price)}</div>
+      </div>
+    `;
+        featuredScroll.appendChild(card);
+      });
+
+      // Reviews
+      const reviewsGrid = document.getElementById('reviews-grid');
+      const reviews = DB.getReviews();
+      document.getElementById('total-reviews').textContent = reviews.length;
+      reviews.slice(0, 6).forEach(r => {
+        const initials = r.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        const div = document.createElement('div');
+        div.className = 'review-card reveal';
+        div.innerHTML = `
+      <div class="review-header">
+        <div class="review-avatar">${initials}</div>
+        <div>
+          <div class="review-name">${r.name}</div>
+          <div class="review-date">${new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+        </div>
+        <div style="margin-left:auto;">${renderStars(r.rating)}</div>
+      </div>
+      <p class="review-text">"${r.text}"</p>
+    `;
+        reviewsGrid.appendChild(div);
+      });
+
+      // Re-run reveal
+      initReveal();
+    });
+  </script>
+
+  <style>
+    .category-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--yellow) !important;
+      box-shadow: var(--shadow-lg);
+    }
+  </style>
+
+  <script>
+    // Mouse parallax for hero background
+    (function () {
+      const heroBg = document.getElementById('hero-bg');
+      if (!heroBg) return;
+      let tX = 0, tY = 0, cX = 0, cY = 0;
+      document.addEventListener('mousemove', e => {
+        const hw = window.innerWidth / 2;
+        const hh = window.innerHeight / 2;
+        tX = (e.clientX - hw) / hw * -14;
+        tY = (e.clientY - hh) / hh * -8;
+      });
+      function animate() {
+        if (window.innerWidth <= 768) {
+          heroBg.style.transform = '';
+          return;
+        }
+        cX += (tX - cX) * 0.07;
+        cY += (tY - cY) * 0.07;
+        heroBg.style.transform = `scale(1.12) translate(${cX}px, ${cY}px)`;
+        requestAnimationFrame(animate);
+      }
+      animate();
+      // Touch parallax for mobile (only tablets/larger touch devices)
+      if (window.innerWidth > 768) {
+        document.addEventListener('touchmove', e => {
+          const t = e.touches[0];
+          const hw = window.innerWidth / 2;
+          const hh = window.innerHeight / 2;
+          tX = (t.clientX - hw) / hw * -10;
+          tY = (t.clientY - hh) / hh * -6;
+        }, { passive: true });
+      }
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Products — MadeByMitzi Admin</title>
+  <link rel="icon" type="image/jpeg" href="../images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="../images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .admin-main {
+      margin-left: 260px;
+      padding: 36px 40px;
+      flex: 1;
+    }
+
+    .admin-table-box {
+      background: white;
+      border-radius: var(--radius-xl);
+      border: 2px solid var(--gray-200);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-top: 24px;
+    }
+
+    .product-thumb-sm {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--gray-100);
+    }
+
+    @media (max-width: 900px) {
+      .admin-sidebar { display: none; }
+      .admin-main { margin-left: 0; padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="../index.html" class="nav-logo">
+      <img src="../images/madebymitzi.jpg" alt="Mitzi"
+        style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;" />
+      MadeByMitzi <span style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Live Site</a>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-logo">🎨 MadeByMitzi</div>
+        <div class="admin-sidebar-sub">Shop Administration</div>
+      </div>
+      <div class="admin-nav">
+        <div class="admin-nav-section">Main Menu</div>
+        <a href="dashboard.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="orders.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-shopping-bag"></i></span>
+          <span>Orders</span>
+        </a>
+        <a href="products.html" class="admin-nav-link active">
+          <span class="nav-icon"><i class="fas fa-box-open"></i></span>
+          <span>Products</span>
+        </a>
+        <div class="admin-nav-section">Configuration</div>
+        <a href="settings.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-qrcode"></i></span>
+          <span>Payment QR Settings</span>
+        </a>
+      </div>
+      <div class="admin-sidebar-footer">
+        <button class="admin-logout-btn" onclick="DB.adminLogout();window.location.href='../login.html';">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Product Catalog</h1>
+          <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Manage your sticker packs and birthday invitation designs</p>
+        </div>
+        <button class="btn btn-primary" onclick="openProductModal()">
+          <i class="fas fa-plus"></i> Add New Product
+        </button>
+      </div>
+
+      <div class="admin-table-box">
+        <div style="overflow-x:auto;">
+          <table class="custom-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Sales</th>
+                <th>Featured</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="products-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ADD / EDIT PRODUCT MODAL -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal modal-lg">
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+      <h2 id="modal-title" style="text-align:left;font-size:1.3rem;margin-bottom:20px;">Add New Product</h2>
+
+      <form id="product-form">
+        <input type="hidden" id="prod-id" />
+        
+        <div class="form-group">
+          <label class="form-label">Product Name *</label>
+          <input type="text" id="prod-name" class="form-input" placeholder="e.g. Kawaii Animal Stickers" required />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select id="prod-category" class="form-input form-select" required>
+              <option value="Stickers">Sticker Packs</option>
+              <option value="Invitations">Birthday Invitations</option>
+              <option value="Sticker (File only)">Sticker (File only)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Price (₱) *</label>
+            <input type="number" id="prod-price" class="form-input" min="1" placeholder="199" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="prod-desc" class="form-textarea" rows="3" placeholder="Describe the stickers or invitation features"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Product Image</label>
+          <input type="file" id="prod-img-file" accept="image/*" class="form-input" onchange="handleProductImage(event)" />
+          <img id="prod-img-preview" style="max-height:100px;margin-top:10px;border-radius:var(--radius-sm);display:none;" />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Canva Editable Link (Optional)</label>
+            <input type="url" id="prod-canva" class="form-input" placeholder="https://canva.com/..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Printable PDF Link (Optional)</label>
+            <input type="url" id="prod-pdf" class="form-input" placeholder="https://drive.google.com/..." />
+          </div>
+        </div>
+
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="prod-featured" style="width:18px;height:18px;" />
+          <label for="prod-featured" style="font-weight:700;font-size:0.9rem;cursor:pointer;">Feature on Homepage Carousel</label>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
+          <button type="button" class="btn btn-outline-blue btn-sm" onclick="closeProductModal()">Cancel</button>
+          <button type="submit" class="btn btn-green btn-sm" id="btn-save-prod">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    if (!DB.isAdmin()) {
+      window.location.href = '../login.html';
+    }
+
+    let prodImageBase64 = null;
+
+    function renderProductsTable() {
+      const products = DB.getProducts();
+      const tbody = document.getElementById('products-tbody');
+      tbody.innerHTML = '';
+
+      products.forEach((p, i) => {
+        const imgSrc = p.images?.[0] && !p.images[0].includes('placeholder')
+          ? p.images[0]
+          : getPlaceholderSVG(p.category, i);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img src="${imgSrc}" class="product-thumb-sm" alt="${p.name}" onerror="this.src='${getPlaceholderSVG(p.category, i)}'" /></td>
+          <td><strong>${p.name}</strong></td>
+          <td><span style="background:var(--azure);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:700;">${p.category}</span></td>
+          <td><strong style="color:var(--blue);">${formatPrice(p.price)}</strong></td>
+          <td>${p.sales || 0}</td>
+          <td>${p.featured ? '⭐ Yes' : '—'}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-outline-blue btn-sm" style="padding:4px 8px;font-size:0.75rem;" onclick="editProduct('${p.id}')">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-danger btn-sm" style="padding:4px 8px;font-size:0.75rem;" onclick="deleteProduct('${p.id}')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openProductModal() {
+      document.getElementById('product-form').reset();
+      document.getElementById('prod-id').value = '';
+      document.getElementById('modal-title').textContent = 'Add New Product';
+      document.getElementById('prod-img-preview').style.display = 'none';
+      prodImageBase64 = null;
+      document.getElementById('product-modal').classList.add('open');
+    }
+    window.openProductModal = openProductModal;
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.remove('open');
+    }
+    window.closeProductModal = closeProductModal;
+
+    async function handleProductImage(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      prodImageBase64 = await fileToBase64(file);
+      const img = document.getElementById('prod-img-preview');
+      img.src = prodImageBase64;
+      img.style.display = 'block';
+    }
+    window.handleProductImage = handleProductImage;
+
+    function editProduct(id) {
+      const p = DB.getProduct(id);
+      if (!p) return;
+
+      document.getElementById('prod-id').value = p.id;
+      document.getElementById('prod-name').value = p.name;
+      document.getElementById('prod-category').value = p.category;
+      document.getElementById('prod-price').value = p.price;
+      document.getElementById('prod-desc').value = p.description || '';
+      document.getElementById('prod-canva').value = p.canvaLink || '';
+      document.getElementById('prod-pdf').value = p.pdfLink || '';
+      document.getElementById('prod-featured').checked = !!p.featured;
+
+      const preview = document.getElementById('prod-img-preview');
+      if (p.images?.[0]) {
+        preview.src = p.images[0];
+        preview.style.display = 'block';
+        prodImageBase64 = p.images[0];
+      } else {
+        preview.style.display = 'none';
+        prodImageBase64 = null;
+      }
+
+      document.getElementById('modal-title').textContent = 'Edit Product';
+      document.getElementById('product-modal').classList.add('open');
+    }
+    window.editProduct = editProduct;
+
+    function deleteProduct(id) {
+      showConfirm({
+        icon: '🗑️',
+        iconClass: 'danger',
+        title: 'Delete Product?',
+        message: 'Are you sure you want to permanently remove this product?',
+        confirmText: 'Yes, Delete',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+          DB.deleteProduct(id);
+          renderProductsTable();
+          showToast('Product deleted', 'info');
+        }
+      });
+    }
+    window.deleteProduct = deleteProduct;
+
+    document.getElementById('product-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('prod-id').value;
+      const name = document.getElementById('prod-name').value.trim();
+      const category = document.getElementById('prod-category').value;
+      const price = Number(document.getElementById('prod-price').value);
+      const description = document.getElementById('prod-desc').value.trim();
+      const canvaLink = document.getElementById('prod-canva').value.trim();
+      const pdfLink = document.getElementById('prod-pdf').value.trim();
+      const featured = document.getElementById('prod-featured').checked;
+
+      const productData = {
+        name, category, price, description, canvaLink, pdfLink, featured,
+        status: 'active',
+      };
+
+      if (prodImageBase64) {
+        productData.images = [prodImageBase64];
+      }
+
+      if (id) {
+        DB.updateProduct(id, productData);
+        showToast('Product updated successfully! ✅', 'success');
+      } else {
+        DB.addProduct(productData);
+        showToast('Product added successfully! 🎉', 'success');
+      }
+
+      closeProductModal();
+      renderProductsTable();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProductsTable();
+    });
+  </script>
+</body>
+</html>

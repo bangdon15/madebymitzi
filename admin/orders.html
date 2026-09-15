@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Orders — MadeByMitzi Admin</title>
+  <link rel="icon" type="image/jpeg" href="../images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="../images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .admin-main {
+      margin-left: 260px;
+      padding: 36px 40px;
+      flex: 1;
+    }
+
+    .admin-table-box {
+      background: white;
+      border-radius: var(--radius-xl);
+      border: 2px solid var(--gray-200);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .status-badge.pending { background: #fef3c7; color: #92400e; }
+    .status-badge.confirmed { background: #dcfce7; color: #166534; }
+    .status-badge.rejected { background: #fee2e2; color: #991b1b; }
+
+    /* Order detail modal */
+    .receipt-modal-img {
+      max-width: 100%;
+      max-height: 360px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-300);
+      margin-top: 10px;
+      display: block;
+    }
+
+    .filter-btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 2px solid var(--gray-200);
+      background: white;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-btn.active {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    @media (max-width: 900px) {
+      .admin-sidebar { display: none; }
+      .admin-main { margin-left: 0; padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="../index.html" class="nav-logo">
+      <img src="../images/madebymitzi.jpg" alt="Mitzi"
+        style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;" />
+      MadeByMitzi <span style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Live Site</a>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-logo">🎨 MadeByMitzi</div>
+        <div class="admin-sidebar-sub">Shop Administration</div>
+      </div>
+      <div class="admin-nav">
+        <div class="admin-nav-section">Main Menu</div>
+        <a href="dashboard.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="orders.html" class="admin-nav-link active">
+          <span class="nav-icon"><i class="fas fa-shopping-bag"></i></span>
+          <span>Orders</span>
+        </a>
+        <a href="products.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-box-open"></i></span>
+          <span>Products</span>
+        </a>
+        <div class="admin-nav-section">Configuration</div>
+        <a href="settings.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-qrcode"></i></span>
+          <span>Payment QR Settings</span>
+        </a>
+      </div>
+      <div class="admin-sidebar-footer">
+        <button class="admin-logout-btn" onclick="DB.adminLogout();window.location.href='../login.html';">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Order Management</h1>
+          <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Inspect proof of payments and confirm customer orders</p>
+        </div>
+        <div class="filter-btn-group">
+          <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+          <button class="filter-btn" onclick="setFilter('pending', this)">Pending Verification</button>
+          <button class="filter-btn" onclick="setFilter('confirmed', this)">Confirmed</button>
+          <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
+        </div>
+      </div>
+
+      <div class="admin-table-box">
+        <div style="overflow-x:auto;">
+          <table class="custom-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Contact</th>
+                <th>Method</th>
+                <th>Ref #</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ORDER DETAIL MODAL -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal modal-lg">
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+      <div style="font-family:var(--font-head);font-weight:900;font-size:1.4rem;margin-bottom:6px;color:var(--gray-800);" id="m-order-id">Order ORD-...</div>
+      <div style="font-size:0.85rem;color:var(--gray-500);margin-bottom:20px;" id="m-order-date">Date</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+        <div style="background:var(--gray-50);padding:16px;border-radius:var(--radius-md);border:1px solid var(--gray-200);">
+          <h4 style="font-size:0.82rem;text-transform:uppercase;color:var(--blue);margin-bottom:8px;">Customer</h4>
+          <p><strong id="m-cust-name">—</strong></p>
+          <p id="m-cust-email">—</p>
+          <p id="m-cust-phone">—</p>
+          <p id="m-cust-notes" style="color:#d97706;font-size:0.8rem;margin-top:6px;"></p>
+        </div>
+        <div style="background:var(--gray-50);padding:16px;border-radius:var(--radius-md);border:1px solid var(--gray-200);">
+          <h4 style="font-size:0.82rem;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Payment Proof</h4>
+          <p>Method: <strong id="m-pay-method">—</strong></p>
+          <p>Reference: <strong id="m-pay-ref" style="font-family:monospace;color:var(--blue);">—</strong></p>
+          <p>Amount: <strong id="m-pay-total" style="color:var(--green);font-size:1.1rem;">₱0</strong></p>
+        </div>
+      </div>
+
+      <!-- Proof of payment screenshot -->
+      <div style="margin-bottom:20px;">
+        <h4 style="font-size:0.85rem;font-weight:800;color:var(--gray-700);margin-bottom:8px;">Uploaded Receipt / Proof of Payment:</h4>
+        <div id="m-receipt-wrap">
+          <!-- Image or note -->
+        </div>
+      </div>
+
+      <!-- Items List -->
+      <div style="margin-bottom:24px;">
+        <h4 style="font-size:0.85rem;font-weight:800;color:var(--gray-700);margin-bottom:8px;">Ordered Items:</h4>
+        <div id="m-items-list" style="max-height:160px;overflow-y:auto;background:var(--gray-50);padding:12px;border-radius:var(--radius-md);border:1px solid var(--gray-200);">
+        </div>
+      </div>
+
+      <!-- Admin Actions -->
+      <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--gray-100);padding-top:16px;">
+        <button class="btn btn-danger btn-sm" id="btn-reject" onclick="changeCurrentOrderStatus('rejected')">
+          <i class="fas fa-times"></i> Reject
+        </button>
+        <button class="btn btn-green btn-sm" id="btn-confirm" onclick="changeCurrentOrderStatus('confirmed')">
+          <i class="fas fa-check-circle"></i> Confirm Payment & Mark Verified
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    if (!DB.isAdmin()) {
+      window.location.href = '../login.html';
+    }
+
+    let activeFilter = 'all';
+    let selectedOrder = null;
+
+    function setFilter(f, btn) {
+      activeFilter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderOrders();
+    }
+    window.setFilter = setFilter;
+
+    function renderOrders() {
+      const orders = DB.getOrders();
+      const filtered = activeFilter === 'all' ? orders : orders.filter(o => o.status === activeFilter);
+      const tbody = document.getElementById('orders-tbody');
+      tbody.innerHTML = '';
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--gray-400);">No orders found for this filter.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${o.id}</strong></td>
+          <td>${new Date(o.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}</td>
+          <td>${o.customer?.name || 'Customer'}</td>
+          <td>${o.customer?.phone || o.customer?.email || '—'}</td>
+          <td>${(o.paymentMethod || 'GCash').toUpperCase()}</td>
+          <td style="font-family:monospace;font-size:0.8rem;">${o.refNumber || '—'}</td>
+          <td><strong style="color:var(--blue);">${formatPrice(o.total)}</strong></td>
+          <td><span class="status-badge ${o.status}">${o.status}</span></td>
+          <td>
+            <button class="btn btn-blue btn-sm" style="padding:4px 10px;font-size:0.75rem;" onclick="inspectOrder('${o.id}')">
+              <i class="fas fa-eye"></i> View
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function inspectOrder(id) {
+      selectedOrder = DB.getOrder(id);
+      if (!selectedOrder) return;
+
+      document.getElementById('m-order-id').textContent = selectedOrder.id;
+      document.getElementById('m-order-date').textContent = new Date(selectedOrder.createdAt).toLocaleString('en-PH');
+      document.getElementById('m-cust-name').textContent = selectedOrder.customer?.name || '—';
+      document.getElementById('m-cust-email').textContent = selectedOrder.customer?.email || '—';
+      document.getElementById('m-cust-phone').textContent = selectedOrder.customer?.phone || '—';
+      document.getElementById('m-cust-notes').textContent = selectedOrder.customer?.notes ? `Note: ${selectedOrder.customer.notes}` : '';
+
+      document.getElementById('m-pay-method').textContent = (selectedOrder.paymentMethod || 'GCash').toUpperCase();
+      document.getElementById('m-pay-ref').textContent = selectedOrder.refNumber || '—';
+      document.getElementById('m-pay-total').textContent = formatPrice(selectedOrder.total);
+
+      const rWrap = document.getElementById('m-receipt-wrap');
+      if (selectedOrder.receiptImage) {
+        rWrap.innerHTML = `<img src="${selectedOrder.receiptImage}" class="receipt-modal-img" alt="Proof of payment" />`;
+      } else {
+        rWrap.innerHTML = `<div style="padding:16px;background:var(--gray-100);border-radius:var(--radius-md);color:var(--gray-500);font-size:0.85rem;">No screenshot attached. Reference Number provided: <strong>${selectedOrder.refNumber}</strong></div>`;
+      }
+
+      const itemsList = document.getElementById('m-items-list');
+      itemsList.innerHTML = '';
+      (selectedOrder.items || []).forEach(item => {
+        itemsList.innerHTML += `
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+            <span>${item.name} × ${item.qty}</span>
+            <strong style="color:var(--blue);">${formatPrice(item.price * item.qty)}</strong>
+          </div>
+        `;
+      });
+
+      document.getElementById('order-modal').classList.add('open');
+    }
+    window.inspectOrder = inspectOrder;
+
+    function closeOrderModal() {
+      document.getElementById('order-modal').classList.remove('open');
+    }
+    window.closeOrderModal = closeOrderModal;
+
+    function changeCurrentOrderStatus(status) {
+      if (!selectedOrder) return;
+      DB.updateOrderStatus(selectedOrder.id, status);
+      showToast(`Order status updated to ${status}!`, 'success');
+      closeOrderModal();
+      renderOrders();
+    }
+    window.changeCurrentOrderStatus = changeCurrentOrderStatus;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderOrders();
+
+      const urlId = new URLSearchParams(window.location.search).get('id');
+      if (urlId) {
+        inspectOrder(urlId);
+      }
+    });
+  </script>
+</body>
+</html>

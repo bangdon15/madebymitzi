@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — MadeByMitzi</title>
+  <link rel="icon" type="image/jpeg" href="../images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="../images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .admin-main {
+      margin-left: 260px;
+      padding: 36px 40px;
+      flex: 1;
+      min-height: calc(100vh - var(--nav-h));
+    }
+
+    .admin-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .admin-page-title {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: 1.8rem;
+      color: var(--gray-800);
+    }
+
+    .stat-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card-box {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 2px solid var(--gray-200);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .stat-icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-md);
+      display: grid;
+      place-items: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .stat-num-val {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: 1.7rem;
+      color: var(--gray-800);
+      line-height: 1.1;
+    }
+
+    .stat-label-text {
+      font-size: 0.82rem;
+      color: var(--gray-500);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .admin-table-box {
+      background: white;
+      border-radius: var(--radius-xl);
+      border: 2px solid var(--gray-200);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .table-header-bar {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .table-header-bar h3 {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--gray-800);
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .custom-table th {
+      background: var(--gray-50);
+      padding: 14px 20px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .custom-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 0.88rem;
+      color: var(--gray-700);
+    }
+
+    .custom-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .status-badge.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-badge.confirmed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-badge.rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    @media (max-width: 900px) {
+      .admin-sidebar {
+        display: none;
+      }
+      .admin-main {
+        margin-left: 0;
+        padding: 20px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="../index.html" class="nav-logo">
+      <img src="../images/madebymitzi.jpg" alt="Mitzi"
+        style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;" />
+      MadeByMitzi <span style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Live Site</a>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-logo">🎨 MadeByMitzi</div>
+        <div class="admin-sidebar-sub">Shop Administration</div>
+      </div>
+      <div class="admin-nav">
+        <div class="admin-nav-section">Main Menu</div>
+        <a href="dashboard.html" class="admin-nav-link active">
+          <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="orders.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-shopping-bag"></i></span>
+          <span>Orders</span>
+          <span class="nav-badge" id="pending-badge" style="display:none;">0</span>
+        </a>
+        <a href="products.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-box-open"></i></span>
+          <span>Products</span>
+        </a>
+        <div class="admin-nav-section">Configuration</div>
+        <a href="settings.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-qrcode"></i></span>
+          <span>Payment QR Settings</span>
+        </a>
+      </div>
+      <div class="admin-sidebar-footer">
+        <button class="admin-logout-btn" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-header-row">
+        <div>
+          <h1 class="admin-page-title">Store Dashboard 👋</h1>
+          <p style="color:var(--gray-500);font-size:0.95rem;margin-top:4px;">Here is what's happening in your shop today</p>
+        </div>
+        <a href="orders.html" class="btn btn-blue btn-sm">
+          <i class="fas fa-clipboard-check"></i> Manage Pending Orders
+        </a>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stat-cards-grid">
+        <div class="stat-card-box">
+          <div class="stat-icon-wrap" style="background:#ecfdf5;color:var(--green);">
+            <i class="fas fa-peso-sign"></i>
+          </div>
+          <div>
+            <div class="stat-num-val" id="stat-earnings">₱0</div>
+            <div class="stat-label-text">Verified Earnings</div>
+          </div>
+        </div>
+
+        <div class="stat-card-box">
+          <div class="stat-icon-wrap" style="background:#eff6ff;color:var(--blue);">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div>
+            <div class="stat-num-val" id="stat-confirmed-orders">0</div>
+            <div class="stat-label-text">Confirmed Orders</div>
+          </div>
+        </div>
+
+        <div class="stat-card-box">
+          <div class="stat-icon-wrap" style="background:#fef3c7;color:#d97706;">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <div class="stat-num-val" id="stat-pending-orders">0</div>
+            <div class="stat-label-text">Pending Verification</div>
+          </div>
+        </div>
+
+        <div class="stat-card-box">
+          <div class="stat-icon-wrap" style="background:#f5f3ff;color:#7c3aed;">
+            <i class="fas fa-tags"></i>
+          </div>
+          <div>
+            <div class="stat-num-val" id="stat-total-products">0</div>
+            <div class="stat-label-text">Active Products</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders Table -->
+      <div class="admin-table-box">
+        <div class="table-header-bar">
+          <h3>Recent Customer Orders</h3>
+          <a href="orders.html" class="btn btn-outline-blue btn-sm">View All Orders →</a>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Payment</th>
+                <th>Ref #</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="recent-orders-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    if (!DB.isAdmin()) {
+      window.location.href = '../login.html';
+    }
+
+    function handleLogout() {
+      DB.adminLogout();
+      window.location.href = '../login.html';
+    }
+    window.handleLogout = handleLogout;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const orders = DB.getOrders();
+      const products = DB.getProducts();
+      const earnings = DB.getEarnings();
+
+      document.getElementById('stat-earnings').textContent = formatPrice(earnings.total);
+      document.getElementById('stat-confirmed-orders').textContent = earnings.confirmed;
+      document.getElementById('stat-pending-orders').textContent = orders.filter(o => o.status === 'pending').length;
+      document.getElementById('stat-total-products').textContent = products.length;
+
+      const pendingCount = orders.filter(o => o.status === 'pending').length;
+      if (pendingCount > 0) {
+        const badge = document.getElementById('pending-badge');
+        badge.textContent = pendingCount;
+        badge.style.display = 'inline-block';
+      }
+
+      const tbody = document.getElementById('recent-orders-tbody');
+      tbody.innerHTML = '';
+
+      if (!orders.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray-400);">No orders placed yet.</td></tr>`;
+        return;
+      }
+
+      orders.slice(0, 5).forEach(o => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${o.id}</strong></td>
+          <td>${o.customer?.name || 'Customer'}</td>
+          <td>${(o.paymentMethod || 'GCash').toUpperCase()}</td>
+          <td style="font-family:monospace;font-size:0.82rem;">${o.refNumber || '—'}</td>
+          <td><strong style="color:var(--blue);">${formatPrice(o.total)}</strong></td>
+          <td><span class="status-badge ${o.status}">${o.status}</span></td>
+          <td>
+            <a href="orders.html?id=${o.id}" class="btn btn-outline-blue btn-sm" style="padding:4px 10px;font-size:0.75rem;">Inspect</a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
+</body>
+</html>
