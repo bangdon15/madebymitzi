@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Settings — MadeByMitzi Admin</title>
+  <link rel="icon" type="image/jpeg" href="../images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="../images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .admin-main {
+      margin-left: 260px;
+      padding: 36px 40px;
+      flex: 1;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 24px;
+    }
+
+    .settings-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      border: 2px solid var(--gray-200);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .settings-card-title {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--gray-100);
+    }
+
+    .qr-preview-box {
+      border: 2px dashed var(--gray-300);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      background: var(--gray-50);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .qr-preview-box:hover {
+      border-color: var(--blue);
+      background: #eff6ff;
+    }
+
+    .qr-current-img {
+      max-width: 180px;
+      max-height: 180px;
+      margin: 0 auto 12px;
+      border-radius: var(--radius-md);
+      display: block;
+      border: 1px solid var(--gray-300);
+      box-shadow: var(--shadow-sm);
+    }
+
+    @media (max-width: 960px) {
+      .settings-grid { grid-template-columns: 1fr; }
+      .admin-sidebar { display: none; }
+      .admin-main { margin-left: 0; padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="../index.html" class="nav-logo">
+      <img src="../images/madebymitzi.jpg" alt="Mitzi"
+        style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;" />
+      MadeByMitzi <span style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Live Site</a>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-logo">🎨 MadeByMitzi</div>
+        <div class="admin-sidebar-sub">Shop Administration</div>
+      </div>
+      <div class="admin-nav">
+        <div class="admin-nav-section">Main Menu</div>
+        <a href="dashboard.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="orders.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-shopping-bag"></i></span>
+          <span>Orders</span>
+        </a>
+        <a href="products.html" class="admin-nav-link">
+          <span class="nav-icon"><i class="fas fa-box-open"></i></span>
+          <span>Products</span>
+        </a>
+        <div class="admin-nav-section">Configuration</div>
+        <a href="settings.html" class="admin-nav-link active">
+          <span class="nav-icon"><i class="fas fa-qrcode"></i></span>
+          <span>Payment QR Settings</span>
+        </a>
+      </div>
+      <div class="admin-sidebar-footer">
+        <button class="admin-logout-btn" onclick="DB.adminLogout();window.location.href='../login.html';">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div>
+        <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Payment Image Settings</h1>
+        <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Upload & update replaceable QR code images and account details for GCash and Bank Transfer</p>
+      </div>
+
+      <div class="settings-grid">
+        
+        <!-- GCash Settings -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <i class="fas fa-mobile-alt" style="color:var(--blue);"></i>
+            <span>GCash Payment Settings</span>
+          </div>
+
+          <label class="form-label">GCash QR Code Image (Replaceable)</label>
+          <div class="qr-preview-box" onclick="document.getElementById('gcash-file').click()">
+            <input type="file" id="gcash-file" accept="image/*" style="display:none;" onchange="handleGcashImageUpload(event)" />
+            <img id="gcash-preview" class="qr-current-img" style="display:none;" alt="GCash QR" />
+            <div id="gcash-placeholder-text">
+              <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--blue);margin-bottom:6px;"></i>
+              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New GCash QR Code</div>
+              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">GCash Account Name</label>
+            <input type="text" id="gcash-name" class="form-input" placeholder="e.g. MadeByMitzi (Mitzi)" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">GCash Mobile Number</label>
+            <input type="text" id="gcash-number" class="form-input" placeholder="e.g. 0917-123-4567" />
+          </div>
+
+          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveGcashSettings()">
+            <i class="fas fa-save"></i> Save GCash Settings
+          </button>
+        </div>
+
+        <!-- Bank Transfer Settings -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <i class="fas fa-university" style="color:var(--green);"></i>
+            <span>Bank Transfer Settings</span>
+          </div>
+
+          <label class="form-label">Bank QR Code or Details Image (Replaceable)</label>
+          <div class="qr-preview-box" onclick="document.getElementById('bank-file').click()">
+            <input type="file" id="bank-file" accept="image/*" style="display:none;" onchange="handleBankImageUpload(event)" />
+            <img id="bank-preview" class="qr-current-img" style="display:none;" alt="Bank QR" />
+            <div id="bank-placeholder-text">
+              <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--green);margin-bottom:6px;"></i>
+              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New Bank QR / Details Image</div>
+              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Bank Name</label>
+            <input type="text" id="bank-name" class="form-input" placeholder="e.g. BDO / BPI / UnionBank" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Account Holder Name</label>
+            <input type="text" id="bank-account" class="form-input" placeholder="e.g. Mitzi Santos" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Account Number</label>
+            <input type="text" id="bank-number" class="form-input" placeholder="e.g. 1234-5678-9012" />
+          </div>
+
+          <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveBankSettings()">
+            <i class="fas fa-save"></i> Save Bank Settings
+          </button>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    if (!DB.isAdmin()) {
+      window.location.href = '../login.html';
+    }
+
+    let gcashImageBase64 = null;
+    let bankImageBase64 = null;
+
+    function loadCurrentSettings() {
+      const settings = DB.getSettings();
+      document.getElementById('gcash-name').value = settings.gcashName || '';
+      document.getElementById('gcash-number').value = settings.gcashNumber || '';
+      document.getElementById('bank-name').value = settings.bankName || '';
+      document.getElementById('bank-account').value = settings.bankAccount || '';
+      document.getElementById('bank-number').value = settings.bankNumber || '';
+
+      if (settings.gcashImage) {
+        gcashImageBase64 = settings.gcashImage;
+        const img = document.getElementById('gcash-preview');
+        img.src = settings.gcashImage;
+        img.style.display = 'block';
+        document.getElementById('gcash-placeholder-text').innerHTML = '<div style="font-size:0.78rem;color:var(--blue);font-weight:700;">Click to change current QR</div>';
+      }
+
+      if (settings.bankImage) {
+        bankImageBase64 = settings.bankImage;
+        const img = document.getElementById('bank-preview');
+        img.src = settings.bankImage;
+        img.style.display = 'block';
+        document.getElementById('bank-placeholder-text').innerHTML = '<div style="font-size:0.78rem;color:var(--green);font-weight:700;">Click to change current QR</div>';
+      }
+    }
+
+    async function handleGcashImageUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      gcashImageBase64 = await fileToBase64(file);
+      const img = document.getElementById('gcash-preview');
+      img.src = gcashImageBase64;
+      img.style.display = 'block';
+      showToast('New GCash QR image loaded! Click Save to apply.', 'info');
+    }
+    window.handleGcashImageUpload = handleGcashImageUpload;
+
+    async function handleBankImageUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      bankImageBase64 = await fileToBase64(file);
+      const img = document.getElementById('bank-preview');
+      img.src = bankImageBase64;
+      img.style.display = 'block';
+      showToast('New Bank QR image loaded! Click Save to apply.', 'info');
+    }
+    window.handleBankImageUpload = handleBankImageUpload;
+
+    function saveGcashSettings() {
+      const gcashName = document.getElementById('gcash-name').value.trim();
+      const gcashNumber = document.getElementById('gcash-number').value.trim();
+
+      DB.saveSettings({
+        gcashName,
+        gcashNumber,
+        gcashImage: gcashImageBase64,
+      });
+
+      showToast('GCash settings updated successfully! ✅', 'success');
+    }
+    window.saveGcashSettings = saveGcashSettings;
+
+    function saveBankSettings() {
+      const bankName = document.getElementById('bank-name').value.trim();
+      const bankAccount = document.getElementById('bank-account').value.trim();
+      const bankNumber = document.getElementById('bank-number').value.trim();
+
+      DB.saveSettings({
+        bankName,
+        bankAccount,
+        bankNumber,
+        bankImage: bankImageBase64,
+      });
+
+      showToast('Bank settings updated successfully! ✅', 'success');
+    }
+    window.saveBankSettings = saveBankSettings;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCurrentSettings();
+    });
+  </script>
+</body>
+</html>

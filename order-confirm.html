@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmation — MadeByMitzi 🎉</title>
+  <meta name="description" content="Thank you for your order at MadeByMitzi! Your designs are being processed." />
+  <link rel="icon" type="image/jpeg" href="images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .confirm-wrap {
+      padding: 50px 0 90px;
+      background: var(--gray-50);
+      min-height: 70vh;
+    }
+
+    .confirm-box {
+      background: white;
+      border-radius: var(--radius-xl);
+      border: 2px solid var(--gray-200);
+      box-shadow: var(--shadow-md);
+      max-width: 780px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .confirm-hero {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      color: white;
+      text-align: center;
+      padding: 48px 24px;
+      position: relative;
+    }
+
+    .confirm-badge-icon {
+      width: 80px;
+      height: 80px;
+      background: white;
+      color: var(--green);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 2.5rem;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .confirm-hero h1 {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .confirm-hero p {
+      opacity: 0.9;
+      font-size: 1.05rem;
+    }
+
+    .order-id-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+      font-family: var(--font-head);
+      margin-top: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Stepper */
+    .timeline-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 28px 36px;
+      background: var(--gray-100);
+      border-bottom: 2px solid var(--gray-200);
+      text-align: center;
+      gap: 16px;
+    }
+
+    .t-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .t-step-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      color: var(--gray-400);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      border: 2px solid var(--gray-300);
+    }
+
+    .t-step.done .t-step-icon {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    .t-step.current .t-step-icon {
+      background: var(--yellow);
+      color: var(--blue-dark);
+      border-color: var(--yellow-dark);
+      animation: pulse 2s infinite;
+    }
+
+    .t-step-title {
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--gray-800);
+    }
+
+    .t-step-sub {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      margin-top: 2px;
+    }
+
+    /* Details Area */
+    .confirm-body {
+      padding: 36px;
+    }
+
+    .info-block-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .info-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+    }
+
+    .info-card h4 {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .info-card p {
+      font-size: 0.88rem;
+      color: var(--gray-700);
+      margin-bottom: 4px;
+    }
+
+    /* Items Table */
+    .ordered-item-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .ordered-item-row:last-child {
+      border-bottom: none;
+    }
+
+    .ordered-item-img {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--gray-100);
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+      .timeline-steps {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+      }
+      .info-block-grid {
+        grid-template-columns: 1fr;
+      }
+      .confirm-body {
+        padding: 20px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container"></div>
+  <canvas id="confetti-canvas" style="display:none;"></canvas>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="images/madebymitzi.jpg" alt="Mitzi"
+        style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;image-rendering:pixelated;" />
+      MadeByMitzi
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="index.html#how-it-works">How It Works</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+    <div class="nav-actions">
+      <a href="cart.html" class="cart-btn" title="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="cart-badge">0</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="confirm-wrap">
+    <div class="container">
+      <div class="confirm-box" id="confirm-card">
+        
+        <!-- Hero Banner -->
+        <div class="confirm-hero">
+          <div class="confirm-badge-icon">
+            <i class="fas fa-check"></i>
+          </div>
+          <h1>Salamat! Order Placed! 🎉</h1>
+          <p>We received your order and payment proof. Designer Mitzi is on it!</p>
+          <div class="order-id-tag" id="order-id-display">Loading...</div>
+        </div>
+
+        <!-- Timeline Steps -->
+        <div class="timeline-steps">
+          <div class="t-step done">
+            <div class="t-step-icon"><i class="fas fa-check"></i></div>
+            <div class="t-step-title">Order Placed</div>
+            <div class="t-step-sub">Receipt submitted</div>
+          </div>
+          <div class="t-step current" id="step-verify">
+            <div class="t-step-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="t-step-title">Payment Verification</div>
+            <div class="t-step-sub">Under admin review</div>
+          </div>
+          <div class="t-step" id="step-deliver">
+            <div class="t-step-icon"><i class="fas fa-download"></i></div>
+            <div class="t-step-title">Design Delivery</div>
+            <div class="t-step-sub">Sent via email/Canva</div>
+          </div>
+        </div>
+
+        <!-- Order Details Body -->
+        <div class="confirm-body">
+          
+          <div class="info-block-grid">
+            <div class="info-card">
+              <h4><i class="fas fa-user"></i> Customer Info</h4>
+              <p><strong id="cust-name-val">—</strong></p>
+              <p id="cust-email-val"><i class="fas fa-envelope"></i> —</p>
+              <p id="cust-phone-val"><i class="fas fa-phone"></i> —</p>
+              <p id="cust-notes-val" style="color:var(--gray-600);font-size:0.8rem;margin-top:4px;"></p>
+            </div>
+
+            <div class="info-card">
+              <h4><i class="fas fa-credit-card"></i> Payment Details</h4>
+              <p>Method: <strong id="pay-method-val">—</strong></p>
+              <p>Reference: <strong id="ref-num-val" style="color:var(--blue);font-family:monospace;">—</strong></p>
+              <p>Status: <span id="status-val" style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;font-weight:700;font-size:0.75rem;">Pending Verification</span></p>
+              <p>Total Paid: <strong id="total-val" style="color:var(--green);font-size:1.1rem;">₱0</strong></p>
+            </div>
+          </div>
+
+          <!-- Items Ordered -->
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.05rem;color:var(--gray-800);margin-bottom:12px;">
+            <i class="fas fa-box-open" style="color:var(--blue);"></i> Items in this Order
+          </h3>
+
+          <div id="ordered-items-list">
+            <!-- Dynamic -->
+          </div>
+
+          <!-- Actions -->
+          <div class="confirm-actions">
+            <a href="shop.html" class="btn btn-primary btn-lg">
+              <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+            <a href="index.html" class="btn btn-outline-blue btn-lg">
+              <i class="fas fa-home"></i> Back to Home
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      launchConfetti(3500);
+
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get('id');
+
+      let order = null;
+      if (orderId) {
+        order = DB.getOrder(orderId);
+      } else {
+        const orders = DB.getOrders();
+        order = orders[0] || null;
+      }
+
+      if (!order) {
+        document.getElementById('order-id-display').textContent = 'Order Not Found';
+        return;
+      }
+
+      document.getElementById('order-id-display').textContent = `Order ID: ${order.id}`;
+      document.getElementById('cust-name-val').textContent = order.customer?.name || 'Valued Customer';
+      document.getElementById('cust-email-val').textContent = order.customer?.email || '';
+      document.getElementById('cust-phone-val').textContent = order.customer?.phone || '';
+      if (order.customer?.notes) {
+        document.getElementById('cust-notes-val').textContent = `Note: ${order.customer.notes}`;
+      }
+
+      document.getElementById('pay-method-val').textContent = (order.paymentMethod || 'GCash').toUpperCase();
+      document.getElementById('ref-num-val').textContent = order.refNumber || 'N/A';
+      document.getElementById('total-val').textContent = formatPrice(order.total);
+
+      const statusEl = document.getElementById('status-val');
+      if (order.status === 'confirmed') {
+        statusEl.textContent = 'Confirmed & Verified ✅';
+        statusEl.style.background = '#dcfce7';
+        statusEl.style.color = '#166534';
+        document.getElementById('step-verify').className = 't-step done';
+        document.getElementById('step-deliver').className = 't-step current';
+      }
+
+      const itemsList = document.getElementById('ordered-items-list');
+      itemsList.innerHTML = '';
+      (order.items || []).forEach((item, idx) => {
+        const product = DB.getProduct(item.productId);
+        const category = product ? product.category : 'Digital';
+        const imgSrc = item.image && !item.image.includes('placeholder')
+          ? item.image
+          : getPlaceholderSVG(category, idx);
+
+        const row = document.createElement('div');
+        row.className = 'ordered-item-row';
+        row.innerHTML = `
+          <img src="${imgSrc}" alt="${item.name}" class="ordered-item-img" onerror="this.src='${getPlaceholderSVG(category, idx)}'" />
+          <div style="flex:1;">
+            <div style="font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:var(--gray-800);">${item.name}</div>
+            <div style="font-size:0.8rem;color:var(--gray-600);">Qty: ${item.qty} × ${formatPrice(item.price)}</div>
+          </div>
+          <div style="font-family:var(--font-head);font-weight:800;color:var(--blue);font-size:1rem;">
+            ${formatPrice(item.price * item.qty)}
+          </div>
+        `;
+        itemsList.appendChild(row);
+      });
+    });
+  </script>
+</body>
+</html>

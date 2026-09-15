@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — MadeByMitzi 🔐</title>
+  <link rel="icon" type="image/jpeg" href="images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 50%, var(--teal) 100%);
+      position: relative;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 40px clamp(24px, 5vw, 48px);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--yellow);
+      margin: 0 auto 12px;
+      display: block;
+      box-shadow: var(--shadow-yellow);
+    }
+
+    .login-brand h1 {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--gray-800);
+    }
+
+    .login-brand p {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-top: 4px;
+    }
+
+    .input-icon-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .input-icon-wrap i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+    }
+
+    .input-icon-wrap input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    .input-icon-wrap input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(15,82,186,0.15);
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+      font-weight: 600;
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 10;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: var(--radius-pill);
+      transition: var(--transition);
+    }
+
+    .back-home:hover {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container"></div>
+
+  <div class="login-wrapper">
+    <a href="index.html" class="back-home">
+      <i class="fas fa-arrow-left"></i> Return to Shop
+    </a>
+
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="images/madebymitzi.jpg" alt="MadeByMitzi" class="login-logo-img" />
+        <h1>Admin Portal</h1>
+        <p>Sign in to manage orders, products & payments</p>
+      </div>
+
+      <form id="admin-login-form">
+        <div class="input-icon-wrap">
+          <i class="fas fa-user"></i>
+          <input type="text" id="admin-user" placeholder="Username" required autocomplete="username" />
+        </div>
+
+        <div class="input-icon-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="admin-pass" placeholder="Password" required autocomplete="current-password" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:10px;">
+          <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+        </button>
+      </form>
+
+      <div style="margin-top:24px;text-align:center;font-size:0.8rem;color:var(--gray-400);">
+        MadeByMitzi Digital Store Management System
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = document.getElementById('admin-user').value.trim();
+      const pass = document.getElementById('admin-pass').value.trim();
+
+      if (DB.adminLogin(user, pass)) {
+        showToast('Login successful! Welcome Mitzi 👋', 'success');
+        setTimeout(() => {
+          window.location.href = 'admin/dashboard.html';
+        }, 800);
+      } else {
+        showToast('Invalid username or password', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

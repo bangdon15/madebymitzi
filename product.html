@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details — MadeByMitzi ✨</title>
+  <meta name="description" content="View product details, customization options, and customer reviews at MadeByMitzi." />
+  <link rel="icon" type="image/jpeg" href="images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .product-detail-wrap {
+      padding: 40px 0 80px;
+      background: var(--gray-50);
+      min-height: 70vh;
+    }
+
+    .product-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 48px;
+      background: white;
+      border-radius: var(--radius-xl);
+      border: 2px solid var(--gray-200);
+      padding: 40px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 48px;
+    }
+
+    /* Gallery */
+    .product-gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .main-img-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--gray-100);
+      border: 2px solid var(--gray-200);
+      position: relative;
+      cursor: zoom-in;
+    }
+
+    .main-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .main-img-wrap:hover img {
+      transform: scale(1.05);
+    }
+
+    /* Info */
+    .product-info-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .p-category-pill {
+      display: inline-block;
+      align-self: flex-start;
+      background: var(--azure);
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 4px 14px;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .p-title {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: 2rem;
+      color: var(--gray-800);
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .p-rating-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .p-price {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: 2.2rem;
+      color: var(--blue);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .p-desc {
+      color: var(--gray-600);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+      border-top: 1px solid var(--gray-100);
+      border-bottom: 1px solid var(--gray-100);
+      padding: 20px 0;
+    }
+
+    .qty-select-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .p-action-btns {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-buy-now {
+      background: var(--green);
+      color: white;
+      box-shadow: var(--shadow-green);
+    }
+
+    .btn-buy-now:hover {
+      background: var(--green-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Product highlights */
+    .p-highlights {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .highlight-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--gray-700);
+      font-weight: 600;
+    }
+
+    .highlight-item i {
+      color: var(--green);
+      font-size: 1.1rem;
+    }
+
+    /* Reviews section */
+    .product-reviews-box {
+      background: white;
+      border-radius: var(--radius-xl);
+      border: 2px solid var(--gray-200);
+      padding: 36px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .reviews-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--gray-100);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .leave-review-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .star-select-btn {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: var(--gray-300);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .star-select-btn.active, .star-select-btn:hover {
+      color: var(--yellow);
+    }
+
+    @media (max-width: 900px) {
+      .product-detail-grid {
+        grid-template-columns: 1fr;
+        padding: 24px;
+        gap: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="images/madebymitzi.jpg" alt="Mitzi"
+        style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;image-rendering:pixelated;" />
+      MadeByMitzi
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="index.html#how-it-works">How It Works</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+    <div class="nav-actions">
+      <a href="cart.html" class="cart-btn" title="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="cart-badge">0</span>
+      </a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+    <a href="shop.html"><i class="fas fa-store"></i> Shop</a>
+    <a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+  </nav>
+
+  <!-- PAGE HEADER / BREADCRUMB -->
+  <div class="page-header" style="padding-bottom:28px;">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span>›</span>
+      <a href="shop.html">Shop</a>
+      <span>›</span>
+      <span id="breadcrumb-prod-name">Product Details</span>
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAIL SECTION -->
+  <div class="product-detail-wrap">
+    <div class="container">
+      
+      <div class="product-detail-grid" id="product-container">
+        
+        <!-- Left: Image Gallery -->
+        <div class="product-gallery">
+          <div class="main-img-wrap">
+            <img id="p-main-img" src="" alt="Product" />
+          </div>
+        </div>
+
+        <!-- Right: Details -->
+        <div class="product-info-col">
+          <span class="p-category-pill" id="p-cat-pill">Category</span>
+          <h1 class="p-title" id="p-title">Product Title</h1>
+          
+          <div class="p-rating-bar">
+            <span id="p-stars"></span>
+            <span style="font-weight:700;font-size:0.9rem;color:var(--gray-600);" id="p-rating-score">5.0 (0 reviews)</span>
+          </div>
+
+          <div class="p-price">
+            <span id="p-price-val">₱0</span>
+            <span style="font-size:0.8rem;background:#ecfdf5;color:#065f46;padding:4px 10px;border-radius:var(--radius-pill);font-weight:700;">Digital Delivery / Printable</span>
+          </div>
+
+          <p class="p-desc" id="p-description">
+            Product description will appear here.
+          </p>
+
+          <div class="qty-select-row">
+            <span style="font-weight:700;color:var(--gray-700);font-size:0.92rem;">Quantity:</span>
+            <div class="cart-qty-ctrl">
+              <button class="cart-qty-btn" id="btn-qty-minus" onclick="adjustProductQty(-1)">−</button>
+              <span class="cart-qty-val" id="qty-input">1</span>
+              <button class="cart-qty-btn" id="btn-qty-plus" onclick="adjustProductQty(1)">+</button>
+            </div>
+          </div>
+
+          <div class="p-action-btns">
+            <button class="btn btn-primary btn-lg" onclick="handleDetailPageAddToCart()">
+              <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+            <button class="btn btn-buy-now btn-lg" onclick="handleDetailPageBuyNow()">
+              <i class="fas fa-bolt"></i> Buy Now
+            </button>
+          </div>
+
+          <div class="p-highlights">
+            <div class="highlight-item">
+              <i class="fas fa-magic"></i> High-resolution & customizable
+            </div>
+            <div class="highlight-item">
+              <i class="fas fa-bolt"></i> Instant access upon confirmation
+            </div>
+            <div class="highlight-item">
+              <i class="fas fa-file-pdf"></i> Printable PDF + Canva link
+            </div>
+            <div class="highlight-item">
+              <i class="fas fa-heart"></i> Made with love by Mitzi
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Customer Reviews for this Product -->
+      <div class="product-reviews-box">
+        <div class="reviews-top-bar">
+          <div>
+            <h2 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--gray-800);margin-bottom:4px;">
+              ⭐ Customer Reviews
+            </h2>
+            <div style="font-size:0.88rem;color:var(--gray-500);" id="review-count-header">Showing all verified feedback</div>
+          </div>
+          <button class="btn btn-outline-blue btn-sm" onclick="toggleReviewForm()">
+            <i class="fas fa-pen"></i> Write a Review
+          </button>
+        </div>
+
+        <!-- Write Review Form (Collapsible) -->
+        <div class="leave-review-card" id="leave-review-card" style="display:none;">
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.05rem;color:var(--gray-800);margin-bottom:12px;">
+            Write Your Review
+          </h3>
+          <form id="review-form">
+            <div style="margin-bottom:14px;">
+              <label style="display:block;font-weight:700;font-size:0.85rem;margin-bottom:6px;">Your Rating:</label>
+              <div id="star-picker">
+                <button type="button" class="star-select-btn active" onclick="setRating(1)">★</button>
+                <button type="button" class="star-select-btn active" onclick="setRating(2)">★</button>
+                <button type="button" class="star-select-btn active" onclick="setRating(3)">★</button>
+                <button type="button" class="star-select-btn active" onclick="setRating(4)">★</button>
+                <button type="button" class="star-select-btn active" onclick="setRating(5)">★</button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+              <div>
+                <label class="form-label">Your Name *</label>
+                <input type="text" id="rev-name" class="form-input" placeholder="e.g. Christine M." required />
+              </div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label class="form-label">Your Feedback *</label>
+              <textarea id="rev-text" class="form-textarea" rows="3" placeholder="What did you love about this design?" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-green btn-sm">
+              <i class="fas fa-paper-plane"></i> Submit Review
+            </button>
+          </form>
+        </div>
+
+        <!-- Reviews Grid -->
+        <div class="reviews-grid" id="product-reviews-grid">
+          <!-- Dynamically populated -->
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">MadeByMitzi</div>
+        <p>Premium sticker designs and birthday invitation designs made with love.</p>
+      </div>
+      <div>
+        <div class="footer-heading">Shop</div>
+        <div class="footer-links">
+          <a href="shop.html?cat=Stickers">Stickers</a>
+          <a href="shop.html?cat=Invitations">Invitations</a>
+          <a href="shop.html?cat=Sticker%20(File%20only)">Sticker (File only)</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="cart.html">Cart</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Admin</div>
+        <a href="login.html" style="color:rgba(255,255,255,0.5);font-size:0.82rem;">Admin Login →</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MadeByMitzi. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let currentProduct = null;
+    let selectedQty = 1;
+    let selectedRating = 5;
+
+    function adjustProductQty(delta) {
+      selectedQty = Math.max(1, selectedQty + delta);
+      document.getElementById('qty-input').textContent = selectedQty;
+    }
+    window.adjustProductQty = adjustProductQty;
+
+    function setRating(r) {
+      selectedRating = r;
+      const btns = document.querySelectorAll('.star-select-btn');
+      btns.forEach((btn, idx) => {
+        btn.classList.toggle('active', idx < r);
+      });
+    }
+    window.setRating = setRating;
+
+    function toggleReviewForm() {
+      const form = document.getElementById('leave-review-card');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+    window.toggleReviewForm = toggleReviewForm;
+
+    function handleDetailPageAddToCart() {
+      if (!currentProduct) return;
+      handleAddToCart(currentProduct.id, selectedQty);
+    }
+    window.handleDetailPageAddToCart = handleDetailPageAddToCart;
+
+    function handleDetailPageBuyNow() {
+      if (!currentProduct) return;
+      DB.addToCart(currentProduct.id, selectedQty);
+      updateCartBadge();
+      window.location.href = 'checkout.html';
+    }
+    window.handleDetailPageBuyNow = handleDetailPageBuyNow;
+
+    function loadProduct() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id') || 'prod_001';
+      currentProduct = DB.getProduct(id);
+
+      if (!currentProduct) {
+        currentProduct = DB.getProducts()[0];
+      }
+
+      document.getElementById('breadcrumb-prod-name').textContent = currentProduct.name;
+      document.getElementById('p-title').textContent = currentProduct.name;
+      document.getElementById('p-cat-pill').textContent = currentProduct.category;
+      document.getElementById('p-price-val').textContent = formatPrice(currentProduct.price);
+      document.getElementById('p-description').textContent = currentProduct.description || 'Premium customizable digital design.';
+
+      const imgSrc = currentProduct.images?.[0] && !currentProduct.images[0].includes('placeholder')
+        ? currentProduct.images[0]
+        : getPlaceholderSVG(currentProduct.category, 0);
+      document.getElementById('p-main-img').src = imgSrc;
+
+      const { avg, count } = DB.getAvgRating(currentProduct.id);
+      document.getElementById('p-stars').innerHTML = renderStars(avg);
+      document.getElementById('p-rating-score').textContent = `${avg > 0 ? avg : '5.0'} (${count} review${count !== 1 ? 's' : ''})`;
+
+      renderReviews();
+    }
+
+    function renderReviews() {
+      const grid = document.getElementById('product-reviews-grid');
+      const reviews = DB.getReviews(currentProduct.id);
+      grid.innerHTML = '';
+
+      if (!reviews.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--gray-500);">No reviews yet for this product. Be the first to leave one! ✨</div>`;
+        return;
+      }
+
+      reviews.forEach(r => {
+        const initials = r.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        const card = document.createElement('div');
+        card.className = 'review-card';
+        card.innerHTML = `
+          <div class="review-header">
+            <div class="review-avatar">${initials}</div>
+            <div>
+              <div class="review-name">${r.name}</div>
+              <div class="review-date">${new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div style="margin-left:auto;">${renderStars(r.rating)}</div>
+          </div>
+          <p class="review-text">"${r.text}"</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Review submission
+    document.getElementById('review-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('rev-name').value.trim();
+      const text = document.getElementById('rev-text').value.trim();
+
+      if (!name || !text) return;
+
+      DB.addReview({
+        productId: currentProduct.id,
+        name,
+        text,
+        rating: selectedRating,
+      });
+
+      showToast('Thank you! Review submitted ⭐', 'success');
+      document.getElementById('rev-name').value = '';
+      document.getElementById('rev-text').value = '';
+      toggleReviewForm();
+      loadProduct();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProduct();
+    });
+  </script>
+</body>
+</html>

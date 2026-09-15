@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop — MadeByMitzi</title>
+  <meta name="description" content="Browse MadeByMitzi's collection of premium sticker packs and birthday invitation designs. Filter by category, search, and add to cart!" />
+  <link rel="icon" type="image/jpeg" href="images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .shop-layout { display: grid; grid-template-columns: 260px 1fr; gap: 32px; align-items: start; }
+    .sidebar { position: sticky; top: calc(var(--nav-h) + 20px); background: white; border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); border: 2px solid var(--gray-200); }
+    .sidebar-title { font-family: var(--font-head); font-weight: 800; font-size: 1rem; color: var(--gray-800); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .filter-group { margin-bottom: 24px; }
+    .filter-label { font-weight: 700; font-size: 0.82rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+    .filter-option { display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer; color: var(--gray-700); font-size: 0.9rem; transition: var(--transition); }
+    .filter-option:hover { color: var(--blue); }
+    .filter-option input[type="radio"], .filter-option input[type="checkbox"] { accent-color: var(--blue); width: 16px; height: 16px; cursor: pointer; }
+    .price-inputs { display: flex; gap: 8px; align-items: center; }
+    .price-inputs input { width: 80px; padding: 8px 10px; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 0.85rem; }
+    .price-inputs span { color: var(--gray-400); font-weight: 700; }
+    .shop-top { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .search-bar { flex: 1; position: relative; min-width: 200px; }
+    .search-bar input { width: 100%; padding: 12px 16px 12px 44px; border: 2px solid var(--gray-200); border-radius: var(--radius-pill); font-size: 0.9rem; transition: var(--transition); }
+    .search-bar input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(15,82,186,0.12); }
+    .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+    .sort-select { padding: 10px 36px 10px 14px; border: 2px solid var(--gray-200); border-radius: var(--radius-pill); font-size: 0.85rem; font-weight: 600; font-family: var(--font-body); background: white; color: var(--gray-800); cursor: pointer; transition: var(--transition); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; }
+    .sort-select:focus { border-color: var(--blue); outline: none; }
+    .results-count { font-size: 0.85rem; color: var(--gray-600); font-weight: 600; white-space: nowrap; }
+    .product-grid-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .no-results { grid-column: 1/-1; }
+
+    /* Featured banner at top of shop */
+    .shop-banner { border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--blue), var(--teal)); padding: 32px 40px; color: white; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; overflow: hidden; position: relative; }
+    .shop-banner::before { content: ''; position: absolute; right: -40px; top: -40px; width: 200px; height: 200px; background: rgba(255,215,0,0.1); border-radius: 50%; }
+    .shop-banner::after { content: ''; position: absolute; right: 60px; bottom: -60px; width: 150px; height: 150px; background: rgba(0,168,107,0.15); border-radius: 50%; }
+    .shop-banner-text h2 { font-family: var(--font-head); font-weight: 900; font-size: 1.4rem; margin-bottom: 6px; }
+    .shop-banner-text p { opacity: 0.8; font-size: 0.9rem; }
+    .shop-banner-emoji { font-size: 4rem; position: relative; z-index: 1; }
+
+    /* Lightbox */
+    .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .lightbox.open { display: flex; }
+    .lightbox-img { max-width: 90vw; max-height: 90vh; border-radius: var(--radius-lg); object-fit: contain; }
+    .lightbox-close { position: absolute; top: 20px; right: 20px; background: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: grid; place-items: center; }
+
+    @media (max-width: 900px) {
+      .shop-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; display: none; }
+      .sidebar.mobile-open { display: block; }
+    }
+    @media (max-width: 640px) {
+      .product-grid-area { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+<canvas id="confetti-canvas" style="display:none;"></canvas>
+<div class="toast-container"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="images/madebymitzi.jpg" alt="Mitzi" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;image-rendering:pixelated;" /> MadeByMitzi
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="shop.html" class="active">Shop</a>
+    <a href="index.html#how-it-works">How It Works</a>
+    <a href="index.html#reviews">Reviews</a>
+    <a href="index.html#contact">Contact</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="cart-btn" title="Cart">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-badge" id="cart-badge">0</span>
+    </a>
+  </div>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+<nav class="mobile-nav" id="mobile-nav">
+  <a href="index.html"><i class="fas fa-home"></i> Home</a>
+  <a href="shop.html"><i class="fas fa-store"></i> Shop</a>
+  <a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Shop</span></div>
+  <h1>Our <span>Shop</span> 🛍️</h1>
+  <p>Discover beautiful sticker packs and invitation designs</p>
+</div>
+
+<!-- SHOP CONTENT -->
+<section class="section" style="padding-top:40px;">
+  <div class="container">
+
+    <!-- Shop Banner -->
+    <div class="shop-banner reveal">
+      <div class="shop-banner-text">
+        <h2>🎉 New Designs Added Weekly!</h2>
+        <p>Browse our growing collection — all fully customizable & digital delivery</p>
+      </div>
+      <div class="shop-banner-emoji">✨</div>
+    </div>
+
+    <!-- Filter toggle for mobile -->
+    <button class="btn btn-outline-blue btn-sm" id="filter-toggle" style="display:none;margin-bottom:16px;">
+      <i class="fas fa-filter"></i> Filters
+    </button>
+
+    <div class="shop-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-title"><i class="fas fa-filter"></i> Filter Products</div>
+        <!-- Category -->
+        <div class="filter-group">
+          <div class="filter-label">Category</div>
+          <label class="filter-option"><input type="radio" name="cat" value="All" checked /> All Products</label>
+          <label class="filter-option"><input type="radio" name="cat" value="Stickers" /> 🎨 Sticker Packs</label>
+          <label class="filter-option"><input type="radio" name="cat" value="Invitations" /> 💌 Invitations</label>
+          <label class="filter-option"><input type="radio" name="cat" value="Sticker (File only)" /> ✂️ Sticker (File only)</label>
+        </div>
+        <!-- Sort -->
+        <div class="filter-group">
+          <div class="filter-label">Sort By</div>
+          <label class="filter-option"><input type="radio" name="sort" value="newest" checked /> Newest First</label>
+          <label class="filter-option"><input type="radio" name="sort" value="price-asc" /> Price: Low to High</label>
+          <label class="filter-option"><input type="radio" name="sort" value="price-desc" /> Price: High to Low</label>
+          <label class="filter-option"><input type="radio" name="sort" value="rating" /> Highest Rated</label>
+          <label class="filter-option"><input type="radio" name="sort" value="bestseller" /> Bestsellers</label>
+        </div>
+        <!-- Price range -->
+        <div class="filter-group">
+          <div class="filter-label">Price Range (₱)</div>
+          <div class="price-inputs">
+            <input type="number" id="price-min" placeholder="Min" min="0" />
+            <span>—</span>
+            <input type="number" id="price-max" placeholder="Max" min="0" />
+          </div>
+          <button class="btn btn-blue btn-sm w-full" id="apply-price" style="margin-top:10px;">Apply</button>
+        </div>
+        <button class="btn btn-outline-blue btn-sm w-full" id="clear-filters">Clear Filters</button>
+      </aside>
+
+      <!-- MAIN AREA -->
+      <main>
+        <!-- Category tabs -->
+        <div class="category-tabs" style="margin-bottom:16px;" id="cat-tabs">
+          <button class="cat-tab active" data-cat="All">All</button>
+          <button class="cat-tab" data-cat="Stickers">🎨 Stickers</button>
+          <button class="cat-tab" data-cat="Invitations">💌 Invitations</button>
+          <button class="cat-tab" data-cat="Sticker (File only)">✂️ Sticker (File only)</button>
+        </div>
+
+        <!-- Top bar -->
+        <div class="shop-top">
+          <div class="search-bar">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" placeholder="Search designs..." />
+          </div>
+          <select class="sort-select" id="sort-select">
+            <option value="newest">Newest</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+            <option value="rating">Highest Rated</option>
+            <option value="bestseller">Bestsellers</option>
+          </select>
+          <div class="results-count" id="results-count">Loading...</div>
+        </div>
+
+        <!-- Product grid -->
+        <div class="product-grid-area" id="product-grid">
+          <div class="spinner"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
+  <img class="lightbox-img" id="lightbox-img" src="" alt="Product preview" />
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">🎨 MadeByMitzi</div>
+      <p>Premium sticker designs and birthday invitation designs made with love.</p>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.etsy.com/shop/MadeBymitzidigital" target="_blank" class="social-btn"><i class="fas fa-store"></i></a>
+      </div>
+    </div>
+    <div><div class="footer-heading">Quick Links</div>
+      <div class="footer-links"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="index.html#how-it-works">How It Works</a></div>
+    </div>
+    <div><div class="footer-heading">Categories</div>
+      <div class="footer-links"><a href="shop.html?cat=Stickers">Sticker Packs</a><a href="shop.html?cat=Invitations">Invitations</a><a href="shop.html?cat=Sticker%20(File%20only)">Sticker (File only)</a></div>
+    </div>
+    <div><div class="footer-heading">Payment</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:0.88rem;line-height:2;">📱 GCash<br/>🏦 Bank Transfer</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 MadeByMitzi</span>
+    <a href="login.html" style="color:rgba(255,255,255,0.4);font-size:0.8rem;">Admin</a>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+let allProducts = [];
+let activeFilters = { cat: 'All', sort: 'newest', search: '', minPrice: 0, maxPrice: Infinity };
+
+function loadProducts() {
+  allProducts = DB.getProducts().filter(p => p.status === 'active');
+  renderProducts();
+}
+
+function getFiltered() {
+  let list = [...allProducts];
+  if (activeFilters.cat !== 'All') list = list.filter(p => p.category === activeFilters.cat);
+  if (activeFilters.search) {
+    const q = activeFilters.search.toLowerCase();
+    list = list.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || (p.tags||[]).some(t => t.includes(q)));
+  }
+  list = list.filter(p => p.price >= activeFilters.minPrice && p.price <= activeFilters.maxPrice);
+  // Sort
+  switch (activeFilters.sort) {
+    case 'price-asc':  list.sort((a,b) => a.price - b.price); break;
+    case 'price-desc': list.sort((a,b) => b.price - a.price); break;
+    case 'rating':
+      list.sort((a,b) => DB.getAvgRating(b.id).avg - DB.getAvgRating(a.id).avg); break;
+    case 'bestseller': list.sort((a,b) => (b.sales||0) - (a.sales||0)); break;
+    default: list.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+  return list;
+}
+
+function renderProducts() {
+  const grid = document.getElementById('product-grid');
+  const filtered = getFiltered();
+  document.getElementById('results-count').textContent = `${filtered.length} product${filtered.length !== 1 ? 's' : ''} found`;
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="no-results empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div><div class="empty-text">Try adjusting your filters or search query.</div><button class="btn btn-blue" onclick="clearAllFilters()">Clear Filters</button></div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  filtered.forEach((p, i) => {
+    const { avg, count } = DB.getAvgRating(p.id);
+    const imgSrc = p.images?.[0] && !p.images[0].includes('placeholder') ? p.images[0] : getPlaceholderSVG(p.category, i);
+    const badges = [];
+    if (p.featured) badges.push('<span class="product-badge">⭐ Featured</span>');
+    else if ((p.sales||0) > 50) badges.push('<span class="product-badge green">🔥 Bestseller</span>');
+    const card = document.createElement('div');
+    card.className = 'product-card reveal';
+    card.innerHTML = `
+      <div class="product-img-wrap">
+        <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.src='${getPlaceholderSVG(p.category, i)}'" />
+        ${badges.join('')}
+        <div class="product-overlay">
+          <button class="overlay-btn" title="Quick View" onclick="event.stopPropagation();openLightbox('${imgSrc}')"><i class="fas fa-eye"></i></button>
+          <button class="overlay-btn" title="Add to Cart" onclick="event.stopPropagation();handleAddToCart('${p.id}')"><i class="fas fa-cart-plus"></i></button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-category">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-stars">${renderStars(avg)}<span class="star-count">(${count})</span></div>
+        <div class="product-price-row">
+          <span class="product-price">${formatPrice(p.price)}</span>
+          <button class="add-to-cart-btn" onclick="handleAddToCart('${p.id}')" title="Add to Cart"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => window.location.href = `product.html?id=${p.id}`);
+    grid.appendChild(card);
+  });
+  initReveal();
+}
+
+function clearAllFilters() {
+  activeFilters = { cat: 'All', sort: 'newest', search: '', minPrice: 0, maxPrice: Infinity };
+  document.getElementById('search-input').value = '';
+  document.getElementById('sort-select').value = 'newest';
+  document.getElementById('price-min').value = '';
+  document.getElementById('price-max').value = '';
+  document.querySelectorAll('input[name="cat"]').forEach(r => r.checked = r.value === 'All');
+  document.querySelectorAll('input[name="sort"]').forEach(r => r.checked = r.value === 'newest');
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === 'All'));
+  renderProducts();
+}
+window.clearAllFilters = clearAllFilters;
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadProducts();
+
+  // Category tabs
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilters.cat = tab.dataset.cat;
+      document.querySelectorAll('input[name="cat"]').forEach(r => r.checked = r.value === tab.dataset.cat);
+      renderProducts();
+    });
+  });
+
+  // Radio filters
+  document.querySelectorAll('input[name="cat"]').forEach(r => r.addEventListener('change', () => {
+    activeFilters.cat = r.value;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === r.value));
+    renderProducts();
+  }));
+  document.querySelectorAll('input[name="sort"]').forEach(r => r.addEventListener('change', () => {
+    activeFilters.sort = r.value;
+    document.getElementById('sort-select').value = r.value;
+    renderProducts();
+  }));
+
+  // Search
+  let searchTimer;
+  document.getElementById('search-input').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { activeFilters.search = e.target.value.trim(); renderProducts(); }, 300);
+  });
+
+  // Sort select
+  document.getElementById('sort-select').addEventListener('change', e => {
+    activeFilters.sort = e.target.value;
+    document.querySelectorAll('input[name="sort"]').forEach(r => r.checked = r.value === e.target.value);
+    renderProducts();
+  });
+
+  // Price filter
+  document.getElementById('apply-price').addEventListener('click', () => {
+    activeFilters.minPrice = Number(document.getElementById('price-min').value) || 0;
+    activeFilters.maxPrice = Number(document.getElementById('price-max').value) || Infinity;
+    renderProducts();
+  });
+
+  // Clear filters
+  document.getElementById('clear-filters').addEventListener('click', clearAllFilters);
+
+  // Lightbox
+  document.getElementById('lightbox-close').addEventListener('click', () => document.getElementById('lightbox').classList.remove('open'));
+  document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+  // Mobile filter toggle
+  const filterToggle = document.getElementById('filter-toggle');
+  const sidebar = document.getElementById('sidebar');
+  filterToggle.addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+
+  // URL param
+  const urlCat = new URLSearchParams(window.location.search).get('cat');
+  if (urlCat) {
+    activeFilters.cat = urlCat;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === urlCat));
+    document.querySelectorAll('input[name="cat"]').forEach(r => r.checked = r.value === urlCat);
+    renderProducts();
+  }
+
+  // Show filter toggle on mobile
+  if (window.innerWidth <= 900) filterToggle.style.display = 'inline-flex';
+  window.addEventListener('resize', () => {
+    filterToggle.style.display = window.innerWidth <= 900 ? 'inline-flex' : 'none';
+  });
+});
+</script>
+</body>
+</html>
