@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <a href="https://madebymitzi-web.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Live%20Demo-madebymitzi--web.vercel.app-00A86B?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo on Vercel" /></a>
+</p>
+
+<p align="center">
   <a href="#-phase-1-interactive-prototype--visual-showcase"><img src="https://img.shields.io/badge/Status-Phase%201%20Complete-brightgreen" alt="Phase 1 Complete" /></a>
   <a href="#-phase-2-roadmap"><img src="https://img.shields.io/badge/Roadmap-Phase%202%20Planned-blue" alt="Phase 2 Planned" /></a>
   <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank"><img src="https://img.shields.io/badge/Facebook-MadeByMitzi-1877F2?logo=facebook&logoColor=white" alt="Facebook" /></a>
