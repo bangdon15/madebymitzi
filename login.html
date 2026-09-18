@@ -150,18 +150,32 @@
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
   <script>
-    document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-user').value.trim();
       const pass = document.getElementById('admin-pass').value.trim();
 
-      if (DB.adminLogin(user, pass)) {
-        showToast('Login successful! Welcome Mitzi 👋', 'success');
-        setTimeout(() => {
-          window.location.href = 'admin/dashboard.html';
-        }, 800);
-      } else {
-        showToast('Invalid username or password', 'error');
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+      btn.disabled = true;
+
+      try {
+        const res = await DB.adminLogin(user, pass);
+        if (res && res.success) {
+          showToast('Login successful! Welcome Mitzi 🔐✨', 'success');
+          setTimeout(() => {
+            window.location.href = 'admin/dashboard.html';
+          }, 700);
+        } else {
+          showToast(res?.message || 'Invalid username or password', 'error');
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      } catch (err) {
+        showToast('Login error: ' + err.message, 'error');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
       }
     });
   </script>
