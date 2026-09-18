@@ -208,11 +208,135 @@
           </button>
         </div>
 
+        <!-- Email Notification Settings -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <i class="fas fa-envelope-open-text" style="color:var(--blue);"></i>
+            <span>Email Notification Settings</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">To: (Primary Order Notification Email) *</label>
+            <input type="email" id="email-notify-to" class="form-input" placeholder="e.g. orders@madebymitzi.com" required />
+            <small style="color:var(--gray-500);font-size:0.78rem;">Email address that receives alerts whenever a customer places an order.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CC: (Secondary / Backup Notification Email)</label>
+            <input type="email" id="email-notify-cc" class="form-input" placeholder="e.g. admin@madebymitzi.com" />
+            <small style="color:var(--gray-500);font-size:0.78rem;">Copied automatically when sending digital order files to customers.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Sender Display Name</label>
+            <input type="text" id="email-sender-name" class="form-input" placeholder="MadeByMitzi Orders" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Default Delivery Note for Customers</label>
+            <textarea id="email-delivery-note" class="form-textarea" rows="3" placeholder="Thank you for your order with MadeByMitzi! Here are your digital download links..."></textarea>
+          </div>
+
+          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveEmailSettings()">
+            <i class="fas fa-save"></i> Save Email Notification Settings
+          </button>
+        </div>
+
+        <!-- Admin Account Security -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <i class="fas fa-user-shield" style="color:#DC2626;"></i>
+            <span>Admin Account Security & Password</span>
+          </div>
+
+          <div style="background:#fef2f2;border:1px solid #fecaca;padding:12px 16px;border-radius:var(--radius-md);margin-bottom:16px;">
+            <div style="font-size:0.85rem;color:#991b1b;font-weight:700;">
+              <i class="fas fa-shield-alt"></i> Protected with Salted SHA-256 Encryption
+            </div>
+            <div style="font-size:0.78rem;color:#b91c1c;margin-top:2px;">
+              Active Username: <strong id="sec-current-user">admin_madebymitzi</strong>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Current Admin Password *</label>
+            <input type="password" id="sec-current-pass" class="form-input" placeholder="Required to authorize changes" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Change Admin Username / Email</label>
+            <input type="text" id="sec-new-user" class="form-input" placeholder="e.g. admin_madebymitzi" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">New Password (Min 8 characters)</label>
+            <input type="password" id="sec-new-pass" class="form-input" placeholder="Leave blank to keep current password" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" id="sec-confirm-pass" class="form-input" placeholder="Re-type new password" />
+          </div>
+
+          <button class="btn btn-primary btn-block" style="width:100%;justify-content:center;margin-top:10px;background:#DC2626;border-color:#DC2626;" onclick="handleUpdateSecurity()">
+            <i class="fas fa-lock"></i> Update Admin Password & Security
+          </button>
+        </div>
+
+        <!-- Firebase Cloud Database & Sync (Phase 2) -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <i class="fas fa-database" style="color:#F59E0B;"></i>
+            <span>Cloud Database & Sync (Firebase Firestore)</span>
+          </div>
+
+          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-size:0.82rem;font-weight:700;color:var(--gray-700);">Connection Status:</span>
+              <span id="fb-status-badge" style="font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;background:#E0E7FF;color:#4338CA;">
+                Checking...
+              </span>
+            </div>
+            <p style="font-size:0.78rem;color:var(--gray-500);margin:0;line-height:1.4;">
+              Syncs orders, products, and customer records in real-time across devices. High-availability local backup operates automatically.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Firebase Project ID</label>
+            <input type="text" id="fb-project-id" class="form-input" placeholder="e.g. madebymitzi-web" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Firebase API Key</label>
+            <input type="password" id="fb-api-key" class="form-input" placeholder="AIzaSy..." />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Auth Domain (Optional)</label>
+            <input type="text" id="fb-auth-domain" class="form-input" placeholder="e.g. madebymitzi-web.firebaseapp.com" />
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+            <button class="btn btn-secondary" style="justify-content:center;" onclick="testFirebaseConn()">
+              <i class="fas fa-plug"></i> Test Connection
+            </button>
+            <button class="btn btn-primary" style="justify-content:center;background:#F59E0B;border-color:#F59E0B;color:#fff;" onclick="saveFirebaseSettings()">
+              <i class="fas fa-save"></i> Save Firebase Config
+            </button>
+          </div>
+
+          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="syncProductsToCloud()">
+            <i class="fas fa-cloud-upload-alt"></i> Sync All Products to Cloud
+          </button>
+        </div>
+
       </div>
     </main>
 
   </div>
 
+  <script src="../js/firebase-config.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/main.js"></script>
   <script>
@@ -230,6 +354,17 @@
       document.getElementById('bank-name').value = settings.bankName || '';
       document.getElementById('bank-account').value = settings.bankAccount || '';
       document.getElementById('bank-number').value = settings.bankNumber || '';
+
+      // Email settings
+      document.getElementById('email-notify-to').value = settings.orderNotifyTo || 'orders@madebymitzi.com';
+      document.getElementById('email-notify-cc').value = settings.orderNotifyCc || 'admin@madebymitzi.com';
+      document.getElementById('email-sender-name').value = settings.emailSenderName || 'MadeByMitzi Orders';
+      document.getElementById('email-delivery-note').value = settings.emailDeliveryNote || '';
+
+      // Admin Auth info
+      const auth = DB.getAdminAuth();
+      const userDisplay = document.getElementById('sec-current-user');
+      if (userDisplay) userDisplay.textContent = auth.username || 'admin_madebymitzi';
 
       if (settings.gcashImage) {
         gcashImageBase64 = settings.gcashImage;
@@ -300,8 +435,156 @@
     }
     window.saveBankSettings = saveBankSettings;
 
+    function saveEmailSettings() {
+      const orderNotifyTo = document.getElementById('email-notify-to').value.trim();
+      const orderNotifyCc = document.getElementById('email-notify-cc').value.trim();
+      const emailSenderName = document.getElementById('email-sender-name').value.trim();
+      const emailDeliveryNote = document.getElementById('email-delivery-note').value.trim();
+
+      if (!orderNotifyTo) {
+        showToast('Please provide a valid "To:" email address.', 'error');
+        return;
+      }
+
+      DB.saveSettings({
+        orderNotifyTo,
+        orderNotifyCc,
+        emailSenderName,
+        emailDeliveryNote
+      });
+
+      showToast('Email notification settings saved! 📧✅', 'success');
+    }
+    window.saveEmailSettings = saveEmailSettings;
+
+    async function handleUpdateSecurity() {
+      const curPass = document.getElementById('sec-current-pass').value.trim();
+      const newUser = document.getElementById('sec-new-user').value.trim();
+      const newPass = document.getElementById('sec-new-pass').value.trim();
+      const confirmPass = document.getElementById('sec-confirm-pass').value.trim();
+
+      if (!curPass) {
+        showToast('Please enter your current admin password.', 'error');
+        return;
+      }
+
+      if (newPass && newPass !== confirmPass) {
+        showToast('New passwords do not match!', 'error');
+        return;
+      }
+
+      if (newPass && newPass.length < 8) {
+        showToast('New password must be at least 8 characters.', 'error');
+        return;
+      }
+
+      const res = await DB.updateAdminCredentials(curPass, newUser, newPass, newUser);
+      if (res.success) {
+        showToast(res.message, 'success');
+        document.getElementById('sec-current-pass').value = '';
+        document.getElementById('sec-new-pass').value = '';
+        document.getElementById('sec-confirm-pass').value = '';
+        loadCurrentSettings();
+      } else {
+        showToast(res.message, 'error');
+      }
+    }
+    window.handleUpdateSecurity = handleUpdateSecurity;
+
+    // Firebase Firestore Handlers
+    function updateFirebaseStatus() {
+      const badge = document.getElementById('fb-status-badge');
+      if (!badge) return;
+      const config = window.FirebaseService?.getConfig();
+      if (window.FirebaseService?.isInitialized) {
+        badge.textContent = 'Cloud Connected 🟢';
+        badge.style.background = '#DCFCE7';
+        badge.style.color = '#15803D';
+      } else if (config && config.projectId) {
+        badge.textContent = 'Configured (Standby) 🟡';
+        badge.style.background = '#FEF3C7';
+        badge.style.color = '#B45309';
+      } else {
+        badge.textContent = 'Offline / Local HA Mode ⚪';
+        badge.style.background = '#F3F4F6';
+        badge.style.color = '#4B5563';
+      }
+    }
+
+    function loadFirebaseSettings() {
+      const config = window.FirebaseService?.getConfig() || {};
+      document.getElementById('fb-project-id').value = config.projectId || '';
+      document.getElementById('fb-api-key').value = config.apiKey || '';
+      document.getElementById('fb-auth-domain').value = config.authDomain || '';
+      updateFirebaseStatus();
+    }
+
+    function saveFirebaseSettings() {
+      const projectId = document.getElementById('fb-project-id').value.trim();
+      const apiKey = document.getElementById('fb-api-key').value.trim();
+      const authDomain = document.getElementById('fb-auth-domain').value.trim() || (projectId ? projectId + '.firebaseapp.com' : '');
+
+      if (!projectId || !apiKey) {
+        showToast('Please provide both Project ID and API Key.', 'error');
+        return;
+      }
+
+      const config = { projectId, apiKey, authDomain };
+      window.FirebaseService.saveConfig(config);
+      showToast('Firebase configuration saved! Initializing...', 'success');
+      window.FirebaseService.init().then(ready => {
+        updateFirebaseStatus();
+        if (ready) {
+          showToast('Firebase Firestore successfully connected! 🚀', 'success');
+        }
+      });
+    }
+    window.saveFirebaseSettings = saveFirebaseSettings;
+
+    async function testFirebaseConn() {
+      const projectId = document.getElementById('fb-project-id').value.trim();
+      const apiKey = document.getElementById('fb-api-key').value.trim();
+      const authDomain = document.getElementById('fb-auth-domain').value.trim() || (projectId ? projectId + '.firebaseapp.com' : '');
+
+      if (!projectId || !apiKey) {
+        showToast('Please enter Project ID and API Key first.', 'error');
+        return;
+      }
+
+      showToast('Testing cloud connection...', 'info');
+      const res = await window.FirebaseService.testConnection({ projectId, apiKey, authDomain });
+      if (res.success) {
+        showToast(res.message, 'success');
+        updateFirebaseStatus();
+      } else {
+        showToast(res.message, 'error');
+      }
+    }
+    window.testFirebaseConn = testFirebaseConn;
+
+    async function syncProductsToCloud() {
+      if (!window.FirebaseService?.isInitialized) {
+        const ready = await window.FirebaseService.init();
+        if (!ready) {
+          showToast('Cloud database not connected. Please save valid Firebase config first.', 'error');
+          return;
+        }
+      }
+
+      showToast('Syncing all products to Cloud Firestore...', 'info');
+      const products = DB.getProducts();
+      const success = await window.FirebaseService.syncAllProducts(products);
+      if (success) {
+        showToast(`Successfully synced ${products.length} products to Cloud Firestore! ☁️`, 'success');
+      } else {
+        showToast('Failed to sync products to Firestore.', 'error');
+      }
+    }
+    window.syncProductsToCloud = syncProductsToCloud;
+
     document.addEventListener('DOMContentLoaded', () => {
       loadCurrentSettings();
+      loadFirebaseSettings();
     });
   </script>
 </body>

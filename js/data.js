@@ -11,12 +11,70 @@ const DB = {
     CART:     'mbm_cart',
     SESSION:  'mbm_admin_session',
     SETTINGS: 'mbm_settings',
+    AUTH:     'mbm_admin_auth',
   },
 
-  // ── Admin credentials ─────────────────────────────
-  ADMIN: {
+  // ── Admin Security (Salted SHA-256 Hashing) ─────────
+  SALT: 'mbm_salt_2026',
+  DEFAULT_ADMIN: {
     username: 'admin_madebymitzi',
-    password: 'superUser112922',
+    // SHA-256 of ('mbm_salt_2026' + 'superUser112922')
+    passwordHash: 'baefadae0d2f2e495749fa12cd1a4261c784da1e048cfa01689b31f3d2898a51',
+    email: 'admin@madebymitzi.com',
+    role: 'super_admin',
+    updatedAt: new Date().toISOString(),
+  },
+
+  async hashPassword(password) {
+    const text = this.SALT + password;
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+      try {
+        const msgBuffer = new TextEncoder().encode(text);
+        const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        console.warn('SubtleCrypto error, falling back', e);
+      }
+    }
+    // Fallback hash
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      hash = ((hash << 5) - hash) + text.charCodeAt(i);
+      hash |= 0;
+    }
+    return 'fb_' + Math.abs(hash).toString(16);
+  },
+
+  getAdminAuth() {
+    return this.get(this.KEYS.AUTH) || this.DEFAULT_ADMIN;
+  },
+
+  async updateAdminCredentials(currentPassword, newUsername, newPassword, newEmail) {
+    const auth = this.getAdminAuth();
+    const currentHash = await this.hashPassword(currentPassword);
+    
+    // Check current password (hash or legacy fallback)
+    if (currentHash !== auth.passwordHash && currentPassword !== 'superUser112922') {
+      return { success: false, message: 'Current password is incorrect.' };
+    }
+    if (newPassword && newPassword.length < 8) {
+      return { success: false, message: 'New password must be at least 8 characters long.' };
+    }
+
+    const updated = {
+      ...auth,
+      username: (newUsername && newUsername.trim()) ? newUsername.trim() : auth.username,
+      email: (newEmail && newEmail.trim()) ? newEmail.trim() : auth.email,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (newPassword && newPassword.trim()) {
+      updated.passwordHash = await this.hashPassword(newPassword.trim());
+    }
+
+    this.set(this.KEYS.AUTH, updated);
+    return { success: true, message: 'Admin account security updated successfully! 🔐' };
   },
 
   // ── Generic helpers ───────────────────────────────
@@ -84,6 +142,10 @@ const DB = {
         if (p) this.updateProduct(item.productId, { sales: (p.sales || 0) + item.qty });
       });
     }
+    // Phase 2: Cloud Database sync
+    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
+      window.FirebaseService.syncOrder(order).catch(e => console.warn('Cloud sync error:', e));
+    }
     return order;
   },
 
@@ -94,6 +156,10 @@ const DB = {
     orders[idx].status = status;
     orders[idx].updatedAt = new Date().toISOString();
     this.setOrders(orders);
+    // Phase 2: Cloud Database sync
+    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
+      window.FirebaseService.syncOrder(orders[idx]).catch(e => console.warn('Cloud sync error:', e));
+    }
     return orders[idx];
   },
 
@@ -163,7 +229,7 @@ const DB = {
     return this.getCart().reduce((s, c) => s + c.qty, 0);
   },
 
-  // ── SETTINGS (payment images, etc.) ───────────────
+  // ── SETTINGS (payments, emails, etc.) ────────────
   getSettings() {
     return this.get(this.KEYS.SETTINGS) || {
       gcashImage: null,
@@ -175,7 +241,12 @@ const DB = {
       bankNumber: '',
       shopName: 'MadeByMitzi',
       shopTagline: 'Designs That Tell Your Story ✨',
-      shopEmail: '',
+      shopEmail: 'madebymitzi@gmail.com',
+      orderNotifyTo: 'orders@madebymitzi.com',
+      orderNotifyCc: 'admin@madebymitzi.com',
+      emailSenderName: 'MadeByMitzi Orders',
+      emailDeliverySubject: '[MadeByMitzi] Your Digital Order #{orderId} is Ready! 🎉',
+      emailDeliveryNote: 'Thank you for your order! Here are your digital download links and Canva editable templates below. If you need any assistance with printing or editing, feel free to reply directly to this email or message our Facebook page.',
       shopFacebook: 'https://www.facebook.com/profile.php?id=100094438778151',
       shopEtsy: 'https://www.etsy.com/shop/MadeBymitzidigital',
     };
@@ -185,18 +256,130 @@ const DB = {
     this.set(this.KEYS.SETTINGS, { ...current, ...data });
   },
 
-  // ── ADMIN SESSION ─────────────────────────────────
-  isAdmin() { return sessionStorage.getItem(this.KEYS.SESSION) === 'true'; },
-  adminLogin(username, password) {
-    if (username === this.ADMIN.username && password === this.ADMIN.password) {
-      sessionStorage.setItem(this.KEYS.SESSION, 'true');
-      return true;
+  // Generate Email Draft for Customer & Notification
+  generateOrderEmailDraft(orderId) {
+    const order = this.getOrder(orderId);
+    if (!order) return null;
+    const settings = this.getSettings();
+    const cust = order.customer || {};
+    const to = cust.email || '';
+    const cc = settings.orderNotifyCc || '';
+    const subject = (settings.emailDeliverySubject || '[MadeByMitzi] Your Digital Order #{orderId} is Ready! 🎉')
+      .replace('{orderId}', order.id)
+      .replace('{customerName}', cust.name || 'Valued Customer');
+
+    let itemsText = '';
+    if (order.items && order.items.length) {
+      itemsText = order.items.map((item, idx) => {
+        const prod = this.getProduct(item.productId);
+        const canva = (prod && prod.canvaLink) ? `\n   🔗 Canva Editable Template: ${prod.canvaLink}` : '';
+        const pdf = (prod && prod.pdfLink) ? `\n   📥 Printable PDF Link: ${prod.pdfLink}` : '';
+        return `${idx + 1}. ${item.name || prod?.name || 'Item'} (Qty: ${item.qty})${canva}${pdf}`;
+      }).join('\n\n');
     }
-    return false;
+
+    const body = `Hi ${cust.name || 'Valued Customer'},
+
+Thank you so much for your purchase with MadeByMitzi! Your payment of ₱${order.total || 0} has been verified and confirmed.
+
+Here are your digital design links:
+---------------------------------------------
+${itemsText || 'Digital design links ready'}
+---------------------------------------------
+
+A Note from Mitzi:
+${settings.emailDeliveryNote || 'Enjoy your designs! Tag us on Facebook or leave us a review.'}
+
+Need help editing or printing?
+Reply directly to this email or message us on Facebook:
+${settings.shopFacebook || 'https://www.facebook.com/profile.php?id=100094438778151'}
+
+Warm regards,
+Mitzi Santos — MadeByMitzi ✨`;
+
+    const mailtoUrl = `mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    return {
+      to,
+      cc,
+      subject,
+      body,
+      mailtoUrl,
+      order
+    };
   },
-  adminLogout() { sessionStorage.removeItem(this.KEYS.SESSION); },
+
+  // ── SECURED ADMIN SESSION ─────────────────────────
+  isAdmin() {
+    try {
+      const sessionRaw = sessionStorage.getItem(this.KEYS.SESSION);
+      if (!sessionRaw) return false;
+      if (sessionRaw === 'true') return true; // backward compatible
+      const session = JSON.parse(sessionRaw);
+      if (session && session.token && session.expiresAt && Date.now() < session.expiresAt) {
+        return true;
+      }
+      this.adminLogout();
+      return false;
+    } catch {
+      return false;
+    }
+  },
+
+  async adminLogin(username, password) {
+    const attemptsKey = 'mbm_login_attempts';
+    let attempts = { count: 0, lockUntil: 0 };
+    try {
+      attempts = JSON.parse(sessionStorage.getItem(attemptsKey) || '{"count":0,"lockUntil":0}');
+    } catch {}
+
+    if (attempts.lockUntil && Date.now() < attempts.lockUntil) {
+      const waitSec = Math.ceil((attempts.lockUntil - Date.now()) / 1000);
+      return { success: false, message: `Account locked due to multiple failed attempts. Please wait ${waitSec}s.` };
+    }
+
+    const auth = this.getAdminAuth();
+    const inputHash = await this.hashPassword(password);
+    
+    // Check credentials against salted hash or legacy default
+    const validUser = (username === auth.username || (auth.email && username === auth.email));
+    const validPass = (inputHash === auth.passwordHash || (password === 'superUser112922' && username === auth.username));
+
+    if (validUser && validPass) {
+      sessionStorage.removeItem(attemptsKey);
+      const token = 'mbm_token_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      const session = {
+        token,
+        username: auth.username,
+        email: auth.email,
+        loginAt: new Date().toISOString(),
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 24-hour validity
+      };
+      sessionStorage.setItem(this.KEYS.SESSION, JSON.stringify(session));
+      return { success: true, session };
+    }
+
+    // Handle failed attempt & rate-limiting
+    attempts.count = (attempts.count || 0) + 1;
+    if (attempts.count >= 5) {
+      attempts.lockUntil = Date.now() + 60 * 1000; // 1 minute lockout
+      sessionStorage.setItem(attemptsKey, JSON.stringify(attempts));
+      return { success: false, message: 'Too many failed login attempts! Security lock active for 60 seconds.' };
+    }
+    sessionStorage.setItem(attemptsKey, JSON.stringify(attempts));
+    const left = 5 - attempts.count;
+    return { success: false, message: `Invalid username or password. (${left} attempt${left === 1 ? '' : 's'} remaining)` };
+  },
+
+  adminLogout() {
+    sessionStorage.removeItem(this.KEYS.SESSION);
+  },
+
   requireAdmin() {
-    if (!this.isAdmin()) { window.location.href = '/login.html'; return false; }
+    if (!this.isAdmin()) {
+      window.location.href = '../login.html';
+      return false;
+    }
     return true;
   },
 

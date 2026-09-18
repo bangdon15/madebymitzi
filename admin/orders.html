@@ -210,18 +210,70 @@
       </div>
 
       <!-- Admin Actions -->
-      <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--gray-100);padding-top:16px;">
-        <button class="btn btn-danger btn-sm" id="btn-reject" onclick="changeCurrentOrderStatus('rejected')">
-          <i class="fas fa-times"></i> Reject
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--gray-100);padding-top:16px;">
+        <button class="btn btn-blue btn-sm" id="btn-email" onclick="openEmailNotificationModal()">
+          <i class="fas fa-paper-plane"></i> Send Digital Files Email (To + CC)
         </button>
-        <button class="btn btn-green btn-sm" id="btn-confirm" onclick="changeCurrentOrderStatus('confirmed')">
-          <i class="fas fa-check-circle"></i> Confirm Payment & Mark Verified
-        </button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-danger btn-sm" id="btn-reject" onclick="changeCurrentOrderStatus('rejected')">
+            <i class="fas fa-times"></i> Reject
+          </button>
+          <button class="btn btn-green btn-sm" id="btn-confirm" onclick="confirmAndNotifyOrder()">
+            <i class="fas fa-check-circle"></i> Confirm Payment & Mark Verified
+          </button>
+        </div>
       </div>
 
     </div>
   </div>
 
+  <!-- SEND DIGITAL FILES EMAIL MODAL -->
+  <div class="modal-overlay" id="email-modal" style="z-index:1100;">
+    <div class="modal modal-lg">
+      <button class="modal-close" onclick="closeEmailNotificationModal()">✕</button>
+      <div style="font-family:var(--font-head);font-weight:900;font-size:1.3rem;margin-bottom:4px;color:var(--gray-800);">
+        <i class="fas fa-envelope" style="color:var(--blue);"></i> Send Digital Files & Notify Customer
+      </div>
+      <div style="font-size:0.85rem;color:var(--gray-500);margin-bottom:18px;">
+        Order <span id="em-order-id" style="font-weight:800;color:var(--blue);">ORD-...</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">To: (Customer Email) *</label>
+          <input type="email" id="em-to" class="form-input" oninput="refreshMailtoUrl()" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">CC: (Admin / Backup Email)</label>
+          <input type="email" id="em-cc" class="form-input" oninput="refreshMailtoUrl()" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Subject *</label>
+        <input type="text" id="em-subject" class="form-input" oninput="refreshMailtoUrl()" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Message Content (Includes Canva template links & PDF printable links)</label>
+        <textarea id="em-body" class="form-textarea" rows="8" style="font-family:monospace;font-size:0.85rem;" oninput="refreshMailtoUrl()"></textarea>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px;border-top:1px solid var(--gray-200);padding-top:16px;">
+        <button type="button" class="btn btn-outline-blue btn-sm" onclick="copyEmailDraft()">
+          <i class="fas fa-copy"></i> Copy Email Draft
+        </button>
+        <div style="display:flex;gap:10px;">
+          <button type="button" class="btn btn-outline-danger btn-sm" onclick="closeEmailNotificationModal()">Cancel</button>
+          <a id="em-mailto-link" href="#" target="_blank" class="btn btn-green btn-sm">
+            <i class="fas fa-paper-plane"></i> Send via Email Client (To + CC)
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/firebase-config.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/main.js"></script>
   <script>
@@ -258,12 +310,16 @@
           <td>${new Date(o.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}</td>
           <td>${o.customer?.name || 'Customer'}</td>
           <td>${o.customer?.phone || o.customer?.email || '—'}</td>
-          <td>${(o.paymentMethod || 'GCash').toUpperCase()}</td>
-          <td style="font-family:monospace;font-size:0.8rem;">${o.refNumber || '—'}</td>
-          <td><strong style="color:var(--blue);">${formatPrice(o.total)}</strong></td>
-          <td><span class="status-badge ${o.status}">${o.status}</span></td>
+          <td><span class="badge ${o.paymentMethod === 'gcash' ? 'badge-blue' : 'badge-green'}">${(o.paymentMethod || 'gcash').toUpperCase()}</span></td>
+          <td><code style="font-size:0.8rem;background:var(--gray-100);padding:2px 6px;border-radius:4px;">${o.refNumber || '—'}</code></td>
+          <td><strong>${formatPrice(o.total)}</strong></td>
           <td>
-            <button class="btn btn-blue btn-sm" style="padding:4px 10px;font-size:0.75rem;" onclick="inspectOrder('${o.id}')">
+            <span class="badge ${o.status === 'confirmed' ? 'badge-green' : o.status === 'rejected' ? 'badge-red' : 'badge-yellow'}">
+              ${o.status === 'confirmed' ? '✓ Confirmed' : o.status === 'rejected' ? '✗ Rejected' : '⏳ Pending'}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-outline-blue btn-sm" onclick="inspectOrder('${o.id}')">
               <i class="fas fa-eye"></i> View
             </button>
           </td>
@@ -276,12 +332,12 @@
       selectedOrder = DB.getOrder(id);
       if (!selectedOrder) return;
 
-      document.getElementById('m-order-id').textContent = selectedOrder.id;
-      document.getElementById('m-order-date').textContent = new Date(selectedOrder.createdAt).toLocaleString('en-PH');
+      document.getElementById('m-order-id').textContent = `Order ${selectedOrder.id}`;
+      document.getElementById('m-order-date').textContent = `Placed on ${new Date(selectedOrder.createdAt).toLocaleString('en-PH')}`;
       document.getElementById('m-cust-name').textContent = selectedOrder.customer?.name || '—';
       document.getElementById('m-cust-email').textContent = selectedOrder.customer?.email || '—';
       document.getElementById('m-cust-phone').textContent = selectedOrder.customer?.phone || '—';
-      document.getElementById('m-cust-notes').textContent = selectedOrder.customer?.notes ? `Note: ${selectedOrder.customer.notes}` : '';
+      document.getElementById('m-cust-notes').textContent = selectedOrder.customer?.notes ? `Notes: "${selectedOrder.customer.notes}"` : '';
 
       document.getElementById('m-pay-method').textContent = (selectedOrder.paymentMethod || 'GCash').toUpperCase();
       document.getElementById('m-pay-ref').textContent = selectedOrder.refNumber || '—';
@@ -322,6 +378,66 @@
       renderOrders();
     }
     window.changeCurrentOrderStatus = changeCurrentOrderStatus;
+
+    function confirmAndNotifyOrder() {
+      if (!selectedOrder) return;
+      DB.updateOrderStatus(selectedOrder.id, 'confirmed');
+      showToast('Order confirmed! Opening email delivery draft...', 'success');
+      renderOrders();
+      openEmailNotificationModal();
+    }
+    window.confirmAndNotifyOrder = confirmAndNotifyOrder;
+
+    // ── EMAIL NOTIFICATION MODAL LOGIC ──
+    function openEmailNotificationModal() {
+      if (!selectedOrder) return;
+      const draft = DB.generateOrderEmailDraft(selectedOrder.id);
+      if (!draft) {
+        showToast('Unable to generate email draft for order.', 'error');
+        return;
+      }
+
+      document.getElementById('em-order-id').textContent = selectedOrder.id;
+      document.getElementById('em-to').value = draft.to;
+      document.getElementById('em-cc').value = draft.cc;
+      document.getElementById('em-subject').value = draft.subject;
+      document.getElementById('em-body').value = draft.body;
+      document.getElementById('em-mailto-link').href = draft.mailtoUrl;
+
+      document.getElementById('email-modal').classList.add('open');
+    }
+    window.openEmailNotificationModal = openEmailNotificationModal;
+
+    function closeEmailNotificationModal() {
+      document.getElementById('email-modal').classList.remove('open');
+    }
+    window.closeEmailNotificationModal = closeEmailNotificationModal;
+
+    function refreshMailtoUrl() {
+      const to = document.getElementById('em-to').value.trim();
+      const cc = document.getElementById('em-cc').value.trim();
+      const subject = document.getElementById('em-subject').value.trim();
+      const body = document.getElementById('em-body').value;
+
+      const mailtoUrl = `mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      document.getElementById('em-mailto-link').href = mailtoUrl;
+    }
+    window.refreshMailtoUrl = refreshMailtoUrl;
+
+    function copyEmailDraft() {
+      const to = document.getElementById('em-to').value.trim();
+      const cc = document.getElementById('em-cc').value.trim();
+      const subject = document.getElementById('em-subject').value.trim();
+      const body = document.getElementById('em-body').value;
+
+      const fullDraft = `To: ${to}\nCC: ${cc}\nSubject: ${subject}\n\n${body}`;
+      navigator.clipboard.writeText(fullDraft).then(() => {
+        showToast('Email draft copied to clipboard! 📋', 'success');
+      }).catch(() => {
+        showToast('Failed to copy, please select and copy manually.', 'error');
+      });
+    }
+    window.copyEmailDraft = copyEmailDraft;
 
     document.addEventListener('DOMContentLoaded', () => {
       renderOrders();
