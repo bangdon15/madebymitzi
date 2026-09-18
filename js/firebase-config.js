@@ -121,6 +121,34 @@ const FirebaseService = {
   },
 
   /**
+   * Sync a single product to Firestore
+   */
+  async syncProduct(product) {
+    if (!this.isInitialized || !this.db) return false;
+    try {
+      await this.db.collection('mbm_products').doc(product.id).set(product);
+      return true;
+    } catch (err) {
+      console.warn('Error syncing single product to Firestore:', err);
+      return false;
+    }
+  },
+
+  /**
+   * Delete a product from Firestore
+   */
+  async deleteProductFromCloud(id) {
+    if (!this.isInitialized || !this.db) return false;
+    try {
+      await this.db.collection('mbm_products').doc(id).delete();
+      return true;
+    } catch (err) {
+      console.warn('Error deleting product from Firestore:', err);
+      return false;
+    }
+  },
+
+  /**
    * Sync all local products to Firestore
    */
   async syncAllProducts(products) {

@@ -190,6 +190,7 @@
     </div>
   </div>
 
+  <script src="../js/firebase-config.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/main.js"></script>
   <script>
@@ -250,10 +251,18 @@
     async function handleProductImage(e) {
       const file = e.target.files?.[0];
       if (!file) return;
-      prodImageBase64 = await fileToBase64(file);
-      const img = document.getElementById('prod-img-preview');
-      img.src = prodImageBase64;
-      img.style.display = 'block';
+      const preview = document.getElementById('prod-img-preview');
+      preview.style.display = 'block';
+      preview.style.opacity = '0.5';
+      try {
+        prodImageBase64 = await fileToBase64(file);
+        preview.src = prodImageBase64;
+        preview.style.opacity = '1';
+      } catch (err) {
+        console.error('Error processing image:', err);
+        showToast('Failed to process image. Please try another image.', 'error');
+        preview.style.display = 'none';
+      }
     }
     window.handleProductImage = handleProductImage;
 
@@ -302,36 +311,62 @@
     }
     window.deleteProduct = deleteProduct;
 
-    document.getElementById('product-form').addEventListener('submit', (e) => {
+    document.getElementById('product-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const id = document.getElementById('prod-id').value;
-      const name = document.getElementById('prod-name').value.trim();
-      const category = document.getElementById('prod-category').value;
-      const price = Number(document.getElementById('prod-price').value);
-      const description = document.getElementById('prod-desc').value.trim();
-      const canvaLink = document.getElementById('prod-canva').value.trim();
-      const pdfLink = document.getElementById('prod-pdf').value.trim();
-      const featured = document.getElementById('prod-featured').checked;
+      const saveBtn = document.getElementById('btn-save-prod');
+      const originalHtml = saveBtn.innerHTML;
 
-      const productData = {
-        name, category, price, description, canvaLink, pdfLink, featured,
-        status: 'active',
-      };
+      try {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-      if (prodImageBase64) {
-        productData.images = [prodImageBase64];
+        const id = document.getElementById('prod-id').value;
+        const name = document.getElementById('prod-name').value.trim();
+        const category = document.getElementById('prod-category').value;
+        const price = Number(document.getElementById('prod-price').value);
+        const description = document.getElementById('prod-desc').value.trim();
+        const canvaLink = document.getElementById('prod-canva').value.trim();
+        const pdfLink = document.getElementById('prod-pdf').value.trim();
+        const featured = document.getElementById('prod-featured').checked;
+
+        if (!name) {
+          showToast('Please enter a product name', 'error');
+          return;
+        }
+        if (isNaN(price) || price <= 0) {
+          showToast('Please enter a valid price', 'error');
+          return;
+        }
+
+        const productData = {
+          name, category, price, description, canvaLink, pdfLink, featured,
+          status: 'active',
+        };
+
+        if (prodImageBase64) {
+          productData.images = [prodImageBase64];
+        }
+
+        // Brief delay for visual loading feedback
+        await new Promise(res => setTimeout(res, 250));
+
+        if (id) {
+          DB.updateProduct(id, productData);
+          showToast('Product updated successfully! ✅', 'success');
+        } else {
+          DB.addProduct(productData);
+          showToast('Product added successfully! 🎉', 'success');
+        }
+
+        closeProductModal();
+        renderProductsTable();
+      } catch (err) {
+        console.error('Error saving product:', err);
+        showToast('Failed to save product: ' + (err.message || err), 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalHtml;
       }
-
-      if (id) {
-        DB.updateProduct(id, productData);
-        showToast('Product updated successfully! ✅', 'success');
-      } else {
-        DB.addProduct(productData);
-        showToast('Product added successfully! 🎉', 'success');
-      }
-
-      closeProductModal();
-      renderProductsTable();
     });
 
     document.addEventListener('DOMContentLoaded', () => {

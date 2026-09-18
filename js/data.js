@@ -82,7 +82,17 @@ const DB = {
     try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; }
   },
   set(key, val) {
-    localStorage.setItem(key, JSON.stringify(val));
+    try {
+      localStorage.setItem(key, JSON.stringify(val));
+      return true;
+    } catch (err) {
+      console.warn('Storage set error:', err);
+      // If QuotaExceededError, warn the user
+      if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
+        window.showToast('Storage quota alert: Please use smaller images.', 'warning');
+      }
+      return false;
+    }
   },
 
   // ── PRODUCTS ──────────────────────────────────────
@@ -95,7 +105,7 @@ const DB = {
     }
     return prods;
   },
-  setProducts(arr) { this.set(this.KEYS.PRODUCTS, arr); },
+  setProducts(arr) { return this.set(this.KEYS.PRODUCTS, arr); },
 
   getProduct(id) {
     return this.getProducts().find(p => p.id === id) || null;
@@ -107,6 +117,10 @@ const DB = {
     product.sales = 0;
     products.unshift(product);
     this.setProducts(products);
+    // Phase 2: Cloud Database sync
+    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
+      window.FirebaseService.syncProduct?.(product)?.catch?.(e => console.warn('Cloud sync error:', e));
+    }
     return product;
   },
   updateProduct(id, data) {
@@ -115,11 +129,19 @@ const DB = {
     if (idx === -1) return null;
     products[idx] = { ...products[idx], ...data, updatedAt: new Date().toISOString() };
     this.setProducts(products);
+    // Phase 2: Cloud Database sync
+    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
+      window.FirebaseService.syncProduct?.(products[idx])?.catch?.(e => console.warn('Cloud sync error:', e));
+    }
     return products[idx];
   },
   deleteProduct(id) {
     const products = this.getProducts().filter(p => p.id !== id);
     this.setProducts(products);
+    // Phase 2: Cloud Database sync
+    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
+      window.FirebaseService.deleteProductFromCloud?.(id)?.catch?.(e => console.warn('Cloud sync error:', e));
+    }
   },
 
   // ── ORDERS ────────────────────────────────────────
