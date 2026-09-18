@@ -43,11 +43,20 @@ const FirebaseService = {
         this.db = window.firebase.firestore();
         this.isInitialized = true;
         console.log('✅ Firebase Firestore Cloud DB connected successfully for project:', config.projectId);
-        return true;
       } else if (window.firebase && window.firebase.apps.length) {
         this.app = window.firebase.app();
         this.db = window.firebase.firestore();
         this.isInitialized = true;
+      }
+
+      if (this.isInitialized) {
+        // Automatically sync products from cloud across devices
+        this.fetchProducts().then(cloudProds => {
+          if (cloudProds && cloudProds.length && typeof window.DB !== 'undefined') {
+            window.DB.setProducts(cloudProds);
+            window.dispatchEvent(new CustomEvent('mbm_products_synced'));
+          }
+        }).catch(() => {});
         return true;
       }
     } catch (err) {
@@ -163,6 +172,39 @@ const FirebaseService = {
       return true;
     } catch (err) {
       console.warn('Error syncing products to Firestore:', err);
+      return false;
+    }
+  },
+
+  /**
+   * Fetch all products from Firestore
+   */
+  async fetchProducts() {
+    if (!this.isInitialized || !this.db) return null;
+    try {
+      const snapshot = await this.db.collection('mbm_products').orderBy('createdAt', 'desc').get();
+      const products = [];
+      snapshot.forEach(doc => products.push(doc.data()));
+      return products;
+    } catch (err) {
+      console.warn('Error fetching products from Firestore:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Delete all products from Firestore
+   */
+  async clearAllProductsFromCloud() {
+    if (!this.isInitialized || !this.db) return false;
+    try {
+      const snapshot = await this.db.collection('mbm_products').get();
+      const batch = this.db.batch();
+      snapshot.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      return true;
+    } catch (err) {
+      console.warn('Error clearing products from Firestore:', err);
       return false;
     }
   },
