@@ -40,21 +40,46 @@
       aspect-ratio: 1;
       border-radius: var(--radius-lg);
       overflow: hidden;
-      background: var(--gray-100);
+      background: #ffffff;
       border: 2px solid var(--gray-200);
       position: relative;
       cursor: zoom-in;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      box-shadow: var(--shadow-sm);
     }
 
     .main-img-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
+      object-fit: contain; /* Full uncropped view */
+      transition: transform 0.25s ease;
     }
 
-    .main-img-wrap:hover img {
-      transform: scale(1.05);
+    .zoom-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+      opacity: 0.85;
+      transition: opacity 0.2s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .main-img-wrap:hover .zoom-badge {
+      opacity: 1;
+      background: rgba(30, 64, 175, 0.9);
     }
 
     /* Thumbnail strip */
@@ -72,11 +97,11 @@
       border-radius: var(--radius-sm);
       overflow: hidden;
       border: 2px solid var(--gray-200);
-      background: var(--gray-100);
+      background: #ffffff;
       cursor: pointer;
       flex-shrink: 0;
       position: relative;
-      padding: 0;
+      padding: 3px;
       transition: all 0.2s ease;
     }
 
@@ -93,7 +118,7 @@
     .thumb-btn img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* Full uncropped thumbnails */
     }
 
     .thumb-video-overlay {
@@ -105,6 +130,109 @@
       justify-content: center;
       color: #fff;
       font-size: 1.1rem;
+    }
+
+    /* Fullscreen Lightbox */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .lightbox-modal.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: 92vw;
+      max-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 84vh;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      user-select: none;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .lightbox-close:hover {
+      background: #DC2626;
+      border-color: #DC2626;
+      transform: scale(1.08);
+    }
+
+    .lightbox-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .lightbox-nav-btn:hover {
+      background: var(--blue);
+      border-color: var(--blue);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .lightbox-nav-btn.prev { left: -60px; }
+    .lightbox-nav-btn.next { right: -60px; }
+
+    @media (max-width: 768px) {
+      .lightbox-nav-btn.prev { left: 10px; background: rgba(0,0,0,0.6); }
+      .lightbox-nav-btn.next { right: 10px; background: rgba(0,0,0,0.6); }
+    }
+
+    .lightbox-caption {
+      position: absolute;
+      bottom: 16px;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 4px 14px;
+      border-radius: 20px;
     }
 
     /* Info */
@@ -317,9 +445,10 @@
         
         <!-- Left: Image & Video Gallery -->
         <div class="product-gallery">
-          <div class="main-img-wrap" id="main-media-wrap">
+          <div class="main-img-wrap" id="main-media-wrap" onclick="handleMainMediaClick()" title="Click to view full uncropped zoom">
             <img id="p-main-img" src="" alt="Product" />
             <video id="p-main-video" controls playsinline style="display:none;width:100%;height:100%;object-fit:contain;background:#000;border-radius:inherit;"></video>
+            <div class="zoom-badge" id="zoom-badge"><i class="fas fa-search-plus"></i> Click to Zoom Full</div>
           </div>
           <!-- Thumbnail strip (up to 3 images + 1 video) -->
           <div class="product-thumbnails" id="product-thumbnails"></div>
@@ -469,6 +598,23 @@
     </div>
   </footer>
 
+  <!-- FULLSCREEN IMAGE LIGHTBOX MODAL -->
+  <div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox()" title="Close (Esc)">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <button class="lightbox-nav-btn prev" id="lightbox-prev-btn" onclick="navLightbox(-1)" title="Previous Image">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <img id="lightbox-img" src="" alt="Fullscreen view" />
+      <button class="lightbox-nav-btn next" id="lightbox-next-btn" onclick="navLightbox(1)" title="Next Image">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
+
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
   <script>
@@ -540,6 +686,10 @@
       renderReviews();
     }
 
+    let currentMediaIndex = 0;
+    let currentMediaType = 'image';
+    let lightboxCurrentIndex = 0;
+
     function renderThumbnails(product) {
       const container = document.getElementById('product-thumbnails');
       if (!container) return;
@@ -559,13 +709,14 @@
       // Render image thumbnails
       images.forEach((url, idx) => {
         const btn = document.createElement('button');
-        btn.className = 'thumb-btn' + (idx === 0 ? ' active' : '');
-        btn.title = `${product.name} - View Image ${idx + 1}`;
+        btn.className = 'thumb-btn' + (idx === currentMediaIndex && currentMediaType === 'image' ? ' active' : '');
+        btn.title = `${product.name} - View Photo ${idx + 1}`;
         btn.innerHTML = `<img src="${url}" alt="${product.name} - ${idx + 1}" onerror="this.src='${getPlaceholderSVG(product.category, idx)}'" />`;
         btn.onclick = () => {
           document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          showMainMedia('image', url);
+          currentMediaIndex = idx;
+          showMainMedia('image', url, idx);
         };
         container.appendChild(btn);
       });
@@ -573,7 +724,7 @@
       // Render video thumbnail if product has video
       if (video) {
         const videoBtn = document.createElement('button');
-        videoBtn.className = 'thumb-btn';
+        videoBtn.className = 'thumb-btn' + (currentMediaType === 'video' ? ' active' : '');
         videoBtn.title = 'Watch Product Video Preview 🎬';
         videoBtn.innerHTML = `
           <img src="${images[0]}" alt="Video preview thumbnail" />
@@ -588,23 +739,112 @@
       }
     }
 
-    function showMainMedia(type, src) {
+    function showMainMedia(type, src, index = 0) {
       const mainImg = document.getElementById('p-main-img');
       const mainVideo = document.getElementById('p-main-video');
+      const badge = document.getElementById('zoom-badge');
       if (!mainImg || !mainVideo) return;
 
+      currentMediaType = type;
       if (type === 'image') {
+        currentMediaIndex = index;
         mainVideo.pause();
         mainVideo.style.display = 'none';
         mainImg.src = src;
         mainImg.style.display = 'block';
+        if (badge) badge.style.display = 'flex';
       } else if (type === 'video') {
         mainImg.style.display = 'none';
         mainVideo.src = src;
         mainVideo.style.display = 'block';
+        if (badge) badge.style.display = 'none';
         mainVideo.play().catch(() => {});
       }
     }
+
+    // ── Click-to-Zoom Lightbox Modal ───────────────────
+    function handleMainMediaClick() {
+      if (currentMediaType === 'image') {
+        openLightbox(currentMediaIndex);
+      }
+    }
+    window.handleMainMediaClick = handleMainMediaClick;
+
+    function openLightbox(index = 0) {
+      if (!currentProduct) return;
+      const rawImages = (currentProduct.images && currentProduct.images.length) ? currentProduct.images : [];
+      const images = rawImages.length ? rawImages : [getPlaceholderSVG(currentProduct.category, 0)];
+
+      if (!images.length) return;
+      lightboxCurrentIndex = Math.max(0, Math.min(index, images.length - 1));
+
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+      const prevBtn = document.getElementById('lightbox-prev-btn');
+      const nextBtn = document.getElementById('lightbox-next-btn');
+
+      img.src = images[lightboxCurrentIndex];
+      caption.textContent = `${currentProduct.name} — Photo ${lightboxCurrentIndex + 1} of ${images.length}`;
+
+      // If only 1 image, hide arrows
+      if (images.length <= 1) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+      } else {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+      }
+
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    window.openLightbox = openLightbox;
+
+    function closeLightbox(e) {
+      if (e && e.target && e.target.closest('.lightbox-content') && !e.target.closest('.lightbox-close')) {
+        return;
+      }
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    window.closeLightbox = closeLightbox;
+
+    function navLightbox(delta) {
+      if (!currentProduct) return;
+      const rawImages = (currentProduct.images && currentProduct.images.length) ? currentProduct.images : [];
+      const images = rawImages.length ? rawImages : [getPlaceholderSVG(currentProduct.category, 0)];
+      if (images.length <= 1) return;
+
+      lightboxCurrentIndex = (lightboxCurrentIndex + delta + images.length) % images.length;
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+
+      img.src = images[lightboxCurrentIndex];
+      caption.textContent = `${currentProduct.name} — Photo ${lightboxCurrentIndex + 1} of ${images.length}`;
+
+      // Synchronize thumbnail and main media view
+      currentMediaIndex = lightboxCurrentIndex;
+      showMainMedia('image', images[lightboxCurrentIndex], lightboxCurrentIndex);
+      const thumbs = document.querySelectorAll('.thumb-btn');
+      thumbs.forEach((t, i) => t.classList.toggle('active', i === lightboxCurrentIndex));
+    }
+    window.navLightbox = navLightbox;
+
+    // Keyboard support for Lightbox
+    window.addEventListener('keydown', (e) => {
+      const modal = document.getElementById('lightbox-modal');
+      if (!modal || !modal.classList.contains('open')) return;
+
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        navLightbox(-1);
+      } else if (e.key === 'ArrowRight') {
+        navLightbox(1);
+      }
+    });
 
     function renderReviews() {
       const grid = document.getElementById('product-reviews-grid');
