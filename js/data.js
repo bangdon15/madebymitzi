@@ -97,15 +97,20 @@ const DB = {
 
   // ── PRODUCTS ──────────────────────────────────────
   getProducts() {
-    let prods = this.get(this.KEYS.PRODUCTS);
-    if (!prods) return this.seedProducts();
-    // Auto-migrate if Sticker (File only) items are missing from stored cache
-    if (!prods.some(p => p.category === 'Sticker (File only)')) {
-      return this.seedProducts();
+    const prods = this.get(this.KEYS.PRODUCTS);
+    // If the admin has saved products (including an empty catalog [] when all test products are deleted), respect it!
+    if (prods !== null && Array.isArray(prods)) {
+      return prods;
     }
-    return prods;
+    // Only seed on initial launch if key does not exist at all
+    return this.seedProducts();
   },
   setProducts(arr) { return this.set(this.KEYS.PRODUCTS, arr); },
+
+  clearAllProducts() {
+    this.setProducts([]);
+    return [];
+  },
 
   getProduct(id) {
     return this.getProducts().find(p => p.id === id) || null;
