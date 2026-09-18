@@ -57,6 +57,56 @@
       transform: scale(1.05);
     }
 
+    /* Thumbnail strip */
+    .product-thumbnails {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .thumb-btn {
+      width: 76px;
+      height: 76px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 2px solid var(--gray-200);
+      background: var(--gray-100);
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      padding: 0;
+      transition: all 0.2s ease;
+    }
+
+    .thumb-btn:hover {
+      border-color: var(--blue);
+      transform: translateY(-2px);
+    }
+
+    .thumb-btn.active {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.3);
+    }
+
+    .thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumb-video-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.1rem;
+    }
+
     /* Info */
     .product-info-col {
       display: flex;
@@ -265,11 +315,14 @@
       
       <div class="product-detail-grid" id="product-container">
         
-        <!-- Left: Image Gallery -->
+        <!-- Left: Image & Video Gallery -->
         <div class="product-gallery">
-          <div class="main-img-wrap">
+          <div class="main-img-wrap" id="main-media-wrap">
             <img id="p-main-img" src="" alt="Product" />
+            <video id="p-main-video" controls playsinline style="display:none;width:100%;height:100%;object-fit:contain;background:#000;border-radius:inherit;"></video>
           </div>
+          <!-- Thumbnail strip (up to 3 images + 1 video) -->
+          <div class="product-thumbnails" id="product-thumbnails"></div>
         </div>
 
         <!-- Right: Details -->
@@ -476,13 +529,81 @@
       const imgSrc = currentProduct.images?.[0] && !currentProduct.images[0].includes('placeholder')
         ? currentProduct.images[0]
         : getPlaceholderSVG(currentProduct.category, 0);
-      document.getElementById('p-main-img').src = imgSrc;
+      showMainMedia('image', imgSrc);
+
+      renderThumbnails(currentProduct);
 
       const { avg, count } = DB.getAvgRating(currentProduct.id);
       document.getElementById('p-stars').innerHTML = renderStars(avg);
       document.getElementById('p-rating-score').textContent = `${avg > 0 ? avg : '5.0'} (${count} review${count !== 1 ? 's' : ''})`;
 
       renderReviews();
+    }
+
+    function renderThumbnails(product) {
+      const container = document.getElementById('product-thumbnails');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const rawImages = (product.images && product.images.length) ? product.images : [];
+      const images = rawImages.length ? rawImages : [getPlaceholderSVG(product.category, 0)];
+      const video = product.video || null;
+
+      // If only 1 image and no video, hide thumbnail bar for clean single-image view
+      if (images.length <= 1 && !video) {
+        container.style.display = 'none';
+        return;
+      }
+      container.style.display = 'flex';
+
+      // Render image thumbnails
+      images.forEach((url, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'thumb-btn' + (idx === 0 ? ' active' : '');
+        btn.title = `${product.name} - View Image ${idx + 1}`;
+        btn.innerHTML = `<img src="${url}" alt="${product.name} - ${idx + 1}" onerror="this.src='${getPlaceholderSVG(product.category, idx)}'" />`;
+        btn.onclick = () => {
+          document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          showMainMedia('image', url);
+        };
+        container.appendChild(btn);
+      });
+
+      // Render video thumbnail if product has video
+      if (video) {
+        const videoBtn = document.createElement('button');
+        videoBtn.className = 'thumb-btn';
+        videoBtn.title = 'Watch Product Video Preview 🎬';
+        videoBtn.innerHTML = `
+          <img src="${images[0]}" alt="Video preview thumbnail" />
+          <div class="thumb-video-overlay"><i class="fas fa-play"></i></div>
+        `;
+        videoBtn.onclick = () => {
+          document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
+          videoBtn.classList.add('active');
+          showMainMedia('video', video);
+        };
+        container.appendChild(videoBtn);
+      }
+    }
+
+    function showMainMedia(type, src) {
+      const mainImg = document.getElementById('p-main-img');
+      const mainVideo = document.getElementById('p-main-video');
+      if (!mainImg || !mainVideo) return;
+
+      if (type === 'image') {
+        mainVideo.pause();
+        mainVideo.style.display = 'none';
+        mainImg.src = src;
+        mainImg.style.display = 'block';
+      } else if (type === 'video') {
+        mainImg.style.display = 'none';
+        mainVideo.src = src;
+        mainVideo.style.display = 'block';
+        mainVideo.play().catch(() => {});
+      }
     }
 
     function renderReviews() {
