@@ -615,6 +615,7 @@
     <div class="lightbox-caption" id="lightbox-caption"></div>
   </div>
 
+  <script src="js/firebase-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
   <script>
@@ -898,6 +899,9 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
+      loadProduct();
+    });
+    window.addEventListener('mbm_products_synced', () => {
       loadProduct();
     });
   </script>

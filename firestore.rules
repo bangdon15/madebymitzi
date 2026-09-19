@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================================
+    // MadeByMitzi — Production Cloud Firestore Security Rules
+    // ============================================================================
+
+    // Helper validation functions
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0
+          && data.price is number && data.price >= 0;
+    }
+
+    function isValidOrder(data) {
+      return data.total is number && data.total >= 0
+          && data.customer is map
+          && data.items is list;
+    }
+
+    // 1. Products Collection
+    // Public shoppers can browse all products.
+    // Administrative write operations require valid product schema or deletion.
+    match /mbm_products/{productId} {
+      allow read: if true;
+      allow write: if isValidProduct(request.resource.data) || request.resource == null;
+    }
+
+    // 2. Orders Collection
+    // Customers can create orders at checkout.
+    // Reading and status updates are permitted for order fulfillment.
+    match /mbm_orders/{orderId} {
+      allow create: if isValidOrder(request.resource.data);
+      allow read, update, delete: if true;
+    }
+
+    // 3. Admin Security & Credentials
+    // Holds salted SHA-256 hash for multi-device admin access.
+    match /mbm_admin/{docId} {
+      allow read, write: if true;
+    }
+
+    // 4. System Health Check & Connectivity Tests
+    // Used by Admin Settings "Test Connection" ping.
+    match /mbm_system/{docId} {
+      allow read, write: if true;
+    }
+
+    // 5. Customer Reviews
+    // Public reading and review submission.
+    match /mbm_reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.resource.data.rating is number;
+      allow update, delete: if true;
+    }
+  }
+}

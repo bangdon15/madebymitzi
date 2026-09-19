@@ -74,6 +74,14 @@ const DB = {
     }
 
     this.set(this.KEYS.AUTH, updated);
+
+    // Sync to Cloud Firestore if connected
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.syncAdminAuth === 'function') {
+      window.FirebaseService.syncAdminAuth(updated).catch(err => {
+        console.warn('Cloud sync for admin auth error:', err);
+      });
+    }
+
     return { success: true, message: 'Admin account security updated successfully! 🔐' };
   },
 
@@ -363,6 +371,23 @@ Mitzi Santos — MadeByMitzi ✨`;
     if (attempts.lockUntil && Date.now() < attempts.lockUntil) {
       const waitSec = Math.ceil((attempts.lockUntil - Date.now()) / 1000);
       return { success: false, message: `Account locked due to multiple failed attempts. Please wait ${waitSec}s.` };
+    }
+
+    // If Firebase is initialized or configured, fetch freshest credentials from cloud first
+    if (typeof window !== 'undefined' && window.FirebaseService) {
+      try {
+        if (!window.FirebaseService.isInitialized) {
+          await window.FirebaseService.init();
+        }
+        if (window.FirebaseService.isInitialized && typeof window.FirebaseService.fetchAdminAuth === 'function') {
+          const cloudAuth = await window.FirebaseService.fetchAdminAuth();
+          if (cloudAuth && cloudAuth.passwordHash) {
+            this.set(this.KEYS.AUTH, cloudAuth);
+          }
+        }
+      } catch (e) {
+        console.warn('Cloud auth fetch during login skipped:', e.message);
+      }
     }
 
     const auth = this.getAdminAuth();
