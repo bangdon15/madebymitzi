@@ -165,8 +165,10 @@
         const res = await DB.adminLogin(user, pass);
         if (res && res.success) {
           showToast('Login successful! Welcome Mitzi 🔐✨', 'success');
+          const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+          const target = redirectParam ? decodeURIComponent(redirectParam) : 'admin/dashboard.html';
           setTimeout(() => {
-            window.location.href = 'admin/dashboard.html';
+            window.location.href = target;
           }, 700);
         } else {
           showToast(res?.message || 'Invalid username or password', 'error');

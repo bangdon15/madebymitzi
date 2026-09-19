@@ -233,13 +233,21 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Default Delivery Note for Customers</label>
-            <textarea id="email-delivery-note" class="form-textarea" rows="3" placeholder="Thank you for your order with MadeByMitzi! Here are your digital download links..."></textarea>
+            <label class="form-label">Web3Forms Access Key (For Background Automated Email Delivery)</label>
+            <input type="password" id="email-web3-key" class="form-input" placeholder="e.g. 12345678-abcd-ef01-2345-6789abcdef01" />
+            <small style="color:var(--gray-500);font-size:0.78rem;">
+              Enables background email dispatch directly to your inbox and customers without opening mail clients. Get a 100% free key in 10 seconds at <a href="https://web3forms.com" target="_blank" style="color:var(--blue);font-weight:bold;">web3forms.com</a>.
+            </small>
           </div>
 
-          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveEmailSettings()">
-            <i class="fas fa-save"></i> Save Email Notification Settings
-          </button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+            <button class="btn btn-secondary" style="justify-content:center;" onclick="testSendOrderEmail()">
+              <i class="fas fa-paper-plane"></i> Send Test Alert
+            </button>
+            <button class="btn btn-blue" style="justify-content:center;" onclick="saveEmailSettings()">
+              <i class="fas fa-save"></i> Save Email Settings
+            </button>
+          </div>
         </div>
 
         <!-- Admin Account Security -->
@@ -343,10 +351,12 @@
 
   <script src="../js/firebase-config.js"></script>
   <script src="../js/data.js"></script>
+  <script src="../js/email-service.js"></script>
   <script src="../js/main.js"></script>
   <script>
     if (!DB.isAdmin()) {
-      window.location.href = '../login.html';
+      const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `../login.html?redirect=${returnUrl}`;
     }
 
     let gcashImageBase64 = null;
@@ -365,6 +375,7 @@
       document.getElementById('email-notify-cc').value = settings.orderNotifyCc || 'admin@madebymitzi.com';
       document.getElementById('email-sender-name').value = settings.emailSenderName || 'MadeByMitzi Orders';
       document.getElementById('email-delivery-note').value = settings.emailDeliveryNote || '';
+      document.getElementById('email-web3-key').value = settings.web3FormsKey || '';
 
       // Admin Auth info
       const auth = DB.getAdminAuth();
@@ -445,6 +456,7 @@
       const orderNotifyCc = document.getElementById('email-notify-cc').value.trim();
       const emailSenderName = document.getElementById('email-sender-name').value.trim();
       const emailDeliveryNote = document.getElementById('email-delivery-note').value.trim();
+      const web3FormsKey = document.getElementById('email-web3-key').value.trim();
 
       if (!orderNotifyTo) {
         showToast('Please provide a valid "To:" email address.', 'error');
@@ -455,12 +467,47 @@
         orderNotifyTo,
         orderNotifyCc,
         emailSenderName,
-        emailDeliveryNote
+        emailDeliveryNote,
+        web3FormsKey
       });
+
+      if (web3FormsKey) {
+        localStorage.setItem('mbm_web3forms_key', web3FormsKey);
+      }
 
       showToast('Email notification settings saved! 📧✅', 'success');
     }
     window.saveEmailSettings = saveEmailSettings;
+
+    async function testSendOrderEmail() {
+      const to = document.getElementById('email-notify-to').value.trim();
+      if (!to) {
+        showToast('Please specify a recipient email address first.', 'error');
+        return;
+      }
+      showToast('Sending test order alert email...', 'info');
+      const sampleOrder = {
+        id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
+        createdAt: new Date().toISOString(),
+        customer: { name: 'Sample Customer', email: to, phone: '09123456789' },
+        items: [{ productId: 'test_1', name: 'Sample Celebration Sticker Pack', qty: 1, price: 149 }],
+        paymentMethod: 'gcash',
+        refNumber: 'GCASH-TEST-9999',
+        total: 149,
+        subtotal: 149,
+        status: 'pending'
+      };
+
+      if (window.EmailService) {
+        const res = await window.EmailService.sendOrderAlertToAdmin(sampleOrder);
+        if (res && res.success) {
+          showToast('Test email alert dispatched successfully to ' + to + ' 📬', 'success');
+        } else {
+          showToast('Test email alert: ' + (res?.message || 'Queued in Firestore'), 'info');
+        }
+      }
+    }
+    window.testSendOrderEmail = testSendOrderEmail;
 
     async function handleUpdateSecurity() {
       const curPass = document.getElementById('sec-current-pass').value.trim();

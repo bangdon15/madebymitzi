@@ -53,5 +53,11 @@ service cloud.firestore {
       allow create: if request.resource.data.rating is number;
       allow update, delete: if true;
     }
+
+    // 6. Automated Notifications & Email Logs
+    match /mbm_notifications/{docId} {
+      allow read, write: if true;
+    }
   }
 }
+
