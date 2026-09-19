@@ -287,7 +287,34 @@ const EmailService = {
       }
     }
 
-    // 2. If Web3Forms Access Key is configured, send directly via Web3Forms API
+    // 2. If Resend API Key is configured in settings or localStorage
+    const resendKey = settings.resendApiKey || localStorage.getItem('mbm_resend_key') || '';
+    if (resendKey) {
+      try {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'MadeByMitzi <onboarding@resend.dev>',
+            to: [to],
+            subject: subject,
+            html: html || text
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.id) {
+          console.log('✅ Email sent successfully via Resend to:', to);
+          return { success: true, method: 'resend', message: 'Email sent directly via Resend to ' + to };
+        }
+      } catch (e) {
+        console.warn('Resend client dispatch error:', e);
+      }
+    }
+
+    // 3. If Web3Forms Access Key is configured, send directly via Web3Forms API
     if (web3Key) {
       try {
         const payload = {
@@ -308,32 +335,36 @@ const EmailService = {
         if (data.success) {
           console.log('✅ Email sent successfully via Web3Forms to:', to);
           return { success: true, method: 'web3forms', message: 'Email sent directly to ' + to };
+        } else {
+          return { success: false, method: 'web3forms', message: data.message || 'Web3Forms error' };
         }
       } catch (err) {
         console.warn('Web3Forms dispatch error:', err);
       }
     }
 
-    // 3. Fallback: Check if Vercel serverless /api/send-email is present
+    // 4. Fallback: Check if Vercel serverless /api/send-email is present
     try {
       const res = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to, subject, html, text })
+        body: JSON.stringify({ to, subject, html, text, fromName })
       });
       if (res.ok) {
         const data = await res.json();
-        return { success: true, method: 'api', message: 'Email sent via serverless API' };
+        if (data.method === 'resend' || data.method === 'web3forms') {
+          return { success: true, method: data.method, message: 'Email sent via serverless API to ' + to };
+        }
       }
     } catch {
       // API endpoint not configured or offline
     }
 
-    // 4. Client mailto / ready draft fallback
+    // 5. No key configured
     return {
-      success: true,
-      method: 'draft',
-      message: 'Email ready and queued for delivery.'
+      success: false,
+      method: 'no_key',
+      message: 'No email service key configured yet. Please enter your free Web3Forms Access Key in Settings to receive emails in your inbox.'
     };
   },
 

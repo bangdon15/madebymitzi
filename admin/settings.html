@@ -481,11 +481,20 @@
 
     async function testSendOrderEmail() {
       const to = document.getElementById('email-notify-to').value.trim();
+      const web3Key = document.getElementById('email-web3-key').value.trim() || DB.getSettings().web3FormsKey;
+
       if (!to) {
-        showToast('Please specify a recipient email address first.', 'error');
+        showToast('Please specify your recipient email address in "To:" first.', 'error');
         return;
       }
-      showToast('Sending test order alert email...', 'info');
+
+      if (!web3Key) {
+        showToast('⚠️ Enter your free Web3Forms Access Key from web3forms.com below to receive real emails in your inbox!', 'error');
+        document.getElementById('email-web3-key').focus();
+        return;
+      }
+
+      showToast('Dispatching test order alert to ' + to + '...', 'info');
       const sampleOrder = {
         id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
         createdAt: new Date().toISOString(),
@@ -501,9 +510,9 @@
       if (window.EmailService) {
         const res = await window.EmailService.sendOrderAlertToAdmin(sampleOrder);
         if (res && res.success) {
-          showToast('Test email alert dispatched successfully to ' + to + ' 📬', 'success');
+          showToast('✅ Test email sent to ' + to + '! Check your inbox (or spam folder) 📬', 'success');
         } else {
-          showToast('Test email alert: ' + (res?.message || 'Queued in Firestore'), 'info');
+          showToast('⚠️ ' + (res?.message || 'Email delivery failed'), 'error');
         }
       }
     }
