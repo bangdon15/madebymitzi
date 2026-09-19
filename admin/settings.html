@@ -217,7 +217,7 @@
 
           <div class="form-group">
             <label class="form-label">To: (Primary Order Notification Email) *</label>
-            <input type="email" id="email-notify-to" class="form-input" placeholder="e.g. orders@madebymitzi.com" required />
+            <input type="email" id="email-notify-to" class="form-input" placeholder="e.g. orders@madebymitzi.com" oninput="updateTestEmailPreview()" required />
             <small style="color:var(--gray-500);font-size:0.78rem;">Email address that receives alerts whenever a customer places an order.</small>
           </div>
 
@@ -245,13 +245,34 @@
             </small>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
-            <button class="btn btn-secondary" style="justify-content:center;" onclick="testSendOrderEmail()">
-              <i class="fas fa-paper-plane"></i> Send Test Alert
+          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:14px;padding:12px;font-weight:700;font-size:0.95rem;" onclick="saveEmailSettings()">
+            <i class="fas fa-save"></i> Save Email Settings
+          </button>
+
+          <!-- High-Visibility Live Email Testing Panel -->
+          <div style="margin-top: 22px; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 2px solid #8b5cf6; border-radius: var(--radius-lg); padding: 20px; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.15);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #5b21b6; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-vial" style="font-size: 1.1rem; color: #7c3aed;"></i>
+                <span>Email Delivery Diagnostics & Test</span>
+              </div>
+              <span id="test-email-badge" style="font-size: 0.75rem; font-weight: 800; background: #ddd6fe; color: #4c1d95; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fas fa-circle" style="font-size: 7px; color: #10b981;"></i> Ready
+              </span>
+            </div>
+            
+            <p style="font-size: 0.82rem; color: #5b21b6; margin: 0 0 14px; line-height: 1.45;">
+              Click below to send a live test order alert to <strong id="test-dest-preview">your notification email</strong> with receipt and 1-click confirmation link.
+            </p>
+
+            <!-- High Visibility Action Button -->
+            <button id="btn-test-email" class="btn" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-weight: 800; font-size: 1rem; padding: 14px 22px; border-radius: var(--radius-md); border: none; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 10px;" onclick="testSendOrderEmail()">
+              <i class="fas fa-paper-plane"></i>
+              <span>Send Test Alert Email Now</span>
             </button>
-            <button class="btn btn-blue" style="justify-content:center;" onclick="saveEmailSettings()">
-              <i class="fas fa-save"></i> Save Email Settings
-            </button>
+
+            <!-- Real-Time Status Feedback Banner -->
+            <div id="test-email-status-box" style="margin-top: 14px; font-size: 0.84rem; border-radius: var(--radius-md); padding: 12px 16px; display: none; line-height: 1.45;"></div>
           </div>
         </div>
 
@@ -381,6 +402,7 @@
       document.getElementById('email-sender-name').value = settings.emailSenderName || 'MadeByMitzi Orders';
       document.getElementById('email-delivery-note').value = settings.emailDeliveryNote || '';
       document.getElementById('email-web3-key').value = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
+      updateTestEmailPreview();
 
       // Admin Auth info
       const auth = DB.getAdminAuth();
@@ -484,27 +506,64 @@
     }
     window.saveEmailSettings = saveEmailSettings;
 
+    function updateTestEmailPreview() {
+      const to = document.getElementById('email-notify-to')?.value.trim() || 'orders@madebymitzi.com';
+      const preview = document.getElementById('test-dest-preview');
+      if (preview) preview.textContent = to;
+    }
+
     async function testSendOrderEmail() {
       const to = document.getElementById('email-notify-to').value.trim();
       const web3Key = document.getElementById('email-web3-key').value.trim() || DB.getSettings().web3FormsKey;
+      const btn = document.getElementById('btn-test-email');
+      const statusBox = document.getElementById('test-email-status-box');
+      const badge = document.getElementById('test-email-badge');
 
       if (!to) {
         showToast('Please specify your recipient email address in "To:" first.', 'error');
+        document.getElementById('email-notify-to').focus();
         return;
       }
 
       if (!web3Key) {
-        showToast('⚠️ Enter your free Web3Forms Access Key from web3forms.com below to receive real emails in your inbox!', 'error');
+        showToast('⚠️ Web3Forms Access Key is required for email delivery.', 'error');
         document.getElementById('email-web3-key').focus();
         return;
+      }
+
+      // Visual Loading State
+      if (btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:1.1rem;"></i> <span>Sending Test Alert Email...</span>';
+        btn.disabled = true;
+        btn.style.opacity = '0.85';
+      }
+      if (badge) {
+        badge.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:8px;"></i> In Flight';
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#92400e';
+      }
+      if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.style.background = '#f3e8ff';
+        statusBox.style.border = '1.5px solid #d8b4fe';
+        statusBox.style.color = '#581c87';
+        statusBox.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;font-weight:700;">
+            <i class="fas fa-paper-plane fa-bounce" style="color:#7c3aed;"></i>
+            <span>Connecting to Web3Forms API & Dispatching to <strong>${to}</strong>...</span>
+          </div>
+          <div style="font-size:0.78rem;color:#7e22ce;margin-top:6px;">
+            Sending a complete sample purchase receipt with order details and the 1-click payment confirmation link.
+          </div>
+        `;
       }
 
       showToast('Dispatching test order alert to ' + to + '...', 'info');
       const sampleOrder = {
         id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
         createdAt: new Date().toISOString(),
-        customer: { name: 'Sample Customer', email: to, phone: '09123456789' },
-        items: [{ productId: 'test_1', name: 'Sample Celebration Sticker Pack', qty: 1, price: 149 }],
+        customer: { name: 'Sample Customer (Test)', email: to, phone: '0917-000-0000' },
+        items: [{ productId: 'test_1', name: 'Sample Celebration Sticker Pack (Digital)', qty: 1, price: 149 }],
         paymentMethod: 'gcash',
         refNumber: 'GCASH-TEST-9999',
         total: 149,
@@ -512,12 +571,68 @@
         status: 'pending'
       };
 
-      if (window.EmailService) {
-        const res = await window.EmailService.sendOrderAlertToAdmin(sampleOrder);
-        if (res && res.success) {
-          showToast('✅ Test email sent to ' + to + '! Check your inbox (or spam folder) 📬', 'success');
-        } else {
-          showToast('⚠️ ' + (res?.message || 'Email delivery failed'), 'error');
+      try {
+        if (window.EmailService) {
+          const res = await window.EmailService.sendOrderAlertToAdmin(sampleOrder);
+          if (res && res.success) {
+            showToast('✅ Test email delivered to ' + to + '! Check your inbox 📬', 'success');
+            if (badge) {
+              badge.innerHTML = '<i class="fas fa-check-circle" style="font-size:9px;color:#10b981;"></i> Sent';
+              badge.style.background = '#dcfce7';
+              badge.style.color = '#15803d';
+            }
+            if (statusBox) {
+              statusBox.style.display = 'block';
+              statusBox.style.background = '#ecfdf5';
+              statusBox.style.border = '2px solid #86efac';
+              statusBox.style.color = '#065f46';
+              statusBox.innerHTML = `
+                <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:0.94rem;color:#047857;">
+                  <i class="fas fa-check-circle" style="font-size:1.15rem;color:#10b981;"></i> Test Email Sent Successfully!
+                </div>
+                <div style="font-size:0.82rem;color:#065f46;margin-top:6px;line-height:1.5;">
+                  Web3Forms confirmed delivery to <strong>${to}</strong>.<br/>
+                  📬 <strong>Please check:</strong> Check your inbox (and Spam/Promotions folder). Inside you will see the full receipt with the button: <em>"👉 Click Here If You Received The Payment"</em>.
+                </div>
+              `;
+            }
+          } else {
+            showToast('⚠️ ' + (res?.message || 'Email delivery issue'), 'error');
+            if (badge) {
+              badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size:9px;color:#ef4444;"></i> Issue';
+              badge.style.background = '#fee2e2';
+              badge.style.color = '#991b1b';
+            }
+            if (statusBox) {
+              statusBox.style.display = 'block';
+              statusBox.style.background = '#fef2f2';
+              statusBox.style.border = '2px solid #fca5a5';
+              statusBox.style.color = '#991b1b';
+              statusBox.innerHTML = `
+                <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:0.92rem;color:#b91c1c;">
+                  <i class="fas fa-exclamation-circle" style="font-size:1.15rem;color:#ef4444;"></i> Email Dispatch Issue
+                </div>
+                <div style="font-size:0.82rem;color:#991b1b;margin-top:6px;">
+                  ${res?.message || 'Unable to dispatch email. Please ensure your Web3Forms access key is active.'}
+                </div>
+              `;
+            }
+          }
+        }
+      } catch (err) {
+        showToast('Error sending test email: ' + err.message, 'error');
+        if (statusBox) {
+          statusBox.style.display = 'block';
+          statusBox.style.background = '#fef2f2';
+          statusBox.style.border = '2px solid #fca5a5';
+          statusBox.style.color = '#991b1b';
+          statusBox.innerHTML = `<div style="font-weight:700;color:#b91c1c;">⚠️ Error: ${err.message}</div>`;
+        }
+      } finally {
+        if (btn) {
+          btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Send Another Test Alert Email</span>';
+          btn.disabled = false;
+          btn.style.opacity = '1';
         }
       }
     }
