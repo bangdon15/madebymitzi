@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Official Purchase Receipt — MadeByMitzi 🧾</title>
+  <link rel="icon" type="image/jpeg" href="images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="images/madebymitzi.jpg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      background: #F3F4F6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .receipt-container {
+      max-width: 780px;
+      margin: 40px auto 60px;
+      padding: 0 16px;
+      width: 100%;
+    }
+
+    .receipt-card {
+      background: white;
+      border-radius: 20px;
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .receipt-header {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 50%, var(--teal) 100%);
+      color: white;
+      padding: 36px 32px;
+      text-align: center;
+      position: relative;
+    }
+
+    .receipt-logo {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 3px solid var(--yellow);
+      margin: 0 auto 12px;
+      display: block;
+      object-fit: cover;
+      box-shadow: var(--shadow-yellow);
+    }
+
+    .receipt-header h1 {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin: 0;
+    }
+
+    .receipt-header p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin: 4px 0 0;
+    }
+
+    .receipt-status-pill {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .status-confirmed {
+      background: #DCFCE7;
+      color: #15803D;
+    }
+
+    .status-pending {
+      background: #FEF3C7;
+      color: #B45309;
+    }
+
+    /* Admin Action Banner */
+    .admin-banner {
+      background: #EFF6FF;
+      border-bottom: 2px solid #BFDBFE;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .receipt-body {
+      padding: 32px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 28px;
+      font-size: 0.9rem;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-item span {
+      color: var(--gray-800);
+      font-weight: 600;
+    }
+
+    /* Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+    }
+
+    .items-table th {
+      text-align: left;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      padding: 12px 10px;
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .items-table td {
+      padding: 16px 10px;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: middle;
+      font-size: 0.92rem;
+    }
+
+    .delivery-buttons-wrap {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-canva {
+      background: #7C3AED;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+    .btn-canva:hover {
+      background: #6D28D9;
+      color: white;
+    }
+
+    .btn-pdf {
+      background: var(--blue);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+    .btn-pdf:hover {
+      background: var(--blue-dark);
+      color: white;
+    }
+
+    /* Breakdown */
+    .totals-wrap {
+      max-width: 320px;
+      margin-left: auto;
+      margin-bottom: 28px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.92rem;
+      padding: 6px 0;
+      color: var(--gray-600);
+    }
+
+    .total-row.grand-total {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--blue);
+      border-top: 2px solid var(--gray-200);
+      padding-top: 12px;
+      margin-top: 6px;
+    }
+
+    /* Proof Section */
+    .proof-card {
+      background: #F9FAFB;
+      border: 1px dashed var(--gray-300);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .proof-card img {
+      max-height: 220px;
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    /* Action bar */
+    .receipt-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .receipt-container {
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+      }
+      .receipt-card {
+        border: none;
+        box-shadow: none;
+      }
+      .admin-banner, .receipt-actions, .navbar, .footer {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container"></div>
+
+  <div class="receipt-container">
+    <div class="receipt-card" id="receipt-print-area">
+      
+      <!-- Admin Quick-Action Banner (Visible if Admin or confirm param) -->
+      <div id="admin-action-banner" class="admin-banner" style="display:none;">
+        <div style="font-size:0.9rem;color:#1E40AF;">
+          <strong>🔐 Admin Confirmation Portal:</strong> Check your GCash/Bank app, then confirm receipt below.
+        </div>
+        <button class="btn btn-green btn-sm" id="btn-admin-confirm" onclick="handleAdminConfirmClick()">
+          <i class="fas fa-check-circle"></i> Confirm Payment & Dispatch Email
+        </button>
+      </div>
+
+      <!-- Receipt Header -->
+      <div class="receipt-header">
+        <img src="images/madebymitzi.jpg" alt="MadeByMitzi" class="receipt-logo" />
+        <h1>MadeByMitzi</h1>
+        <p>Official Digital Store & Purchase Receipt</p>
+        <div>
+          <span id="receipt-status-pill" class="receipt-status-pill status-pending">
+            ⏳ PENDING PAYMENT VERIFICATION
+          </span>
+        </div>
+      </div>
+
+      <!-- Receipt Body -->
+      <div class="receipt-body">
+        
+        <!-- Metadata -->
+        <div class="meta-grid">
+          <div class="meta-item">
+            <strong>Receipt / Order Number</strong>
+            <span id="rec-order-id" style="font-family:monospace;color:var(--blue);font-size:1.05rem;">—</span>
+          </div>
+          <div class="meta-item">
+            <strong>Date & Time Issued</strong>
+            <span id="rec-date">—</span>
+          </div>
+          <div class="meta-item">
+            <strong>Customer Name</strong>
+            <span id="rec-cust-name">—</span>
+          </div>
+          <div class="meta-item">
+            <strong>Customer Email</strong>
+            <span id="rec-cust-email">—</span>
+          </div>
+          <div class="meta-item">
+            <strong>Payment Method</strong>
+            <span id="rec-payment-method">GCash</span>
+          </div>
+          <div class="meta-item">
+            <strong>Reference / Transaction #</strong>
+            <span id="rec-ref-num" style="font-family:monospace;color:var(--green);font-weight:700;">—</span>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Item & Download Access</th>
+              <th style="text-align:center;">Qty</th>
+              <th style="text-align:right;">Price</th>
+              <th style="text-align:right;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="rec-items-tbody">
+            <!-- Items injected dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Totals Breakdown -->
+        <div class="totals-wrap">
+          <div class="total-row">
+            <span>Subtotal:</span>
+            <span id="rec-subtotal">₱0</span>
+          </div>
+          <div class="total-row" id="rec-discount-row" style="display:none;color:var(--green);">
+            <span>Discount Applied:</span>
+            <span id="rec-discount">-₱0</span>
+          </div>
+          <div class="total-row grand-total">
+            <span>Total Paid:</span>
+            <span id="rec-total">₱0</span>
+          </div>
+        </div>
+
+        <!-- Proof of Payment (if attached) -->
+        <div id="rec-proof-section" class="proof-card" style="display:none;">
+          <div style="font-weight:700;font-size:0.85rem;color:var(--gray-700);">
+            <i class="fas fa-paperclip"></i> Attached Payment Proof / Screenshot:
+          </div>
+          <img id="rec-proof-img" src="" alt="Payment Proof" onclick="window.open(this.src)" title="Click to view full image" />
+        </div>
+
+        <!-- Note from Mitzi -->
+        <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:16px;text-align:center;font-size:0.88rem;color:#92400E;">
+          💛 <strong>A note from Mitzi:</strong>
+          <div style="margin-top:4px;font-style:italic;" id="rec-delivery-note">
+            Thank you so much for your purchase! We hope our designs add joy and creativity to your celebration.
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="receipt-actions">
+          <button class="btn btn-primary btn-md" onclick="window.print()">
+            <i class="fas fa-print"></i> Print / Save as PDF
+          </button>
+          <a href="shop.html" class="btn btn-outline-blue btn-md">
+            <i class="fas fa-shopping-bag"></i> Browse More Designs
+          </a>
+          <a href="index.html" class="btn btn-secondary btn-md">
+            <i class="fas fa-home"></i> Home
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/email-service.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let currentOrder = null;
+
+    async function loadReceipt() {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get('id') || params.get('confirm_order');
+      const shouldConfirm = params.get('confirm') === '1' || params.get('action') === 'confirm';
+
+      if (!orderId) {
+        document.querySelector('.receipt-body').innerHTML = `
+          <div style="text-align:center;padding:40px;color:var(--gray-500);">
+            <h2>Receipt Not Found</h2>
+            <p>Please check your receipt link or order ID.</p>
+            <a href="index.html" class="btn btn-primary" style="margin-top:16px;">Go to Shop</a>
+          </div>
+        `;
+        return;
+      }
+
+      currentOrder = DB.getOrder(orderId);
+
+      // If not found locally, attempt to fetch from Firestore
+      if (!currentOrder && window.FirebaseService && window.FirebaseService.isInitialized) {
+        try {
+          const orders = await window.FirebaseService.fetchOrders();
+          if (orders && orders.length) {
+            DB.setOrders(orders);
+            currentOrder = DB.getOrder(orderId);
+          }
+        } catch (e) {
+          console.warn('Firestore receipt fetch error:', e);
+        }
+      }
+
+      if (!currentOrder) {
+        document.getElementById('rec-order-id').textContent = orderId;
+        showToast('Looking up order...', 'info');
+        return;
+      }
+
+      // Populate Metadata
+      document.getElementById('rec-order-id').textContent = currentOrder.id;
+      document.getElementById('rec-date').textContent = new Date(currentOrder.createdAt || Date.now()).toLocaleString('en-PH', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+      document.getElementById('rec-cust-name').textContent = currentOrder.customer?.name || 'Valued Customer';
+      document.getElementById('rec-cust-email').textContent = currentOrder.customer?.email || 'N/A';
+      document.getElementById('rec-payment-method').textContent = (currentOrder.paymentMethod || 'GCash').toUpperCase();
+      document.getElementById('rec-ref-num').textContent = currentOrder.refNumber || '—';
+
+      // Status
+      const isConfirmed = currentOrder.status === 'confirmed';
+      const statusPill = document.getElementById('receipt-status-pill');
+      if (isConfirmed) {
+        statusPill.className = 'receipt-status-pill status-confirmed';
+        statusPill.innerHTML = '<i class="fas fa-check-circle"></i> PAYMENT VERIFIED & CONFIRMED';
+      } else {
+        statusPill.className = 'receipt-status-pill status-pending';
+        statusPill.innerHTML = '<i class="fas fa-clock"></i> PENDING PAYMENT VERIFICATION';
+      }
+
+      // Items
+      const tbody = document.getElementById('rec-items-tbody');
+      tbody.innerHTML = '';
+      (currentOrder.items || []).forEach(item => {
+        const prod = DB.getProduct(item.productId);
+        const canvaLink = prod?.canvaLink || '';
+        const pdfLink = prod?.pdfLink || '';
+
+        let downloadButtons = '';
+        if (isConfirmed) {
+          if (canvaLink || pdfLink) {
+            downloadButtons = `
+              <div class="delivery-buttons-wrap">
+                ${canvaLink ? `<a href="${canvaLink}" target="_blank" class="btn-canva"><i class="fas fa-palette"></i> Open Canva Template</a>` : ''}
+                ${pdfLink ? `<a href="${pdfLink}" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf"></i> Download PDF</a>` : ''}
+              </div>
+            `;
+          } else {
+            downloadButtons = `<div style="font-size:0.75rem;color:var(--gray-500);margin-top:4px;">Digital files ready.</div>`;
+          }
+        } else {
+          downloadButtons = `<div style="font-size:0.75rem;color:var(--gray-400);margin-top:4px;font-style:italic;">Links will activate once payment is verified.</div>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div style="font-weight:700;color:var(--gray-800);">${item.name}</div>
+            ${downloadButtons}
+          </td>
+          <td style="text-align:center;color:var(--gray-600);">${item.qty}</td>
+          <td style="text-align:right;color:var(--gray-600);">${formatPrice(item.price)}</td>
+          <td style="text-align:right;font-weight:700;color:var(--gray-900);">${formatPrice(item.price * item.qty)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Totals
+      document.getElementById('rec-subtotal').textContent = formatPrice(currentOrder.subtotal || currentOrder.total);
+      if (currentOrder.discount) {
+        document.getElementById('rec-discount-row').style.display = 'flex';
+        document.getElementById('rec-discount').textContent = `-${formatPrice(currentOrder.discount)}`;
+      }
+      document.getElementById('rec-total').textContent = formatPrice(currentOrder.total);
+
+      // Proof Image
+      if (currentOrder.receiptImage) {
+        document.getElementById('rec-proof-section').style.display = 'block';
+        document.getElementById('rec-proof-img').src = currentOrder.receiptImage;
+      }
+
+      // Settings note
+      const settings = DB.getSettings();
+      if (settings.emailDeliveryNote) {
+        document.getElementById('rec-delivery-note').textContent = settings.emailDeliveryNote;
+      }
+
+      // Admin Action Banner
+      if (DB.isAdmin() || shouldConfirm) {
+        const banner = document.getElementById('admin-action-banner');
+        banner.style.display = 'flex';
+        const btn = document.getElementById('btn-admin-confirm');
+        if (isConfirmed) {
+          btn.innerHTML = '<i class="fas fa-check"></i> Already Confirmed';
+          btn.className = 'btn btn-secondary btn-sm';
+          btn.disabled = true;
+        }
+      }
+    }
+
+    async function handleAdminConfirmClick() {
+      if (!currentOrder) return;
+      if (!DB.isAdmin()) {
+        const pass = prompt('Enter admin password to confirm payment:');
+        if (!pass) return;
+        const res = await DB.adminLogin('admin_madebymitzi', pass);
+        if (!res.success) {
+          alert('Incorrect password.');
+          return;
+        }
+      }
+
+      const btn = document.getElementById('btn-admin-confirm');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming & Delivering...';
+      btn.disabled = true;
+
+      // Update Order
+      DB.updateOrderStatus(currentOrder.id, 'confirmed');
+
+      // Dispatch Buyer Delivery Email with Canva/PDF links + Receipt
+      if (window.EmailService) {
+        await window.EmailService.sendBuyerDigitalDelivery(currentOrder);
+      }
+
+      showToast('Payment confirmed! Digital delivery email sent to buyer 🎉', 'success');
+      setTimeout(() => {
+        loadReceipt();
+      }, 800);
+    }
+    window.handleAdminConfirmClick = handleAdminConfirmClick;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadReceipt();
+    });
+  </script>
+</body>
+</html>

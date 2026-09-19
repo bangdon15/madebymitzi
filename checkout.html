@@ -507,6 +507,7 @@
 
   <script src="js/firebase-config.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/email-service.js"></script>
   <script src="js/main.js"></script>
   <script>
     let currentPaymentMethod = 'gcash';
@@ -726,7 +727,14 @@
       DB.clearCart();
       sessionStorage.removeItem('mbm_active_discount');
 
-      showToast('Order placed successfully! Redirecting...', 'success');
+      // Trigger automatic Admin Order Alert Email with 1-click confirm link
+      if (window.EmailService) {
+        window.EmailService.sendOrderAlertToAdmin(newOrder).catch(e => {
+          console.warn('Admin order alert email error:', e);
+        });
+      }
+
+      showToast('Order placed successfully! Notifying Mitzi...', 'success');
       launchConfetti(2500);
 
       setTimeout(() => {
