@@ -326,9 +326,14 @@
             </button>
           </div>
 
-          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="syncProductsToCloud()">
-            <i class="fas fa-cloud-upload-alt"></i> Sync All Products to Cloud
-          </button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+            <button class="btn btn-blue" style="justify-content:center;" onclick="syncProductsToCloud()">
+              <i class="fas fa-cloud-upload-alt"></i> Sync Products
+            </button>
+            <button class="btn btn-outline-blue" style="justify-content:center;" onclick="syncSecurityToCloud()">
+              <i class="fas fa-shield-alt"></i> Sync Security
+            </button>
+          </div>
         </div>
 
       </div>
@@ -480,7 +485,11 @@
 
       const res = await DB.updateAdminCredentials(curPass, newUser, newPass, newUser);
       if (res.success) {
-        showToast(res.message, 'success');
+        let msg = res.message;
+        if (window.FirebaseService?.isInitialized) {
+          msg += ' & Synced to Cloud Firestore ☁️';
+        }
+        showToast(msg, 'success');
         document.getElementById('sec-current-pass').value = '';
         document.getElementById('sec-new-pass').value = '';
         document.getElementById('sec-confirm-pass').value = '';
@@ -532,10 +541,15 @@
       const config = { projectId, apiKey, authDomain };
       window.FirebaseService.saveConfig(config);
       showToast('Firebase configuration saved! Initializing...', 'success');
-      window.FirebaseService.init().then(ready => {
+      window.FirebaseService.init().then(async ready => {
         updateFirebaseStatus();
         if (ready) {
           showToast('Firebase Firestore successfully connected! 🚀', 'success');
+          // Automatically sync current admin credentials to cloud
+          const currentAuth = DB.getAdminAuth();
+          if (currentAuth && typeof window.FirebaseService.syncAdminAuth === 'function') {
+            await window.FirebaseService.syncAdminAuth(currentAuth);
+          }
         }
       });
     }
@@ -581,6 +595,26 @@
       }
     }
     window.syncProductsToCloud = syncProductsToCloud;
+
+    async function syncSecurityToCloud() {
+      if (!window.FirebaseService?.isInitialized) {
+        const ready = await window.FirebaseService.init();
+        if (!ready) {
+          showToast('Cloud database not connected. Please save valid Firebase config first.', 'error');
+          return;
+        }
+      }
+
+      showToast('Syncing admin credentials to Cloud Firestore...', 'info');
+      const currentAuth = DB.getAdminAuth();
+      const success = await window.FirebaseService.syncAdminAuth(currentAuth);
+      if (success) {
+        showToast('Admin credentials synced to Cloud Firestore successfully! 🔐☁️', 'success');
+      } else {
+        showToast('Failed to sync admin credentials to Firestore.', 'error');
+      }
+    }
+    window.syncSecurityToCloud = syncSecurityToCloud;
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCurrentSettings();

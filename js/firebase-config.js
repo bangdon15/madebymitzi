@@ -57,6 +57,15 @@ const FirebaseService = {
             window.dispatchEvent(new CustomEvent('mbm_products_synced'));
           }
         }).catch(() => {});
+
+        // Automatically sync admin auth credentials from cloud
+        this.fetchAdminAuth().then(cloudAuth => {
+          if (cloudAuth && cloudAuth.passwordHash && typeof window.DB !== 'undefined') {
+            window.DB.set(window.DB.KEYS.AUTH, cloudAuth);
+            console.log('🔐 Admin auth credentials synced from Cloud Firestore.');
+          }
+        }).catch(() => {});
+
         return true;
       }
     } catch (err) {
@@ -221,6 +230,44 @@ const FirebaseService = {
       return orders;
     } catch (err) {
       console.warn('Error fetching orders from Firestore:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Sync admin credentials to Firestore mbm_admin collection
+   */
+  async syncAdminAuth(authData) {
+    if (!this.isInitialized || !this.db) return false;
+    try {
+      await this.db.collection('mbm_admin').doc('credentials').set({
+        username: authData.username,
+        passwordHash: authData.passwordHash,
+        email: authData.email || '',
+        role: authData.role || 'super_admin',
+        updatedAt: authData.updatedAt || new Date().toISOString()
+      }, { merge: true });
+      console.log('✅ Admin credentials synced to Firestore cloud.');
+      return true;
+    } catch (err) {
+      console.warn('Error syncing admin auth to Firestore:', err);
+      return false;
+    }
+  },
+
+  /**
+   * Fetch admin credentials from Firestore mbm_admin collection
+   */
+  async fetchAdminAuth() {
+    if (!this.isInitialized || !this.db) return null;
+    try {
+      const doc = await this.db.collection('mbm_admin').doc('credentials').get();
+      if (doc.exists) {
+        return doc.data();
+      }
+      return null;
+    } catch (err) {
+      console.warn('Error fetching admin auth from Firestore:', err);
       return null;
     }
   }

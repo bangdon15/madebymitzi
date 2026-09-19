@@ -213,6 +213,7 @@
   </div>
 </footer>
 
+<script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script>
@@ -376,6 +377,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.innerWidth <= 900) filterToggle.style.display = 'inline-flex';
   window.addEventListener('resize', () => {
     filterToggle.style.display = window.innerWidth <= 900 ? 'inline-flex' : 'none';
+  });
+
+  window.addEventListener('mbm_products_synced', () => {
+    loadProducts();
   });
 });
 </script>

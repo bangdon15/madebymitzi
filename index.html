@@ -780,19 +780,23 @@
     </div>
   </footer>
 
+  <script src="js/firebase-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Featured products showcase
+    function renderHomepageProducts() {
       const featuredScroll = document.getElementById('featured-scroll');
+      if (!featuredScroll) return;
       const products = DB.getProducts().filter(p => p.status === 'active');
 
       // Update stats
-      document.getElementById('stat-products').textContent = products.length;
-      document.getElementById('hero-products-count').textContent = products.length;
+      const statEl = document.getElementById('stat-products');
+      const heroCountEl = document.getElementById('hero-products-count');
+      if (statEl) statEl.textContent = products.length;
+      if (heroCountEl) heroCountEl.textContent = products.length;
 
       // Build showcase cards
+      featuredScroll.innerHTML = '';
       products.forEach((p, i) => {
         const { avg, count } = DB.getAvgRating(p.id);
         const imgSrc = p.images?.[0] && !p.images[0].includes('placeholder') ? p.images[0] : getPlaceholderSVG(p.category, i);
@@ -813,6 +817,11 @@
     `;
         featuredScroll.appendChild(card);
       });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Featured products showcase
+      renderHomepageProducts();
 
       // Reviews
       const reviewsGrid = document.getElementById('reviews-grid');
@@ -837,6 +846,11 @@
       });
 
       // Re-run reveal
+      initReveal();
+    });
+
+    window.addEventListener('mbm_products_synced', () => {
+      renderHomepageProducts();
       initReveal();
     });
   </script>
