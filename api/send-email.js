@@ -50,18 +50,20 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 2. Check if Web3Forms Access Key is set in environment
-    const web3Key = process.env.WEB3FORMS_KEY;
+    // 2. Check if Web3Forms Access Key is set in environment or default
+    const web3Key = process.env.WEB3FORMS_KEY || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
     if (web3Key) {
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
           access_key: web3Key,
           subject: subject,
-          from_name: fromName || 'MadeByMitzi',
+          from_name: fromName || 'MadeByMitzi Orders',
+          name: fromName || 'MadeByMitzi Orders',
+          email: to,
           to: to,
-          message: html || text
+          message: text ? `${text}\n\n========================================\nHTML RECEIPT:\n${html}` : html
         })
       });
 
