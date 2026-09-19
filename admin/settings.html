@@ -233,10 +233,15 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Web3Forms Access Key (For Background Automated Email Delivery)</label>
-            <input type="password" id="email-web3-key" class="form-input" placeholder="e.g. 12345678-abcd-ef01-2345-6789abcdef01" />
+            <label class="form-label">Customer Delivery Note (Included in Receipt & Delivery Email)</label>
+            <textarea id="email-delivery-note" class="form-input" rows="3" placeholder="Thank you for your order! Here are your digital download links and Canva editable templates below..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Web3Forms Access Key (Automated Email Delivery)</label>
+            <input type="text" id="email-web3-key" class="form-input" value="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" placeholder="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" />
             <small style="color:var(--gray-500);font-size:0.78rem;">
-              Enables background email dispatch directly to your inbox and customers without opening mail clients. Get a 100% free key in 10 seconds at <a href="https://web3forms.com" target="_blank" style="color:var(--blue);font-weight:bold;">web3forms.com</a>.
+              Enables automated background email delivery directly to your inbox and customer email. Pre-configured with your active Web3Forms Access Key.
             </small>
           </div>
 
@@ -375,7 +380,7 @@
       document.getElementById('email-notify-cc').value = settings.orderNotifyCc || 'admin@madebymitzi.com';
       document.getElementById('email-sender-name').value = settings.emailSenderName || 'MadeByMitzi Orders';
       document.getElementById('email-delivery-note').value = settings.emailDeliveryNote || '';
-      document.getElementById('email-web3-key').value = settings.web3FormsKey || '';
+      document.getElementById('email-web3-key').value = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
 
       // Admin Auth info
       const auth = DB.getAdminAuth();

@@ -284,6 +284,7 @@ const DB = {
       emailDeliveryNote: 'Thank you for your order! Here are your digital download links and Canva editable templates below. If you need any assistance with printing or editing, feel free to reply directly to this email or message our Facebook page.',
       shopFacebook: 'https://www.facebook.com/profile.php?id=100094438778151',
       shopEtsy: 'https://www.etsy.com/shop/MadeBymitzidigital',
+      web3FormsKey: '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7',
     };
   },
   saveSettings(data) {
