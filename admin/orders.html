@@ -448,10 +448,10 @@
         // 2. Prepare buyer delivery
         if (window.EmailService) {
           const res = await window.EmailService.sendBuyerDigitalDelivery(selectedOrder);
-          if (res && res.method === 'serverless_resend') {
-            showToast(`Payment Confirmed! Canva/PDF links & Official Receipt emailed to ${selectedOrder.customer?.email || 'buyer'}! 🎉`, 'success');
+          if (res && res.success) {
+            showToast(`Payment Confirmed! Canva & PDF links emailed to ${selectedOrder.customer?.email || 'buyer'}! 🎉`, 'success');
           } else {
-            showToast(`Payment Confirmed! Order verified. Ready to dispatch files to ${selectedOrder.customer?.email || 'buyer'}! 🚀`, 'success');
+            showToast(`Payment Confirmed! ${res?.message || 'Ready to dispatch files to buyer.'} 🚀`, 'info');
           }
         } else {
           showToast('Order marked as confirmed!', 'success');
