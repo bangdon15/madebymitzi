@@ -388,6 +388,8 @@ const DB = {
       shopFacebook: 'https://www.facebook.com/profile.php?id=100094438778151',
       shopEtsy: 'https://www.etsy.com/shop/MadeBymitzidigital',
       web3FormsKey: '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7',
+      gmailAppPassword: '',
+      resendApiKey: '',
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};
     // Migration: ensure if stored has outdated placeholder email, upgrade to active madebymitzi26@gmail.com

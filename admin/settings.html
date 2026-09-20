@@ -237,11 +237,37 @@
             <textarea id="email-delivery-note" class="form-input" rows="3" placeholder="Thank you for your order! Here are your digital download links and Canva editable templates below..."></textarea>
           </div>
 
+          <!-- 1. Google App Password (Gmail SMTP) -->
+          <div class="form-group" style="background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--radius-md);padding:16px;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <label class="form-label" style="font-weight:800;color:#1e40af;margin-bottom:0;display:flex;align-items:center;gap:8px;">
+                <i class="fab fa-google" style="color:#ea4335;"></i> Google App Password (Automated Customer & Admin Emails)
+              </label>
+              <span style="font-size:0.75rem;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:10px;font-weight:700;">100% Free • 500/day</span>
+            </div>
+            <p style="font-size:0.78rem;color:#1e3a8a;margin:0 0 10px;line-height:1.45;">
+              This enables MadeByMitzi to automatically dispatch real emails from <strong>madebymitzi26@gmail.com</strong> directly to buyers (1. Order receipt with pending status, and 2. Canva & PDF links upon payment confirmation).
+            </p>
+            <div style="display:flex;gap:8px;">
+              <input type="password" id="email-gmail-app-pass" class="form-input" placeholder="e.g. abcd efgh ijkl mnop (16 letters)" style="font-family:monospace;letter-spacing:1px;" />
+              <button type="button" class="btn btn-outline-blue" style="white-space:nowrap;padding:0 14px;" onclick="toggleAppPassVisibility()">
+                <i class="fas fa-eye" id="toggle-pass-icon"></i>
+              </button>
+            </div>
+            <div style="margin-top:8px;padding:8px 12px;background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);font-size:0.76rem;color:#1e40af;line-height:1.5;">
+              <strong>🛠️ How to get your free 16-letter App Password in 30 seconds:</strong><br/>
+              1. Open <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#2563eb;font-weight:700;text-decoration:underline;">myaccount.google.com/apppasswords</a> while logged into <strong>madebymitzi26@gmail.com</strong>.<br/>
+              2. Ensure 2-Step Verification is active on your Google Account.<br/>
+              3. Enter App name: <code>MadeByMitzi Store</code>, click <strong>Create</strong>.<br/>
+              4. Copy the generated 16-letter password (e.g. <code>xxxx xxxx xxxx xxxx</code>), paste it above, and click <strong>Save Email Settings</strong> below!
+            </div>
+          </div>
+
           <div class="form-group">
-            <label class="form-label">Web3Forms Access Key (Automated Email Delivery)</label>
+            <label class="form-label">Web3Forms Access Key (Inbound Backup)</label>
             <input type="text" id="email-web3-key" class="form-input" value="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" placeholder="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" />
-            <div style="margin-top:6px;padding:8px 12px;background:#f8fafc;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:0.76rem;color:var(--gray-600);line-height:1.45;">
-              <strong style="color:var(--gray-700);">💡 How Web3Forms routing works:</strong> Web3Forms delivers messages to the email address used when registering the Access Key on <a href="https://web3forms.com" target="_blank" style="color:var(--blue);font-weight:600;">web3forms.com</a>. If you registered key <code>3a8a2077-...</code> with another email, messages will arrive in that inbox. To have orders arrive directly in <strong>madebymitzi26@gmail.com</strong>, register a quick free key on web3forms.com using that Gmail address and paste it above.
+            <div style="margin-top:6px;font-size:0.75rem;color:var(--gray-500);">
+              Backup forwarder for notifications sent to admin.
             </div>
           </div>
 
@@ -262,13 +288,31 @@
             </div>
             
             <p style="font-size: 0.82rem; color: #5b21b6; margin: 0 0 14px; line-height: 1.45;">
-              Click below to send a live test order alert to <strong id="test-dest-preview">your notification email</strong> with receipt and 1-click confirmation link.
+              Test sending emails to verify your configuration. Both customer order receipt (pending) and confirmed payment with PDF download links can be tested with 1 click.
             </p>
 
-            <!-- High Visibility Action Button -->
-            <button id="btn-test-email" class="btn" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-weight: 800; font-size: 1rem; padding: 14px 22px; border-radius: var(--radius-md); border: none; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 10px;" onclick="testSendOrderEmail()">
-              <i class="fas fa-paper-plane"></i>
-              <span>Send Test Alert Email Now</span>
+            <!-- Test Recipient Input -->
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 0.78rem; font-weight: 700; color: #5b21b6; display: block; margin-bottom: 4px;">Test Recipient Email (Where test emails will arrive):</label>
+              <input type="email" id="test-recipient-email" class="form-input" placeholder="e.g. brepublic15@gmail.com" value="brepublic15@gmail.com" style="background:#ffffff;" />
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <button id="btn-test-cust-pending" class="btn" style="justify-content: center; background: #0F52BA; color: #ffffff; font-weight: 700; font-size: 0.85rem; padding: 12px 10px; border-radius: var(--radius-md); border: none; cursor: pointer; text-align:center;" onclick="testSendCustomerPending()">
+                <i class="fas fa-file-invoice"></i>
+                <span>1. Test Customer Receipt (Pending)</span>
+              </button>
+
+              <button id="btn-test-cust-delivery" class="btn" style="justify-content: center; background: #16A34A; color: #ffffff; font-weight: 700; font-size: 0.85rem; padding: 12px 10px; border-radius: var(--radius-md); border: none; cursor: pointer; text-align:center;" onclick="testSendCustomerDelivery()">
+                <i class="fas fa-check-circle"></i>
+                <span>2. Test Confirm (PDF Links)</span>
+              </button>
+            </div>
+
+            <button id="btn-test-email" class="btn" style="width: 100%; justify-content: center; background: #7c3aed; color: #ffffff; font-weight: 700; font-size: 0.88rem; padding: 12px; border-radius: var(--radius-md); border: none; cursor: pointer;" onclick="testSendOrderEmail()">
+              <i class="fas fa-bell"></i>
+              <span>3. Test Admin Order Alert (Mitzi)</span>
             </button>
 
             <!-- Real-Time Status Feedback Banner -->
@@ -402,6 +446,10 @@
       document.getElementById('email-sender-name').value = settings.emailSenderName || 'MadeByMitzi Orders';
       document.getElementById('email-delivery-note').value = settings.emailDeliveryNote || '';
       document.getElementById('email-web3-key').value = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
+      const gmailPassInput = document.getElementById('email-gmail-app-pass');
+      if (gmailPassInput) {
+        gmailPassInput.value = settings.gmailAppPassword || localStorage.getItem('mbm_gmail_app_password') || '';
+      }
       updateTestEmailPreview();
 
       // Admin Auth info
@@ -425,6 +473,20 @@
         document.getElementById('bank-placeholder-text').innerHTML = '<div style="font-size:0.78rem;color:var(--green);font-weight:700;">Click to change current QR</div>';
       }
     }
+
+    function toggleAppPassVisibility() {
+      const input = document.getElementById('email-gmail-app-pass');
+      const icon = document.getElementById('toggle-pass-icon');
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        if (icon) icon.className = 'fas fa-eye';
+      }
+    }
+    window.toggleAppPassVisibility = toggleAppPassVisibility;
 
     async function handleGcashImageUpload(e) {
       const file = e.target.files?.[0];
@@ -484,6 +546,7 @@
       const emailSenderName = document.getElementById('email-sender-name').value.trim();
       const emailDeliveryNote = document.getElementById('email-delivery-note').value.trim();
       const web3FormsKey = document.getElementById('email-web3-key').value.trim();
+      const gmailAppPassword = (document.getElementById('email-gmail-app-pass')?.value || '').trim();
 
       if (!orderNotifyTo) {
         showToast('Please provide a valid "To:" email address.', 'error');
@@ -495,11 +558,15 @@
         orderNotifyCc,
         emailSenderName,
         emailDeliveryNote,
-        web3FormsKey
+        web3FormsKey,
+        gmailAppPassword
       });
 
       if (web3FormsKey) {
         localStorage.setItem('mbm_web3forms_key', web3FormsKey);
+      }
+      if (gmailAppPassword) {
+        localStorage.setItem('mbm_gmail_app_password', gmailAppPassword);
       }
 
       showToast('Email notification settings saved! 📧✅', 'success');
@@ -511,6 +578,200 @@
       const preview = document.getElementById('test-dest-preview');
       if (preview) preview.textContent = to;
     }
+
+    async function testSendCustomerPending() {
+      const custEmail = document.getElementById('test-recipient-email')?.value.trim();
+      const btn = document.getElementById('btn-test-cust-pending');
+      const statusBox = document.getElementById('test-email-status-box');
+      const badge = document.getElementById('test-email-badge');
+
+      if (!custEmail) {
+        showToast('Please specify the recipient email address in the box above.', 'error');
+        document.getElementById('test-recipient-email')?.focus();
+        return;
+      }
+
+      saveEmailSettings();
+
+      if (btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Sending...</span>';
+        btn.disabled = true;
+      }
+      if (badge) {
+        badge.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:8px;"></i> In Flight';
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#92400e';
+      }
+      if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.style.background = '#eff6ff';
+        statusBox.style.border = '1.5px solid #93c5fd';
+        statusBox.style.color = '#1e40af';
+        statusBox.innerHTML = `
+          <div style="font-weight:700;"><i class="fas fa-paper-plane fa-bounce" style="color:#2563eb;"></i> Dispatching customer pending order receipt to <strong>${custEmail}</strong>...</div>
+        `;
+      }
+
+      const sampleOrder = {
+        id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
+        createdAt: new Date().toISOString(),
+        customer: { name: 'Valued Buyer (Test)', email: custEmail, phone: '0917-123-4567' },
+        items: [{ productId: 'sample_prod', name: 'Digital Planner & Sticker Bundle (Canva + PDF)', qty: 1, price: 199 }],
+        paymentMethod: 'gcash',
+        refNumber: 'GCASH-TEST-54321',
+        total: 199,
+        subtotal: 199,
+        status: 'pending'
+      };
+
+      try {
+        const res = await window.EmailService.sendCustomerOrderReceived(sampleOrder);
+        if (res && res.success) {
+          showToast('✅ Customer receipt delivered to ' + custEmail + '! Check inbox 📬', 'success');
+          if (badge) {
+            badge.innerHTML = '<i class="fas fa-check-circle" style="font-size:9px;color:#10b981;"></i> Sent';
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#15803d';
+          }
+          if (statusBox) {
+            statusBox.style.background = '#ecfdf5';
+            statusBox.style.border = '2px solid #86efac';
+            statusBox.style.color = '#065f46';
+            statusBox.innerHTML = `
+              <div style="font-weight:800;font-size:0.94rem;color:#047857;">
+                <i class="fas fa-check-circle" style="color:#10b981;"></i> Customer Pending Receipt Sent!
+              </div>
+              <div style="font-size:0.82rem;margin-top:6px;line-height:1.5;">
+                Delivered to <strong>${custEmail}</strong> via <code>${res.method}</code>.<br/>
+                📬 Subject: <em>🛍️ Order Placed & Verification in Progress [#${sampleOrder.id}]</em><br/>
+                Includes live receipt link, pending status, and order breakdown. Check your inbox!
+              </div>
+            `;
+          }
+        } else {
+          showToast('⚠️ ' + (res?.message || 'Failed to dispatch customer email'), 'error');
+          if (badge) {
+            badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size:9px;color:#ef4444;"></i> Issue';
+            badge.style.background = '#fee2e2';
+            badge.style.color = '#991b1b';
+          }
+          if (statusBox) {
+            statusBox.style.background = '#fef2f2';
+            statusBox.style.border = '2px solid #fca5a5';
+            statusBox.style.color = '#991b1b';
+            statusBox.innerHTML = `
+              <div style="font-weight:800;color:#b91c1c;">⚠️ Customer Email Dispatch Issue</div>
+              <div style="font-size:0.82rem;margin-top:6px;">${res?.message || 'Please check your Google App Password.'}</div>
+            `;
+          }
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      } finally {
+        if (btn) {
+          btn.innerHTML = '<i class="fas fa-file-invoice"></i> <span>1. Test Customer Receipt (Pending)</span>';
+          btn.disabled = false;
+        }
+      }
+    }
+    window.testSendCustomerPending = testSendCustomerPending;
+
+    async function testSendCustomerDelivery() {
+      const custEmail = document.getElementById('test-recipient-email')?.value.trim();
+      const btn = document.getElementById('btn-test-cust-delivery');
+      const statusBox = document.getElementById('test-email-status-box');
+      const badge = document.getElementById('test-email-badge');
+
+      if (!custEmail) {
+        showToast('Please specify the recipient email address in the box above.', 'error');
+        document.getElementById('test-recipient-email')?.focus();
+        return;
+      }
+
+      saveEmailSettings();
+
+      if (btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Sending...</span>';
+        btn.disabled = true;
+      }
+      if (badge) {
+        badge.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:8px;"></i> In Flight';
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#92400e';
+      }
+      if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.style.background = '#f0fdf4';
+        statusBox.style.border = '1.5px solid #86efac';
+        statusBox.style.color = '#166534';
+        statusBox.innerHTML = `
+          <div style="font-weight:700;"><i class="fas fa-paper-plane fa-bounce" style="color:#16a34a;"></i> Dispatching payment confirmation email (with Canva & PDF links) to <strong>${custEmail}</strong>...</div>
+        `;
+      }
+
+      const sampleConfirmedOrder = {
+        id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
+        createdAt: new Date().toISOString(),
+        customer: { name: 'Valued Buyer (Test)', email: custEmail, phone: '0917-123-4567' },
+        items: [{ productId: 'sample_prod', name: 'Digital Planner & Sticker Bundle', qty: 1, price: 199 }],
+        paymentMethod: 'gcash',
+        refNumber: 'GCASH-TEST-54321',
+        total: 199,
+        subtotal: 199,
+        status: 'confirmed'
+      };
+
+      try {
+        const res = await window.EmailService.sendBuyerDigitalDelivery(sampleConfirmedOrder);
+        if (res && res.success) {
+          showToast('✅ Digital delivery email sent to ' + custEmail + '! Check inbox 📬', 'success');
+          if (badge) {
+            badge.innerHTML = '<i class="fas fa-check-circle" style="font-size:9px;color:#10b981;"></i> Sent';
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#15803d';
+          }
+          if (statusBox) {
+            statusBox.style.background = '#ecfdf5';
+            statusBox.style.border = '2px solid #86efac';
+            statusBox.style.color = '#065f46';
+            statusBox.innerHTML = `
+              <div style="font-weight:800;font-size:0.94rem;color:#047857;">
+                <i class="fas fa-check-circle" style="color:#10b981;"></i> Payment Confirmation Email Sent!
+              </div>
+              <div style="font-size:0.82rem;margin-top:6px;line-height:1.5;">
+                Delivered to <strong>${custEmail}</strong> via <code>${res.method}</code>.<br/>
+                📬 Subject: <em>✨ Your MadeByMitzi Digital Order & Official Receipt [${sampleConfirmedOrder.id}]</em><br/>
+                Releases the <strong>Canva Template links</strong> and <strong>high-res printable PDF download links</strong>! Check your inbox!
+              </div>
+            `;
+          }
+        } else {
+          showToast('⚠️ ' + (res?.message || 'Failed to dispatch delivery email'), 'error');
+          if (badge) {
+            badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size:9px;color:#ef4444;"></i> Issue';
+            badge.style.background = '#fee2e2';
+            badge.style.color = '#991b1b';
+          }
+          if (statusBox) {
+            statusBox.style.background = '#fef2f2';
+            statusBox.style.border = '2px solid #fca5a5';
+            statusBox.style.color = '#991b1b';
+            statusBox.innerHTML = `
+              <div style="font-weight:800;color:#b91c1c;">⚠️ Customer Delivery Dispatch Issue</div>
+              <div style="font-size:0.82rem;margin-top:6px;">${res?.message || 'Please check your Google App Password.'}</div>
+            `;
+          }
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      } finally {
+        if (btn) {
+          btn.innerHTML = '<i class="fas fa-check-circle"></i> <span>2. Test Confirm (PDF Links)</span>';
+          btn.disabled = false;
+        }
+      }
+    }
+    window.testSendCustomerDelivery = testSendCustomerDelivery;
 
     async function testSendOrderEmail() {
       const to = document.getElementById('email-notify-to').value.trim();
@@ -525,24 +786,11 @@
         return;
       }
 
-      if (!web3Key) {
-        showToast('⚠️ Web3Forms Access Key is required for email delivery.', 'error');
-        document.getElementById('email-web3-key').focus();
-        return;
-      }
+      saveEmailSettings();
 
-      // Automatically persist settings to localStorage and Firestore
-      try {
-        saveEmailSettings();
-      } catch (saveErr) {
-        console.warn('Auto-save during test email:', saveErr);
-      }
-
-      // Visual Loading State
       if (btn) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:1.1rem;"></i> <span>Sending Test Alert Email...</span>';
         btn.disabled = true;
-        btn.style.opacity = '0.85';
       }
       if (badge) {
         badge.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:8px;"></i> In Flight';
@@ -557,10 +805,7 @@
         statusBox.innerHTML = `
           <div style="display:flex;align-items:center;gap:10px;font-weight:700;">
             <i class="fas fa-paper-plane fa-bounce" style="color:#7c3aed;"></i>
-            <span>Connecting to Web3Forms API & Dispatching to <strong>${to}</strong>...</span>
-          </div>
-          <div style="font-size:0.78rem;color:#7e22ce;margin-top:6px;">
-            Sending a complete sample purchase receipt with order details and the 1-click payment confirmation link.
+            <span>Dispatching Admin Alert to <strong>${to}</strong>...</span>
           </div>
         `;
       }
@@ -595,11 +840,11 @@
               statusBox.style.color = '#065f46';
               statusBox.innerHTML = `
                 <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:0.94rem;color:#047857;">
-                  <i class="fas fa-check-circle" style="font-size:1.15rem;color:#10b981;"></i> Test Email Sent Successfully!
+                  <i class="fas fa-check-circle" style="font-size:1.15rem;color:#10b981;"></i> Admin Alert Sent Successfully!
                 </div>
                 <div style="font-size:0.82rem;color:#065f46;margin-top:6px;line-height:1.5;">
-                  Web3Forms confirmed delivery to <strong>${to}</strong>.<br/>
-                  📬 <strong>Please check:</strong> Check your inbox (and Spam/Promotions folder). Inside you will see the full receipt with the button: <em>"👉 Click Here If You Received The Payment"</em>.
+                  Confirmed delivery to <strong>${to}</strong> via <code>${res.method}</code>.<br/>
+                  📬 <strong>Please check:</strong> Check your inbox (and Spam/Promotions). Inside you will see the receipt with the 1-click button: <em>"👉 Click Here If You Received The Payment"</em>.
                 </div>
               `;
             }
@@ -620,7 +865,7 @@
                   <i class="fas fa-exclamation-circle" style="font-size:1.15rem;color:#ef4444;"></i> Email Dispatch Issue
                 </div>
                 <div style="font-size:0.82rem;color:#991b1b;margin-top:6px;">
-                  ${res?.message || 'Unable to dispatch email. Please ensure your Web3Forms access key is active.'}
+                  ${res?.message || 'Unable to dispatch email. Please check your Google App Password or Web3Forms key.'}
                 </div>
               `;
             }
@@ -637,9 +882,8 @@
         }
       } finally {
         if (btn) {
-          btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Send Another Test Alert Email</span>';
+          btn.innerHTML = '<i class="fas fa-bell"></i> <span>3. Test Admin Order Alert (Mitzi)</span>';
           btn.disabled = false;
-          btn.style.opacity = '1';
         }
       }
     }
