@@ -163,6 +163,54 @@ const DB = {
 
   getOrder(id) { return this.getOrders().find(o => o.id === id) || null; },
 
+  // Encodes order into a URL-safe Base64 token for seamless cross-device sharing (e.g. email links to tablets)
+  encodeOrderData(order) {
+    try {
+      if (!order) return '';
+      // Exclude heavy screenshots to keep link lightweight (< 1KB)
+      const { receiptImage, ...compact } = order;
+      const json = JSON.stringify(compact);
+      return encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
+    } catch (e) {
+      console.warn('Order encoding error:', e);
+      return '';
+    }
+  },
+
+  // Decodes order from URL-safe Base64 token
+  decodeOrderData(encoded) {
+    try {
+      if (!encoded) return null;
+      const json = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
+      return JSON.parse(json);
+    } catch (e) {
+      console.warn('Order decoding error:', e);
+      return null;
+    }
+  },
+
+  // Safely adds or updates an order (ideal for importing onto admin tablets from email links)
+  addOrUpdateOrder(order) {
+    if (!order || !order.id) return null;
+    const orders = this.getOrders();
+    const idx = orders.findIndex(o => o.id === order.id);
+    if (idx !== -1) {
+      // Don't downgrade a confirmed status to pending
+      if (orders[idx].status === 'confirmed' && order.status === 'pending') {
+        order.status = 'confirmed';
+      }
+      orders[idx] = { ...orders[idx], ...order, updatedAt: new Date().toISOString() };
+    } else {
+      orders.unshift(order);
+    }
+    this.setOrders(orders);
+
+    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
+      window.FirebaseService.syncOrder(order).catch(e => console.warn('Cloud sync error:', e));
+    }
+    return order;
+  },
+
   addOrder(order) {
     const orders = this.getOrders();
     order.id = 'ORD-' + Date.now();
@@ -330,17 +378,25 @@ const DB = {
       }).join('\n\n');
     }
 
+    const orderData = this.encodeOrderData(order);
+    const receiptUrl = (typeof window !== 'undefined' && window.location)
+      ? `${window.location.origin}/receipt.html?id=${order.id}&order_data=${orderData}`
+      : `https://madebymitzi-web.vercel.app/receipt.html?id=${order.id}&order_data=${orderData}`;
+
     const body = `Hi ${cust.name || 'Valued Customer'},
 
-Thank you so much for your purchase with MadeByMitzi! Your payment of ₱${order.total || 0} has been verified and confirmed.
+Thank you so much for your purchase with MadeByMitzi! Your payment of ₱${Number(order.total || 0).toLocaleString()} for Order #${order.id} has been verified and confirmed.
 
 Here are your digital design links:
 ---------------------------------------------
 ${itemsText || 'Digital design links ready'}
 ---------------------------------------------
 
-A Note from Mitzi:
-${settings.emailDeliveryNote || 'Enjoy your designs! Tag us on Facebook or leave us a review.'}
+📄 VIEW & DOWNLOAD OFFICIAL PRINTABLE RECEIPT / PDF:
+${receiptUrl}
+
+💌 A Note from Mitzi Santos:
+"${settings.emailDeliveryNote || 'Enjoy your designs! Tag us on Facebook or leave us a review.'}"
 
 Need help editing or printing?
 Reply directly to this email or message us on Facebook:
@@ -350,6 +406,7 @@ Warm regards,
 Mitzi Santos — MadeByMitzi ✨`;
 
     const mailtoUrl = `mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     return {
       to,
@@ -357,6 +414,7 @@ Mitzi Santos — MadeByMitzi ✨`;
       subject,
       body,
       mailtoUrl,
+      gmailUrl,
       order
     };
   },

@@ -265,13 +265,18 @@
       </div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px;border-top:1px solid var(--gray-200);padding-top:16px;">
-        <button type="button" class="btn btn-outline-blue btn-sm" onclick="copyEmailDraft()">
-          <i class="fas fa-copy"></i> Copy Email Draft
-        </button>
-        <div style="display:flex;gap:10px;">
-          <button type="button" class="btn btn-outline-danger btn-sm" onclick="closeEmailNotificationModal()">Cancel</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-outline-blue btn-sm" onclick="copyEmailDraft()">
+            <i class="fab fa-facebook-messenger"></i> Copy Message (for Messenger / Chat)
+          </button>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-outline-danger btn-sm" onclick="closeEmailNotificationModal()">Close</button>
+          <a id="em-gmail-link" href="#" target="_blank" class="btn btn-primary btn-sm" style="background:#ea4335;border-color:#ea4335;color:white;">
+            <i class="fab fa-google"></i> Open in Gmail (Send to Buyer 1-Click)
+          </a>
           <a id="em-mailto-link" href="#" target="_blank" class="btn btn-green btn-sm">
-            <i class="fas fa-paper-plane"></i> Send via Email Client (To + CC)
+            <i class="fas fa-paper-plane"></i> Send via Default Mail App
           </a>
         </div>
       </div>
@@ -287,7 +292,18 @@
     const urlParams = new URLSearchParams(window.location.search);
     const orderAuthKey = urlParams.get('auth_key');
     const orderAuthId = urlParams.get('confirm_order') || urlParams.get('id');
+    const orderDataParam = urlParams.get('order_data');
 
+    // 1. Unpack and import portable order data if provided in link (e.g. tablet or separate admin phone)
+    if (orderDataParam && typeof DB !== 'undefined') {
+      const imported = DB.decodeOrderData(orderDataParam);
+      if (imported && imported.id) {
+        DB.addOrUpdateOrder(imported);
+        console.log('✅ Order successfully imported onto this device from email link:', imported.id);
+      }
+    }
+
+    // 2. Authenticate admin session via verified token
     if (orderAuthId && orderAuthKey && typeof DB !== 'undefined' && DB.verifyOrderAuthToken(orderAuthId, orderAuthKey)) {
       DB.grantAdminSession(true);
       console.log('✅ Admin authenticated via verified Order Magic Token.');
@@ -429,19 +445,19 @@
         selectedOrder.status = 'confirmed';
         renderOrders();
 
-        // 2. Dispatch Automated Buyer Delivery Email with Canva / PDF download links and Official Receipt
+        // 2. Prepare buyer delivery
         if (window.EmailService) {
           const res = await window.EmailService.sendBuyerDigitalDelivery(selectedOrder);
-          if (res && res.success) {
+          if (res && res.method === 'serverless_resend') {
             showToast(`Payment Confirmed! Canva/PDF links & Official Receipt emailed to ${selectedOrder.customer?.email || 'buyer'}! 🎉`, 'success');
           } else {
-            showToast('Order confirmed! ' + (res?.message || 'Queued for delivery'), 'info');
+            showToast(`Payment Confirmed! Order verified. Ready to dispatch files to ${selectedOrder.customer?.email || 'buyer'}! 🚀`, 'success');
           }
         } else {
           showToast('Order marked as confirmed!', 'success');
         }
 
-        // 3. Open Email / Receipt review dialog so Mitzi can see details or copy links
+        // 3. Open Email / Receipt review dialog so Mitzi can dispatch to buyer in 1 click
         openEmailNotificationModal();
       } catch (err) {
         showToast('Error during confirmation: ' + err.message, 'error');
@@ -470,6 +486,8 @@
       document.getElementById('em-subject').value = draft.subject;
       document.getElementById('em-body').value = draft.body;
       document.getElementById('em-mailto-link').href = draft.mailtoUrl;
+      const gmailBtn = document.getElementById('em-gmail-link');
+      if (gmailBtn) gmailBtn.href = draft.gmailUrl;
 
       document.getElementById('email-modal').classList.add('open');
     }
@@ -487,7 +505,10 @@
       const body = document.getElementById('em-body').value;
 
       const mailtoUrl = `mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       document.getElementById('em-mailto-link').href = mailtoUrl;
+      const gmailBtn = document.getElementById('em-gmail-link');
+      if (gmailBtn) gmailBtn.href = gmailUrl;
     }
     window.refreshMailtoUrl = refreshMailtoUrl;
 
