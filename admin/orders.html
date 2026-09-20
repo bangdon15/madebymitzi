@@ -283,6 +283,16 @@
   <script src="../js/email-service.js"></script>
   <script src="../js/main.js"></script>
   <script>
+    // Magic 1-click authentication from private admin order alert email
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderAuthKey = urlParams.get('auth_key');
+    const orderAuthId = urlParams.get('confirm_order') || urlParams.get('id');
+
+    if (orderAuthId && orderAuthKey && typeof DB !== 'undefined' && DB.verifyOrderAuthToken(orderAuthId, orderAuthKey)) {
+      DB.grantAdminSession(true);
+      console.log('✅ Admin authenticated via verified Order Magic Token.');
+    }
+
     if (!DB.isAdmin()) {
       const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
       window.location.href = `../login.html?redirect=${returnUrl}`;

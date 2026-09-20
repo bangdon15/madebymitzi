@@ -265,8 +265,9 @@ const DB = {
   },
 
   // ── SETTINGS (payments, emails, etc.) ────────────
+  // ── SETTINGS (payments, emails, etc.) ────────────
   getSettings() {
-    return this.get(this.KEYS.SETTINGS) || {
+    const defaults = {
       gcashImage: null,
       gcashName: 'MadeByMitzi',
       gcashNumber: '',
@@ -276,9 +277,9 @@ const DB = {
       bankNumber: '',
       shopName: 'MadeByMitzi',
       shopTagline: 'Designs That Tell Your Story ✨',
-      shopEmail: 'madebymitzi@gmail.com',
-      orderNotifyTo: 'orders@madebymitzi.com',
-      orderNotifyCc: 'admin@madebymitzi.com',
+      shopEmail: 'madebymitzi26@gmail.com',
+      orderNotifyTo: 'madebymitzi26@gmail.com',
+      orderNotifyCc: 'madebymitzi26@gmail.com',
       emailSenderName: 'MadeByMitzi Orders',
       emailDeliverySubject: '[MadeByMitzi] Your Digital Order #{orderId} is Ready! 🎉',
       emailDeliveryNote: 'Thank you for your order! Here are your digital download links and Canva editable templates below. If you need any assistance with printing or editing, feel free to reply directly to this email or message our Facebook page.',
@@ -286,10 +287,25 @@ const DB = {
       shopEtsy: 'https://www.etsy.com/shop/MadeBymitzidigital',
       web3FormsKey: '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7',
     };
+    const stored = this.get(this.KEYS.SETTINGS) || {};
+    // Migration: ensure if stored has outdated placeholder email, upgrade to active madebymitzi26@gmail.com
+    if (!stored.orderNotifyTo || stored.orderNotifyTo === 'orders@madebymitzi.com') {
+      stored.orderNotifyTo = 'madebymitzi26@gmail.com';
+    }
+    if (!stored.shopEmail || stored.shopEmail === 'orders@madebymitzi.com' || stored.shopEmail === 'madebymitzi@gmail.com') {
+      stored.shopEmail = 'madebymitzi26@gmail.com';
+    }
+    return { ...defaults, ...stored };
   },
   saveSettings(data) {
     const current = this.getSettings();
-    this.set(this.KEYS.SETTINGS, { ...current, ...data });
+    const updated = { ...current, ...data };
+    this.set(this.KEYS.SETTINGS, updated);
+
+    // Sync to Cloud Firestore if connected
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.syncSettings === 'function') {
+      window.FirebaseService.syncSettings(updated).catch(e => console.warn('Settings cloud sync:', e));
+    }
   },
 
   // Generate Email Draft for Customer & Notification
@@ -345,24 +361,73 @@ Mitzi Santos — MadeByMitzi ✨`;
     };
   },
 
-  // ── SECURED ADMIN SESSION ─────────────────────────
+  // ── SECURED ADMIN SESSION (Multi-device persistent & magic token support) ──
   isAdmin() {
     try {
+      // 1. Check current session storage
       const sessionRaw = sessionStorage.getItem(this.KEYS.SESSION);
-      if (!sessionRaw) return false;
-      if (sessionRaw === 'true') return true; // backward compatible
-      const session = JSON.parse(sessionRaw);
-      if (session && session.token && session.expiresAt && Date.now() < session.expiresAt) {
-        return true;
+      if (sessionRaw) {
+        if (sessionRaw === 'true') return true; // backward compatible
+        const session = JSON.parse(sessionRaw);
+        if (session && session.token && session.expiresAt && Date.now() < session.expiresAt) {
+          return true;
+        }
       }
-      this.adminLogout();
+
+      // 2. Check persistent device storage (for remembered device / Google Preset)
+      const persistentRaw = localStorage.getItem('mbm_admin_persistent_session');
+      if (persistentRaw) {
+        const persistent = JSON.parse(persistentRaw);
+        if (persistent && persistent.token && persistent.expiresAt && Date.now() < persistent.expiresAt) {
+          // Re-populate sessionStorage so current window treats it as authenticated
+          sessionStorage.setItem(this.KEYS.SESSION, persistentRaw);
+          return true;
+        }
+      }
+
       return false;
     } catch {
       return false;
     }
   },
 
-  async adminLogin(username, password) {
+  // Generate secure verification token for 1-click email confirmation links
+  generateOrderAuthToken(orderId) {
+    if (!orderId) return '';
+    const secret = this.SALT + '_mbm_order_confirm_' + orderId;
+    let hash = 5381;
+    for (let i = 0; i < secret.length; i++) {
+      hash = ((hash << 5) + hash) + secret.charCodeAt(i);
+      hash |= 0;
+    }
+    return 'ok_' + Math.abs(hash).toString(36);
+  },
+
+  // Verify token from 1-click confirmation links
+  verifyOrderAuthToken(orderId, token) {
+    if (!orderId || !token) return false;
+    return token === this.generateOrderAuthToken(orderId);
+  },
+
+  // Grant an authenticated admin session on this device
+  grantAdminSession(persistent = true, userOverride = null) {
+    const auth = this.getAdminAuth();
+    const token = 'mbm_token_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const session = {
+      token,
+      username: userOverride?.username || auth.username,
+      email: userOverride?.email || auth.email || 'madebymitzi26@gmail.com',
+      loginAt: new Date().toISOString(),
+      expiresAt: Date.now() + (persistent ? 90 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000) // 90 days for persistent
+    };
+    sessionStorage.setItem(this.KEYS.SESSION, JSON.stringify(session));
+    if (persistent) {
+      localStorage.setItem('mbm_admin_persistent_session', JSON.stringify(session));
+    }
+    return session;
+  },
+
+  async adminLogin(username, password, persistent = true) {
     const attemptsKey = 'mbm_login_attempts';
     let attempts = { count: 0, lockUntil: 0 };
     try {
@@ -395,20 +460,12 @@ Mitzi Santos — MadeByMitzi ✨`;
     const inputHash = await this.hashPassword(password);
     
     // Check credentials against salted hash or legacy default
-    const validUser = (username === auth.username || (auth.email && username === auth.email));
-    const validPass = (inputHash === auth.passwordHash || (password === 'superUser112922' && username === auth.username));
+    const validUser = (username === auth.username || (auth.email && username === auth.email) || username === 'madebymitzi26@gmail.com');
+    const validPass = (inputHash === auth.passwordHash || (password === 'superUser112922' && (username === auth.username || username === 'madebymitzi26@gmail.com')));
 
     if (validUser && validPass) {
       sessionStorage.removeItem(attemptsKey);
-      const token = 'mbm_token_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-      const session = {
-        token,
-        username: auth.username,
-        email: auth.email,
-        loginAt: new Date().toISOString(),
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 24-hour validity
-      };
-      sessionStorage.setItem(this.KEYS.SESSION, JSON.stringify(session));
+      const session = this.grantAdminSession(persistent);
       return { success: true, session };
     }
 
@@ -426,6 +483,7 @@ Mitzi Santos — MadeByMitzi ✨`;
 
   adminLogout() {
     sessionStorage.removeItem(this.KEYS.SESSION);
+    localStorage.removeItem('mbm_admin_persistent_session');
   },
 
   requireAdmin() {

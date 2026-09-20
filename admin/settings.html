@@ -217,13 +217,13 @@
 
           <div class="form-group">
             <label class="form-label">To: (Primary Order Notification Email) *</label>
-            <input type="email" id="email-notify-to" class="form-input" placeholder="e.g. orders@madebymitzi.com" oninput="updateTestEmailPreview()" required />
+            <input type="email" id="email-notify-to" class="form-input" placeholder="madebymitzi26@gmail.com" oninput="updateTestEmailPreview()" required />
             <small style="color:var(--gray-500);font-size:0.78rem;">Email address that receives alerts whenever a customer places an order.</small>
           </div>
 
           <div class="form-group">
             <label class="form-label">CC: (Secondary / Backup Notification Email)</label>
-            <input type="email" id="email-notify-cc" class="form-input" placeholder="e.g. admin@madebymitzi.com" />
+            <input type="email" id="email-notify-cc" class="form-input" placeholder="madebymitzi26@gmail.com" />
             <small style="color:var(--gray-500);font-size:0.78rem;">Copied automatically when sending digital order files to customers.</small>
           </div>
 
@@ -240,9 +240,9 @@
           <div class="form-group">
             <label class="form-label">Web3Forms Access Key (Automated Email Delivery)</label>
             <input type="text" id="email-web3-key" class="form-input" value="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" placeholder="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" />
-            <small style="color:var(--gray-500);font-size:0.78rem;">
-              Enables automated background email delivery directly to your inbox and customer email. Pre-configured with your active Web3Forms Access Key.
-            </small>
+            <div style="margin-top:6px;padding:8px 12px;background:#f8fafc;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:0.76rem;color:var(--gray-600);line-height:1.45;">
+              <strong style="color:var(--gray-700);">💡 How Web3Forms routing works:</strong> Web3Forms delivers messages to the email address used when registering the Access Key on <a href="https://web3forms.com" target="_blank" style="color:var(--blue);font-weight:600;">web3forms.com</a>. If you registered key <code>3a8a2077-...</code> with another email, messages will arrive in that inbox. To have orders arrive directly in <strong>madebymitzi26@gmail.com</strong>, register a quick free key on web3forms.com using that Gmail address and paste it above.
+            </div>
           </div>
 
           <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:14px;padding:12px;font-weight:700;font-size:0.95rem;" onclick="saveEmailSettings()">
@@ -397,8 +397,8 @@
       document.getElementById('bank-number').value = settings.bankNumber || '';
 
       // Email settings
-      document.getElementById('email-notify-to').value = settings.orderNotifyTo || 'orders@madebymitzi.com';
-      document.getElementById('email-notify-cc').value = settings.orderNotifyCc || 'admin@madebymitzi.com';
+      document.getElementById('email-notify-to').value = settings.orderNotifyTo || 'madebymitzi26@gmail.com';
+      document.getElementById('email-notify-cc').value = settings.orderNotifyCc || 'madebymitzi26@gmail.com';
       document.getElementById('email-sender-name').value = settings.emailSenderName || 'MadeByMitzi Orders';
       document.getElementById('email-delivery-note').value = settings.emailDeliveryNote || '';
       document.getElementById('email-web3-key').value = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
@@ -507,7 +507,7 @@
     window.saveEmailSettings = saveEmailSettings;
 
     function updateTestEmailPreview() {
-      const to = document.getElementById('email-notify-to')?.value.trim() || 'orders@madebymitzi.com';
+      const to = document.getElementById('email-notify-to')?.value.trim() || 'madebymitzi26@gmail.com';
       const preview = document.getElementById('test-dest-preview');
       if (preview) preview.textContent = to;
     }
