@@ -531,6 +531,13 @@
         return;
       }
 
+      // Automatically persist settings to localStorage and Firestore
+      try {
+        saveEmailSettings();
+      } catch (saveErr) {
+        console.warn('Auto-save during test email:', saveErr);
+      }
+
       // Visual Loading State
       if (btn) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:1.1rem;"></i> <span>Sending Test Alert Email...</span>';
