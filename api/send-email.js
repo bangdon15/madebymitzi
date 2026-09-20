@@ -116,7 +116,14 @@ module.exports = async (req, res) => {
 
     // 2. Brevo API (Sendinblue) — Free 300 emails/day to ANY recipient
     const brevoKey = (process.env.BREVO_API_KEY || req.body?.brevoApiKey || '').trim();
-    const brevoSender = process.env.BREVO_SENDER_EMAIL || req.body?.brevoSenderEmail || 'brepublic15@gmail.com';
+    // Brevo STRICTLY requires the sender email to match an active, verified sender on the account.
+    // 'brepublic15@gmail.com' is the verified active sender for this Brevo account.
+    // If madebymitzi26@gmail.com or another unverified address is passed as sender.email, Brevo rejects delivery.
+    // Therefore, we lock sender.email to 'brepublic15@gmail.com' and set replyTo to 'madebymitzi26@gmail.com'.
+    const verifiedBrevoSender = 'brepublic15@gmail.com';
+    const brevoSender = (process.env.BREVO_SENDER_EMAIL || '').trim() || verifiedBrevoSender;
+    const finalBrevoSender = (brevoSender.toLowerCase().includes('madebymitzi')) ? verifiedBrevoSender : brevoSender;
+
     if (brevoKey) {
       try {
         let response = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -129,7 +136,7 @@ module.exports = async (req, res) => {
           body: JSON.stringify({
             sender: {
               name: fromName || 'MadeByMitzi Digital Store',
-              email: brevoSender
+              email: finalBrevoSender
             },
             to: [{ email: to, name: to.split('@')[0] }],
             replyTo: { email: replyTo || 'madebymitzi26@gmail.com', name: 'MadeByMitzi' },
@@ -141,49 +148,12 @@ module.exports = async (req, res) => {
 
         let data = await response.json();
 
-        // If sender error (e.g. registered with brepublic15@gmail.com instead of madebymitzi26@gmail.com), try alternative verified sender
-        if (!response.ok && data && (JSON.stringify(data).toLowerCase().includes('sender') || data.code === 'invalid_parameter')) {
-          const altSender = (brevoSender === 'madebymitzi26@gmail.com') ? 'brepublic15@gmail.com' : 'madebymitzi26@gmail.com';
-          console.log(`Brevo rejected sender ${brevoSender}, retrying with alternative sender: ${altSender}...`);
-          const retryRes = await fetch('https://api.brevo.com/v3/smtp/email', {
-            method: 'POST',
-            headers: {
-              'accept': 'application/json',
-              'api-key': brevoKey,
-              'content-type': 'application/json'
-            },
-            body: JSON.stringify({
-              sender: {
-                name: fromName || 'MadeByMitzi Digital Store',
-                email: altSender
-              },
-              to: [{ email: to, name: to.split('@')[0] }],
-              replyTo: { email: replyTo || altSender, name: 'MadeByMitzi' },
-              subject: subject,
-              htmlContent: html || text,
-              textContent: text
-            })
-          });
-          const retryData = await retryRes.json();
-          if (retryRes.ok && retryData.messageId) {
-            console.log('✅ Email sent via Brevo (using alternative sender:', altSender, ') to:', to);
-            return res.status(200).json({
-              success: true,
-              method: 'brevo',
-              message: `Email delivered to ${to} via Brevo (from ${altSender})`,
-              messageId: retryData.messageId
-            });
-          } else {
-            data = retryData;
-          }
-        }
-
         if (response.ok && data.messageId) {
-          console.log('✅ Email sent via Brevo to:', to, 'ID:', data.messageId);
+          console.log('✅ Email sent via Brevo to:', to, 'ID:', data.messageId, 'from:', finalBrevoSender);
           return res.status(200).json({
             success: true,
             method: 'brevo',
-            message: `Email delivered to ${to} via Brevo`,
+            message: `Email delivered to ${to} via Brevo (from ${finalBrevoSender})`,
             messageId: data.messageId
           });
         } else {
@@ -191,7 +161,7 @@ module.exports = async (req, res) => {
           return res.status(200).json({
             success: false,
             method: 'brevo_error',
-            message: `Brevo API Error: ${data.message || JSON.stringify(data)}. (Make sure your Brevo account email is verified and sender email matches your Brevo account).`
+            message: `Brevo API Error: ${data.message || JSON.stringify(data)}.`
           });
         }
       } catch (brevoErr) {

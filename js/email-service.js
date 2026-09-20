@@ -32,19 +32,21 @@ const EmailService = {
       timeStyle: 'short'
     });
     const baseUrl = this.getBaseUrl();
-    const receiptUrl = `${baseUrl}/receipt.html?id=${order.id}`;
+    const orderData = (typeof DB !== 'undefined') ? DB.encodeOrderData(order) : '';
+    const receiptUrl = `${baseUrl}/receipt.html?id=${order.id}${orderData ? `&order_data=${orderData}` : ''}`;
 
     const itemsRows = items.map((item, idx) => {
       const prod = (typeof DB !== 'undefined') ? DB.getProduct(item.productId) : null;
-      const canvaLink = prod?.canvaLink || '';
-      const pdfLink = prod?.pdfLink || '';
+      const canvaLink = prod?.canvaLink || item.canvaLink || '';
+      const pdfLink = prod?.pdfLink || item.pdfLink || '';
       
       let deliveryLinks = '';
-      if (isConfirmed && (canvaLink || pdfLink)) {
+      if (isConfirmed) {
         deliveryLinks = `
           <div style="margin-top: 8px; font-size: 13px;">
-            ${canvaLink ? `<a href="${canvaLink}" target="_blank" style="display:inline-block;background:#7C3AED;color:#ffffff;text-decoration:none;padding:5px 12px;border-radius:6px;font-weight:bold;margin-right:8px;font-size:12px;">🎨 Open Canva Template</a>` : ''}
-            ${pdfLink ? `<a href="${pdfLink}" target="_blank" style="display:inline-block;background:#0F52BA;color:#ffffff;text-decoration:none;padding:5px 12px;border-radius:6px;font-weight:bold;font-size:12px;">📥 Download PDF</a>` : ''}
+            ${canvaLink ? `<a href="${canvaLink}" target="_blank" style="display:inline-block;background:#7C3AED;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:6px;font-weight:bold;margin-right:8px;font-size:12px;">🎨 Open Canva Template</a>` : ''}
+            ${pdfLink ? `<a href="${pdfLink}" target="_blank" style="display:inline-block;background:#0F52BA;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:6px;font-weight:bold;font-size:12px;">📥 Download PDF</a>` : ''}
+            ${(!canvaLink && !pdfLink) ? `<a href="${receiptUrl}" target="_blank" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:6px;font-weight:bold;font-size:12px;">📥 Access Digital Files</a>` : ''}
           </div>
         `;
       }
@@ -330,7 +332,8 @@ const EmailService = {
     const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
     const gmailAppPassword = (settings.gmailAppPassword || localStorage.getItem('mbm_gmail_app_password') || '').replace(/\s+/g, '');
     const brevoApiKey = (settings.brevoApiKey || localStorage.getItem('mbm_brevo_key') || '').trim();
-    const brevoSenderEmail = (settings.brevoSenderEmail || localStorage.getItem('mbm_brevo_sender') || '').trim();
+    const rawBrevoSender = (settings.brevoSenderEmail || localStorage.getItem('mbm_brevo_sender') || '').trim();
+    const brevoSenderEmail = (rawBrevoSender.toLowerCase().includes('madebymitzi') || !rawBrevoSender) ? 'brepublic15@gmail.com' : rawBrevoSender;
     const resendKey = settings.resendApiKey || localStorage.getItem('mbm_resend_key') || '';
     const web3Key = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
 

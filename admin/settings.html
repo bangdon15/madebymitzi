@@ -285,8 +285,10 @@
             </div>
             <div style="margin-top:10px;">
               <label style="font-size:0.78rem;font-weight:700;color:#166534;display:block;margin-bottom:4px;">Brevo Account / Verified Sender Email:</label>
-              <input type="email" id="email-brevo-sender" class="form-input" placeholder="e.g. madebymitzi26@gmail.com or brepublic15@gmail.com" />
-              <div style="font-size:0.73rem;color:#15803d;margin-top:3px;">Must be the email address you registered your Brevo account with.</div>
+              <input type="email" id="email-brevo-sender" class="form-input" value="brepublic15@gmail.com" placeholder="brepublic15@gmail.com" readonly style="background:#f0fdf4;border-color:#86efac;font-weight:700;color:#166534;" />
+              <div style="font-size:0.73rem;color:#15803d;margin-top:3px;">
+                <i class="fas fa-check-circle"></i> Verified active sender in Brevo (<strong>brepublic15@gmail.com</strong>). All automated emails are sent through this verified channel, with all customer replies routing directly to <strong>madebymitzi26@gmail.com</strong>.
+              </div>
             </div>
             <div style="margin-top:8px;font-size:0.75rem;color:#166534;">
               Sign up free at <a href="https://app.brevo.com" target="_blank" style="color:#15803d;font-weight:700;text-decoration:underline;">brevo.com</a> ➔ Go to <strong>SMTP & API</strong> ➔ <strong>Generate a new API key</strong> ➔ Paste it above.
@@ -493,7 +495,9 @@
       }
       const brevoSenderInput = document.getElementById('email-brevo-sender');
       if (brevoSenderInput) {
-        brevoSenderInput.value = settings.brevoSenderEmail || localStorage.getItem('mbm_brevo_sender') || 'brepublic15@gmail.com';
+        const savedSender = settings.brevoSenderEmail || localStorage.getItem('mbm_brevo_sender') || 'brepublic15@gmail.com';
+        brevoSenderInput.value = savedSender.toLowerCase().includes('madebymitzi') ? 'brepublic15@gmail.com' : savedSender;
+        localStorage.setItem('mbm_brevo_sender', brevoSenderInput.value);
       }
       updateTestEmailPreview();
 
@@ -650,7 +654,8 @@
         localStorage.setItem('mbm_brevo_key', brevoApiKey);
       }
       if (brevoSenderEmail) {
-        localStorage.setItem('mbm_brevo_sender', brevoSenderEmail);
+        const safeSender = brevoSenderEmail.toLowerCase().includes('madebymitzi') ? 'brepublic15@gmail.com' : brevoSenderEmail;
+        localStorage.setItem('mbm_brevo_sender', safeSender);
       }
 
       showToast('Email notification settings saved! 📧✅', 'success');
@@ -696,15 +701,23 @@
         `;
       }
 
+      const allProds = (typeof DB !== 'undefined') ? DB.getProducts() : [];
+      const prod = allProds[1] || allProds[0] || { id: 'prod_002', name: 'Floral Birthday Invitation — Editable (Canva Template + Printable PDF)', price: 299 };
+
       const sampleOrder = {
-        id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
+        id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
         createdAt: new Date().toISOString(),
-        customer: { name: 'Valued Buyer (Test)', email: custEmail, phone: '0917-123-4567' },
-        items: [{ productId: 'sample_prod', name: 'Digital Planner & Sticker Bundle (Canva + PDF)', qty: 1, price: 199 }],
+        customer: { name: 'Maria Santos', email: custEmail, phone: '0917 123 4567' },
+        items: [{
+          productId: prod.id,
+          name: prod.name,
+          qty: 1,
+          price: prod.price || 299
+        }],
         paymentMethod: 'gcash',
-        refNumber: 'GCASH-TEST-54321',
-        total: 199,
-        subtotal: 199,
+        refNumber: '1002 9384 1928',
+        total: prod.price || 299,
+        subtotal: prod.price || 299,
         status: 'pending'
       };
 
@@ -793,15 +806,25 @@
         `;
       }
 
+      const allProds = (typeof DB !== 'undefined') ? DB.getProducts() : [];
+      const prod = allProds[1] || allProds[0] || { id: 'prod_002', name: 'Floral Birthday Invitation — Editable', price: 299 };
+
       const sampleConfirmedOrder = {
-        id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
+        id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
         createdAt: new Date().toISOString(),
-        customer: { name: 'Valued Buyer (Test)', email: custEmail, phone: '0917-123-4567' },
-        items: [{ productId: 'sample_prod', name: 'Digital Planner & Sticker Bundle', qty: 1, price: 199 }],
+        customer: { name: 'Maria Santos', email: custEmail, phone: '0917 123 4567' },
+        items: [{
+          productId: prod.id,
+          name: prod.name,
+          qty: 1,
+          price: prod.price || 299,
+          canvaLink: prod.canvaLink || 'https://www.canva.com/design/sample-invitation-template',
+          pdfLink: prod.pdfLink || 'https://madebymitzi-web.vercel.app/assets/sample-printable-invite.pdf'
+        }],
         paymentMethod: 'gcash',
-        refNumber: 'GCASH-TEST-54321',
-        total: 199,
-        subtotal: 199,
+        refNumber: '1002 9384 1928',
+        total: prod.price || 299,
+        subtotal: prod.price || 299,
         status: 'confirmed'
       };
 
@@ -895,15 +918,23 @@
       }
 
       showToast('Dispatching test order alert to ' + to + '...', 'info');
+      const allProds = (typeof DB !== 'undefined') ? DB.getProducts() : [];
+      const prod = allProds[1] || allProds[0] || { id: 'prod_002', name: 'Floral Birthday Invitation — Editable', price: 299 };
+
       const sampleOrder = {
-        id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
+        id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
         createdAt: new Date().toISOString(),
-        customer: { name: 'Sample Customer (Test)', email: to, phone: '0917-000-0000' },
-        items: [{ productId: 'test_1', name: 'Sample Celebration Sticker Pack (Digital)', qty: 1, price: 149 }],
+        customer: { name: 'Maria Santos', email: 'maria.santos@gmail.com', phone: '0917 123 4567' },
+        items: [{
+          productId: prod.id,
+          name: prod.name,
+          qty: 1,
+          price: prod.price || 299
+        }],
         paymentMethod: 'gcash',
-        refNumber: 'GCASH-TEST-9999',
-        total: 149,
-        subtotal: 149,
+        refNumber: '1002 9384 1928',
+        total: prod.price || 299,
+        subtotal: prod.price || 299,
         status: 'pending'
       };
 
