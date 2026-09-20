@@ -251,6 +251,14 @@
           <div class="order-id-tag" id="order-id-display">Loading...</div>
         </div>
 
+        <!-- Confirmation Email Notice -->
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:14px 20px;margin:20px 36px 0;display:flex;align-items:center;gap:12px;">
+          <i class="fas fa-envelope-open-text" style="color:var(--blue);font-size:1.4rem;"></i>
+          <div style="font-size:0.86rem;color:#1e3a8a;line-height:1.4;">
+            <strong>Order & Receipt Confirmation:</strong> An order notification and official receipt have been prepared for <span id="notice-cust-email" style="font-weight:700;">your email</span>. You can also view or print your live official receipt below anytime!
+          </div>
+        </div>
+
         <!-- Timeline Steps -->
         <div class="timeline-steps">
           <div class="t-step done">
@@ -329,11 +337,17 @@
 
       const params = new URLSearchParams(window.location.search);
       const orderId = params.get('id');
+      const orderDataParam = params.get('order_data');
 
       let order = null;
-      if (orderId) {
+      if (orderDataParam) {
+        order = DB.decodeOrderData(orderDataParam);
+        if (order) DB.addOrUpdateOrder(order);
+      }
+      if (!order && orderId) {
         order = DB.getOrder(orderId);
-      } else {
+      }
+      if (!order) {
         const orders = DB.getOrders();
         order = orders[0] || null;
       }
@@ -343,9 +357,12 @@
         return;
       }
 
+      const orderData = DB.encodeOrderData(order);
       document.getElementById('order-id-display').textContent = `Order ID: ${order.id}`;
       const receiptBtn = document.getElementById('btn-view-receipt');
-      if (receiptBtn) receiptBtn.href = `receipt.html?id=${order.id}`;
+      if (receiptBtn) receiptBtn.href = `receipt.html?id=${order.id}&order_data=${orderData}`;
+      const noticeEmail = document.getElementById('notice-cust-email');
+      if (noticeEmail) noticeEmail.textContent = order.customer?.email || 'your email';
       document.getElementById('cust-name-val').textContent = order.customer?.name || 'Valued Customer';
       document.getElementById('cust-email-val').textContent = order.customer?.email || '';
       document.getElementById('cust-phone-val').textContent = order.customer?.phone || '';

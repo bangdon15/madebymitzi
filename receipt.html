@@ -397,15 +397,25 @@
     async function loadReceipt() {
       const params = new URLSearchParams(window.location.search);
       const orderId = params.get('id') || params.get('confirm_order');
+      const orderDataParam = params.get('order_data');
       const shouldConfirm = params.get('confirm') === '1' || params.get('action') === 'confirm';
       const authKey = params.get('auth_key');
+
+      // If portable order data is present in link, import immediately onto this device
+      if (orderDataParam && typeof DB !== 'undefined') {
+        const decoded = DB.decodeOrderData(orderDataParam);
+        if (decoded && decoded.id) {
+          DB.addOrUpdateOrder(decoded);
+          currentOrder = decoded;
+        }
+      }
 
       // If opened from private admin notification email with secret order auth key
       if (orderId && authKey && typeof DB !== 'undefined' && DB.verifyOrderAuthToken(orderId, authKey)) {
         DB.grantAdminSession(true);
       }
 
-      if (!orderId) {
+      if (!orderId && !currentOrder) {
         document.querySelector('.receipt-body').innerHTML = `
           <div style="text-align:center;padding:40px;color:var(--gray-500);">
             <h2>Receipt Not Found</h2>
@@ -416,7 +426,9 @@
         return;
       }
 
-      currentOrder = DB.getOrder(orderId);
+      if (!currentOrder && orderId) {
+        currentOrder = DB.getOrder(orderId);
+      }
 
       // If not found locally, attempt to fetch from Firestore
       if (!currentOrder && window.FirebaseService && window.FirebaseService.isInitialized) {
