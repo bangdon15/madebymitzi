@@ -390,7 +390,7 @@ const DB = {
       web3FormsKey: '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7',
       gmailAppPassword: '',
       brevoApiKey: '',
-      brevoSenderEmail: '',
+      brevoSenderEmail: 'brepublic15@gmail.com',
       resendApiKey: '',
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};
