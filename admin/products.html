@@ -606,6 +606,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderProductsTable();
     });
+
+    window.addEventListener('mbm_products_synced', () => {
+      console.log('🔄 Products reloaded from Firestore cloud sync.');
+      renderProductsTable();
+    });
   </script>
 </body>
 </html>

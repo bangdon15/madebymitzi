@@ -541,6 +541,11 @@
         }
       }
     });
+
+    window.addEventListener('mbm_orders_synced', () => {
+      console.log('🔄 Orders reloaded from Firestore cloud sync.');
+      renderOrders();
+    });
   </script>
 </body>
 </html>
