@@ -737,15 +737,15 @@
       // Trigger automatic Admin Order Alert Email and Customer Order Receipt
       if (window.EmailService) {
         try {
-          showToast('Sending order notification and preparing receipt... 📧✨', 'info');
-          // Wait for email dispatches with safety timeout
-          await Promise.race([
-            Promise.all([
-              window.EmailService.sendOrderAlertToAdmin(newOrder),
-              window.EmailService.sendCustomerOrderReceived(newOrder)
-            ]),
-            new Promise(resolve => setTimeout(() => resolve({ success: true, method: 'timeout_fallback' }), 5000))
+          showToast('Placing order & dispatching confirmation receipt... 📧✨', 'info');
+          const [adminRes, custRes] = await Promise.allSettled([
+            window.EmailService.sendOrderAlertToAdmin(newOrder),
+            window.EmailService.sendCustomerOrderReceived(newOrder)
           ]);
+          console.log('Order notification email results:', { admin: adminRes, customer: custRes });
+          if (custRes.status === 'fulfilled' && custRes.value && custRes.value.success) {
+            showToast('Receipt delivered to ' + (newOrder.customer?.email || 'your inbox') + '! 📬', 'success');
+          }
         } catch (e) {
           console.warn('Order notification email error:', e);
         }
@@ -754,9 +754,8 @@
       showToast('Order placed successfully! Redirecting to confirmation...', 'success');
       launchConfetti(2500);
 
-      setTimeout(() => {
-        window.location.href = `order-confirm.html?id=${newOrder.id}`;
-      }, 700);
+      await new Promise(r => setTimeout(r, 700));
+      window.location.href = `order-confirm.html?id=${newOrder.id}`;
     });
 
     document.addEventListener('DOMContentLoaded', () => {
