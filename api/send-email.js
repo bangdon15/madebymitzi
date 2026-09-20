@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
       const acctData = await acctRes.json();
 
       // 2. Check recent transactional logs / email events
-      const logsRes = await fetch('https://api.brevo.com/v3/smtp/emails?email=brepublic15@gmail.com&limit=10&sort=desc', {
+      const logsRes = await fetch('https://api.brevo.com/v3/smtp/statistics/events?email=brepublic15@gmail.com&limit=10&sort=desc', {
         headers: { 'api-key': brevoKey, 'accept': 'application/json' }
       });
       const logsData = await logsRes.json();
