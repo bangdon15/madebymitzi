@@ -312,7 +312,7 @@
     }
     window.handleLogout = handleLogout;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function refreshDashboard() {
       const orders = DB.getOrders();
       const products = DB.getProducts();
       const earnings = DB.getEarnings();
@@ -323,13 +323,16 @@
       document.getElementById('stat-total-products').textContent = products.length;
 
       const pendingCount = orders.filter(o => o.status === 'pending').length;
-      if (pendingCount > 0) {
-        const badge = document.getElementById('pending-badge');
+      const badge = document.getElementById('pending-badge');
+      if (pendingCount > 0 && badge) {
         badge.textContent = pendingCount;
         badge.style.display = 'inline-block';
+      } else if (badge) {
+        badge.style.display = 'none';
       }
 
       const tbody = document.getElementById('recent-orders-tbody');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       if (!orders.length) {
@@ -352,7 +355,11 @@
         `;
         tbody.appendChild(tr);
       });
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', refreshDashboard);
+    window.addEventListener('mbm_orders_synced', refreshDashboard);
+    window.addEventListener('mbm_products_synced', refreshDashboard);
   </script>
 </body>
 </html>
