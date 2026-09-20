@@ -329,6 +329,7 @@ const EmailService = {
   async sendEmail({ to, subject, html, text, fromName, replyTo }) {
     const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
     const gmailAppPassword = (settings.gmailAppPassword || localStorage.getItem('mbm_gmail_app_password') || '').replace(/\s+/g, '');
+    const brevoApiKey = (settings.brevoApiKey || localStorage.getItem('mbm_brevo_key') || '').trim();
     const resendKey = settings.resendApiKey || localStorage.getItem('mbm_resend_key') || '';
     const web3Key = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
 
@@ -347,7 +348,7 @@ const EmailService = {
       }
     }
 
-    // 2. Primary: Try Vercel Serverless `/api/send-email` (Gmail SMTP via Nodemailer or Resend)
+    // 2. Primary: Try Vercel Serverless `/api/send-email` (Gmail SMTP, Brevo, or Resend)
     try {
       const res = await fetch('/api/send-email', {
         method: 'POST',
@@ -360,6 +361,7 @@ const EmailService = {
           fromName: fromName || settings.emailSenderName || 'MadeByMitzi Digital Store',
           replyTo: replyTo || settings.orderNotifyTo || 'madebymitzi26@gmail.com',
           gmailAppPassword,
+          brevoApiKey,
           resendKey,
           web3Key
         })
