@@ -357,10 +357,9 @@
         return;
       }
 
-      const orderData = DB.encodeOrderData(order);
       document.getElementById('order-id-display').textContent = `Order ID: ${order.id}`;
       const receiptBtn = document.getElementById('btn-view-receipt');
-      if (receiptBtn) receiptBtn.href = `receipt.html?id=${order.id}&order_data=${orderData}`;
+      if (receiptBtn) receiptBtn.href = `receipt.html?id=${order.id}`;
       const noticeEmail = document.getElementById('notice-cust-email');
       if (noticeEmail) noticeEmail.textContent = order.customer?.email || 'your email';
       document.getElementById('cust-name-val').textContent = order.customer?.name || 'Valued Customer';
