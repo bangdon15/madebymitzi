@@ -755,7 +755,8 @@
       launchConfetti(2500);
 
       await new Promise(r => setTimeout(r, 700));
-      window.location.href = `order-confirm.html?id=${newOrder.id}`;
+      const encData = DB.encodeOrderData(newOrder);
+      window.location.href = `order-confirm.html?id=${newOrder.id}${encData ? `&order_data=${encData}` : ''}`;
     });
 
     document.addEventListener('DOMContentLoaded', () => {
