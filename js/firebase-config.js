@@ -11,13 +11,24 @@ const FirebaseService = {
   app: null,
   isInitialized: false,
 
+  // Default Production Firebase Cloud Database Configuration
+  DEFAULT_CONFIG: {
+    apiKey: "AIzaSyDbrdkhW1PUG94N2K0xoR-V9-VcmPMcYw0",
+    authDomain: "madebymitzi-store.firebaseapp.com",
+    projectId: "madebymitzi-store",
+    storageBucket: "madebymitzi-store.firebasestorage.app",
+    messagingSenderId: "1054421281150",
+    appId: "1:1054421281150:web:6f2a0eade70f675e322b2f",
+    measurementId: "G-D1824348H4"
+  },
+
   // Default / stored config
   getConfig() {
     try {
-      return JSON.parse(localStorage.getItem('mbm_firebase_config')) || null;
-    } catch {
-      return null;
-    }
+      const stored = JSON.parse(localStorage.getItem('mbm_firebase_config'));
+      if (stored && stored.apiKey && stored.projectId) return stored;
+    } catch {}
+    return this.DEFAULT_CONFIG;
   },
 
   saveConfig(config) {
@@ -30,7 +41,6 @@ const FirebaseService = {
   async init() {
     const config = this.getConfig();
     if (!config || !config.apiKey || !config.projectId) {
-      // Not yet configured by admin; remain in offline/local mode
       return false;
     }
 
@@ -49,31 +59,67 @@ const FirebaseService = {
         this.isInitialized = true;
       }
 
-      if (this.isInitialized) {
-        // Automatically sync products from cloud across devices
+      if (this.isInitialized && this.db) {
+        // 1. Initial product sync
         this.fetchProducts().then(cloudProds => {
           if (cloudProds && cloudProds.length && typeof window.DB !== 'undefined') {
             window.DB.setProducts(cloudProds);
-            window.dispatchEvent(new CustomEvent('mbm_products_synced'));
+            window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: cloudProds }));
           }
         }).catch(() => {});
 
-        // Automatically sync admin auth credentials from cloud
-        this.fetchAdminAuth().then(cloudAuth => {
-          if (cloudAuth && cloudAuth.passwordHash && typeof window.DB !== 'undefined') {
-            window.DB.set(window.DB.KEYS.AUTH, cloudAuth);
-            console.log('🔐 Admin auth credentials synced from Cloud Firestore.');
+        // 2. Initial orders sync
+        this.fetchOrders().then(cloudOrders => {
+          if (cloudOrders && cloudOrders.length && typeof window.DB !== 'undefined') {
+            window.DB.setOrders(cloudOrders);
+            window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders }));
           }
         }).catch(() => {});
 
-        // Automatically sync store settings from cloud
+        // 3. Initial settings sync
         this.fetchSettings().then(cloudSettings => {
           if (cloudSettings && typeof window.DB !== 'undefined') {
             const current = window.DB.getSettings();
             window.DB.set(window.DB.KEYS.SETTINGS, { ...current, ...cloudSettings });
-            console.log('⚙️ Store settings synced from Cloud Firestore.');
           }
         }).catch(() => {});
+
+        // 4. Real-time live Firestore listener for Products
+        try {
+          this.db.collection('mbm_products').onSnapshot(snapshot => {
+            if (!snapshot.empty && typeof window.DB !== 'undefined') {
+              const cloudProds = [];
+              snapshot.forEach(doc => cloudProds.push(doc.data()));
+              cloudProds.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+              window.DB.setProducts(cloudProds);
+              window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: cloudProds }));
+            }
+          }, err => console.warn('Products live listener notice:', err.message));
+        } catch (e) {}
+
+        // 5. Real-time live Firestore listener for Orders
+        try {
+          this.db.collection('mbm_orders').onSnapshot(snapshot => {
+            if (!snapshot.empty && typeof window.DB !== 'undefined') {
+              const cloudOrders = [];
+              snapshot.forEach(doc => cloudOrders.push(doc.data()));
+              cloudOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+              window.DB.setOrders(cloudOrders);
+              window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders }));
+            }
+          }, err => console.warn('Orders live listener notice:', err.message));
+        } catch (e) {}
+
+        // 6. Real-time live Firestore listener for Settings
+        try {
+          this.db.collection('mbm_settings').doc('main_settings').onSnapshot(doc => {
+            if (doc.exists && typeof window.DB !== 'undefined') {
+              const current = window.DB.getSettings();
+              window.DB.set(window.DB.KEYS.SETTINGS, { ...current, ...doc.data() });
+              window.dispatchEvent(new CustomEvent('mbm_settings_synced', { detail: doc.data() }));
+            }
+          }, err => console.warn('Settings live listener notice:', err.message));
+        } catch (e) {}
 
         return true;
       }
@@ -200,9 +246,10 @@ const FirebaseService = {
   async fetchProducts() {
     if (!this.isInitialized || !this.db) return null;
     try {
-      const snapshot = await this.db.collection('mbm_products').orderBy('createdAt', 'desc').get();
+      const snapshot = await this.db.collection('mbm_products').get();
       const products = [];
       snapshot.forEach(doc => products.push(doc.data()));
+      products.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       return products;
     } catch (err) {
       console.warn('Error fetching products from Firestore:', err);
@@ -233,9 +280,10 @@ const FirebaseService = {
   async fetchOrders() {
     if (!this.isInitialized || !this.db) return null;
     try {
-      const snapshot = await this.db.collection('mbm_orders').orderBy('createdAt', 'desc').get();
+      const snapshot = await this.db.collection('mbm_orders').get();
       const orders = [];
       snapshot.forEach(doc => orders.push(doc.data()));
+      orders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       return orders;
     } catch (err) {
       console.warn('Error fetching orders from Firestore:', err);
