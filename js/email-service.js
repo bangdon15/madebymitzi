@@ -156,6 +156,64 @@ const EmailService = {
   },
 
   /**
+   * Generates full email HTML for Customer when an order is first submitted (Receipt with Pending Status)
+   */
+  generateCustomerPendingOrderHtml(order) {
+    const cust = order.customer || {};
+    const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
+    const receiptHtml = this.generateReceiptHtml(order, false);
+    const baseUrl = this.getBaseUrl();
+    const orderData = (typeof DB !== 'undefined') ? DB.encodeOrderData(order) : '';
+    const receiptUrl = `${baseUrl}/receipt.html?id=${order.id}${orderData ? `&order_data=${orderData}` : ''}`;
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8" /></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #F3F4F6; margin: 0; padding: 24px;">
+        <div style="max-width: 650px; margin: 0 auto;">
+
+          <!-- Pending Notice Card -->
+          <div style="background: #ffffff; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 24px; border-top: 6px solid #F59E0B; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
+            <div style="font-size: 44px; margin-bottom: 8px;">🛍️ ⏳</div>
+            <h2 style="margin: 0; color: #1F2937; font-size: 22px;">Order Placed — Payment Verification in Progress</h2>
+            <p style="color: #4B5563; font-size: 15px; margin: 10px 0 20px; line-height: 1.5;">
+              Hi <strong>${cust.name || 'Valued Customer'}</strong>,<br/>
+              Thank you so much for ordering with MadeByMitzi! We have received your order details and payment reference: <strong style="font-family:monospace;color:#0F52BA;">${order.refNumber || 'N/A'}</strong>.
+            </p>
+
+            <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: left; font-size: 14px; color: #92400E;">
+              <strong style="font-size: 15px;">⏳ What Happens Next:</strong>
+              <p style="margin: 8px 0 0; line-height: 1.5;">
+                Designer Mitzi Santos is currently verifying your ${(order.paymentMethod || 'GCash').toUpperCase()} payment. As soon as verified, you will receive a second email releasing your <strong>editable Canva template links</strong> and <strong>high-resolution printable PDF links</strong>!
+              </p>
+            </div>
+
+            <!-- View Receipt Button -->
+            <a href="${receiptUrl}" target="_blank" style="display: inline-block; background: #0F52BA; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 800; padding: 13px 26px; border-radius: 10px; box-shadow: 0 4px 10px rgba(15,82,186,0.25);">
+              📄 View Live Official Receipt Online
+            </a>
+          </div>
+
+          <!-- Official Itemized Receipt with Pending Status -->
+          ${receiptHtml}
+
+          <!-- Note from Mitzi -->
+          <div style="margin-top: 24px; background: #ffffff; border-radius: 16px; padding: 20px; text-align: center; font-size: 13px; color: #6B7280; border: 1px solid #E5E7EB;">
+            <p style="margin: 0 0 6px; font-weight: bold; color: #1F2937;">💌 A Note from Mitzi Santos:</p>
+            <p style="margin: 0; font-style: italic;">"Thank you for supporting MadeByMitzi! If you need any assistance, reply directly to this email or chat with us on Facebook."</p>
+            <div style="margin-top: 12px; font-size: 12px;">
+              Chat with us: <a href="${settings.shopFacebook || 'https://www.facebook.com/profile.php?id=100094438778151'}" target="_blank" style="color:#0F52BA;font-weight:bold;">Facebook Messenger</a>
+            </div>
+          </div>
+
+        </div>
+      </body>
+      </html>
+    `;
+  },
+
+  /**
    * Generates full email HTML for Admin when a new order is submitted
    */
   generateAdminAlertHtml(order) {
@@ -266,13 +324,15 @@ const EmailService = {
   },
 
   /**
-   * Dispatches an email via configured API (Web3Forms, custom API, or Firestore)
+   * Dispatches an email via configured API (Gmail SMTP via Vercel serverless, Resend, or Web3Forms)
    */
   async sendEmail({ to, subject, html, text, fromName, replyTo }) {
     const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
+    const gmailAppPassword = (settings.gmailAppPassword || localStorage.getItem('mbm_gmail_app_password') || '').replace(/\s+/g, '');
+    const resendKey = settings.resendApiKey || localStorage.getItem('mbm_resend_key') || '';
     const web3Key = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
 
-    // 1. Log to Firestore `mbm_notifications` for telemetry & cloud record
+    // 1. Log to Firestore `mbm_notifications` for cloud telemetry
     if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized && window.FirebaseService.db) {
       try {
         await window.FirebaseService.db.collection('mbm_notifications').add({
@@ -287,8 +347,38 @@ const EmailService = {
       }
     }
 
-    // 2. If Resend API Key is configured in settings or localStorage
-    const resendKey = settings.resendApiKey || localStorage.getItem('mbm_resend_key') || '';
+    // 2. Primary: Try Vercel Serverless `/api/send-email` (Gmail SMTP via Nodemailer or Resend)
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to,
+          subject,
+          html: html || text,
+          text,
+          fromName: fromName || settings.emailSenderName || 'MadeByMitzi Digital Store',
+          replyTo: replyTo || settings.orderNotifyTo || 'madebymitzi26@gmail.com',
+          gmailAppPassword,
+          resendKey,
+          web3Key
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          console.log(`✅ Email delivered to ${to} via ${data.method}:`, data);
+          return { success: true, method: data.method, message: data.message || `Email delivered to ${to}` };
+        } else if (data.method === 'gmail_smtp_error') {
+          return { success: false, method: 'gmail_smtp_error', message: data.message };
+        }
+      }
+    } catch (apiErr) {
+      console.warn('Serverless email dispatch error:', apiErr);
+    }
+
+    // 3. Resend Client-Side Direct API (if key available and serverless unavailable)
     if (resendKey) {
       try {
         const res = await fetch('https://api.resend.com/emails', {
@@ -301,7 +391,8 @@ const EmailService = {
             from: 'MadeByMitzi <onboarding@resend.dev>',
             to: [to],
             subject: subject,
-            html: html || text
+            html: html || text,
+            text: text
           })
         });
         const data = await res.json();
@@ -310,13 +401,14 @@ const EmailService = {
           return { success: true, method: 'resend', message: 'Email sent directly via Resend to ' + to };
         }
       } catch (e) {
-        console.warn('Resend client dispatch error:', e);
+        console.warn('Resend direct dispatch error:', e);
       }
     }
 
-    // 3. Web3Forms API: Automated direct email delivery to admin & customers
+    // 4. Web3Forms API: ONLY suitable for admin notifications (delivers only to account owner)
+    const isAdminNotification = to.toLowerCase().includes('madebymitzi') || to.toLowerCase().includes('admin');
     const activeWeb3Key = web3Key || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
-    if (activeWeb3Key) {
+    if (activeWeb3Key && isAdminNotification) {
       try {
         const payload = {
           access_key: activeWeb3Key,
@@ -336,7 +428,7 @@ const EmailService = {
         });
         const data = await res.json();
         if (data.success) {
-          console.log('✅ Email sent successfully via Web3Forms to:', to);
+          console.log('✅ Admin alert sent successfully via Web3Forms to:', to);
           return { success: true, method: 'web3forms', message: 'Email sent directly to ' + to };
         } else {
           return { success: false, method: 'web3forms', message: data.message || 'Web3Forms error' };
@@ -346,28 +438,19 @@ const EmailService = {
       }
     }
 
-    // 4. Fallback: Check if Vercel serverless /api/send-email is present
-    try {
-      const res = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to, subject, html, text, fromName })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.method === 'resend' || data.method === 'web3forms') {
-          return { success: true, method: data.method, message: 'Email sent via serverless API to ' + to };
-        }
-      }
-    } catch {
-      // API endpoint not configured or offline
+    // 5. If emailing customer but no outbound provider configured
+    if (!isAdminNotification) {
+      return {
+        success: false,
+        method: 'no_outbound_provider',
+        message: 'Customer email requires a free Google App Password in Admin Settings (Web3Forms free tier does not send to customers).'
+      };
     }
 
-    // 5. No key configured
     return {
       success: false,
       method: 'no_key',
-      message: 'No email service key configured yet. Please enter your free Web3Forms Access Key in Settings to receive emails in your inbox.'
+      message: 'No email service configured. Please enter your free Google App Password or Web3Forms Key in Settings.'
     };
   },
 
@@ -444,13 +527,14 @@ ${receiptUrl}
     const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
     const custName = order.customer?.name || 'Valued Customer';
     const orderData = (typeof DB !== 'undefined') ? DB.encodeOrderData(order) : '';
-    const receiptUrl = `${this.getBaseUrl()}/receipt.html?id=${order.id}&order_data=${orderData}`;
+    const receiptUrl = `${this.getBaseUrl()}/receipt.html?id=${order.id}${orderData ? `&order_data=${orderData}` : ''}`;
 
     const itemsList = (order.items || []).map((item, idx) => {
       return `  ${idx + 1}. ${item.name || 'Digital Item'} (Qty: ${item.qty}) — ₱${Number((item.price || 0) * (item.qty || 1)).toLocaleString()}`;
     }).join('\n');
 
     const subject = `🛍️ Order Placed & Verification in Progress [#${order.id}] — MadeByMitzi`;
+    const html = this.generateCustomerPendingOrderHtml(order);
     const text = `
 🎉 SALAMAT! ORDER RECEIVED - MADEBYMITZI
 ========================================
@@ -482,25 +566,14 @@ ${settings.shopFacebook || 'https://www.facebook.com/profile.php?id=100094438778
 `.trim();
 
     console.log(`📨 Triggering Customer Confirmation for ${order.id} to ${custEmail}...`);
-    try {
-      const res = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: custEmail,
-          subject,
-          text,
-          fromName: 'MadeByMitzi Digital Store'
-        }),
-        keepalive: true
-      });
-      if (res.ok) {
-        return await res.json();
-      }
-    } catch {
-      // serverless fallback
-    }
-    return { success: true, method: 'queued', message: 'Customer confirmation prepared.' };
+    return await this.sendEmail({
+      to: custEmail,
+      subject,
+      html,
+      text,
+      fromName: 'MadeByMitzi Digital Store',
+      replyTo: settings.orderNotifyTo || 'madebymitzi26@gmail.com'
+    });
   },
 
   /**
@@ -515,7 +588,8 @@ ${settings.shopFacebook || 'https://www.facebook.com/profile.php?id=100094438778
     const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
     const subject = `✨ Your MadeByMitzi Digital Order & Official Receipt [${order.id}]`;
     const orderData = (typeof DB !== 'undefined') ? DB.encodeOrderData(order) : '';
-    const receiptUrl = `${this.getBaseUrl()}/receipt.html?id=${order.id}&order_data=${orderData}`;
+    const receiptUrl = `${this.getBaseUrl()}/receipt.html?id=${order.id}${orderData ? `&order_data=${orderData}` : ''}`;
+    const html = this.generateBuyerDeliveryHtml(order);
 
     const itemsSummary = (order.items || []).map((item, idx) => {
       const prod = (typeof DB !== 'undefined') ? DB.getProduct(item.productId) : null;
@@ -550,38 +624,14 @@ ${settings.shopFacebook || 'https://www.facebook.com/profile.php?id=100094438778
 `.trim();
 
     console.log(`📨 Triggering Buyer Digital Delivery for ${order.id} to ${custEmail}...`);
-
-    // 1. Try serverless backend (Resend or configured SMTP)
-    try {
-      const res = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: custEmail,
-          subject,
-          text,
-          fromName: settings.emailSenderName || 'MadeByMitzi Digital Store',
-          replyTo: settings.orderNotifyTo || 'madebymitzi26@gmail.com'
-        }),
-        keepalive: true
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.method === 'resend') {
-          return { success: true, method: 'serverless_resend', message: `Delivery email sent to ${custEmail}!` };
-        }
-      }
-    } catch {
-      // serverless fallback
-    }
-
-    // 2. Note: We intentionally avoid Web3Forms for buyer delivery because Web3Forms
-    // only routes submissions to Mitzi's own inbox!
-    return {
-      success: true,
-      method: 'dispatch_modal',
-      message: `Order confirmed! Ready to dispatch files to ${custEmail}.`
-    };
+    return await this.sendEmail({
+      to: custEmail,
+      subject,
+      html,
+      text,
+      fromName: settings.emailSenderName || 'MadeByMitzi Digital Store',
+      replyTo: settings.orderNotifyTo || 'madebymitzi26@gmail.com'
+    });
   }
 };
 

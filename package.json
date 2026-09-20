@@ -1,0 +1,12 @@
+{
+  "name": "madebymitzi-web",
+  "version": "1.0.0",
+  "description": "MadeByMitzi Digital Store & Management System",
+  "main": "api/send-email.js",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  }
+}

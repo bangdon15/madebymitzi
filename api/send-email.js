@@ -1,5 +1,12 @@
 // Vercel Serverless Function — MadeByMitzi Email Dispatch
-// Handles POST requests to send admin alerts and buyer delivery emails
+// Dispatches automated emails to customers and admin via Gmail SMTP, Resend, or Brevo
+
+let nodemailer = null;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  // Nodemailer fallback
+}
 
 module.exports = async (req, res) => {
   // CORS Headers
@@ -21,63 +28,117 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { to, subject, html, text, fromName } = req.body || {};
+    const { to, subject, html, text, fromName, gmailAppPassword, replyTo } = req.body || {};
 
     if (!to || !subject || (!html && !text)) {
       return res.status(400).json({ success: false, message: 'Missing required fields: to, subject, body' });
     }
 
-    // 1. Check if Resend API Key is set in environment
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey) {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: fromName ? `${fromName} <orders@madebymitzi.com>` : 'MadeByMitzi <onboarding@resend.dev>',
-          to: [to],
-          subject: subject,
-          html: html || text
-        })
-      });
+    const rawPass = process.env.GMAIL_APP_PASSWORD || gmailAppPassword || '';
+    const gmailPass = rawPass.replace(/\s+/g, '');
+    const gmailUser = process.env.GMAIL_USER || 'madebymitzi26@gmail.com';
 
-      if (response.ok) {
-        const data = await response.json();
-        return res.status(200).json({ success: true, method: 'resend', data });
-      }
-    }
+    // 1. GMAIL SMTP (Nodemailer) — Sends real emails from madebymitzi26@gmail.com directly to customer
+    if (gmailPass && nodemailer) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: gmailUser,
+            pass: gmailPass
+          }
+        });
 
-    // 2. Check if Web3Forms Access Key is set in environment or default
-    const web3Key = process.env.WEB3FORMS_KEY || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
-    if (web3Key) {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          access_key: web3Key,
-          subject: subject,
-          from_name: fromName || 'MadeByMitzi Orders',
-          name: fromName || 'MadeByMitzi Orders',
-          email: to,
+        const info = await transporter.sendMail({
+          from: `"${fromName || 'MadeByMitzi Digital Store'}" <${gmailUser}>`,
           to: to,
-          message: text ? `${text}\n\n========================================\nHTML RECEIPT:\n${html}` : html
-        })
-      });
+          replyTo: replyTo || gmailUser,
+          subject: subject,
+          text: text,
+          html: html || text
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        return res.status(200).json({ success: true, method: 'web3forms', data });
+        console.log('✅ Email sent via Gmail SMTP to:', to, 'ID:', info.messageId);
+        return res.status(200).json({
+          success: true,
+          method: 'gmail_smtp',
+          message: `Email delivered to ${to} via Gmail SMTP`,
+          messageId: info.messageId
+        });
+      } catch (smtpErr) {
+        console.error('Gmail SMTP error:', smtpErr);
+        return res.status(400).json({
+          success: false,
+          method: 'gmail_smtp_error',
+          message: `Gmail SMTP Error: ${smtpErr.message}. Please verify that you generated a 16-letter App Password on your Google Account (myaccount.google.com/apppasswords) and that 2-Step Verification is turned on.`
+        });
       }
     }
 
-    // Acknowledged receipt (queued)
+    // 2. Resend API Key
+    const resendKey = process.env.RESEND_API_KEY || req.body?.resendKey;
+    if (resendKey) {
+      try {
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: fromName ? `${fromName} <orders@madebymitzi.com>` : 'MadeByMitzi <onboarding@resend.dev>',
+            to: [to],
+            subject: subject,
+            html: html || text,
+            text: text
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.id) {
+          return res.status(200).json({ success: true, method: 'resend', data });
+        } else {
+          console.warn('Resend response error:', data);
+        }
+      } catch (resendErr) {
+        console.warn('Resend error:', resendErr.message);
+      }
+    }
+
+    // 3. Web3Forms (Only for admin notifications, since Web3Forms free tier only delivers to key owner)
+    const web3Key = process.env.WEB3FORMS_KEY || req.body?.web3Key || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
+    const isAdminNotification = to.toLowerCase().includes('madebymitzi') || to.toLowerCase().includes('admin');
+    
+    if (web3Key && isAdminNotification) {
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            access_key: web3Key,
+            subject: subject,
+            from_name: fromName || 'MadeByMitzi Orders',
+            name: fromName || 'MadeByMitzi Orders',
+            email: to,
+            to: to,
+            message: text || html
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return res.status(200).json({ success: true, method: 'web3forms', data });
+        }
+      } catch (wErr) {
+        console.warn('Web3Forms error:', wErr.message);
+      }
+    }
+
+    // Fallback if no outbound customer provider is configured
     return res.status(200).json({
-      success: true,
-      method: 'queued',
-      message: 'Email request received and logged.'
+      success: false,
+      method: 'no_outbound_provider',
+      message: 'No outbound customer email provider is configured. Please enter your free 16-character Google App Password in Admin Settings to enable automated customer emails.'
     });
   } catch (err) {
     console.error('Serverless email error:', err);
