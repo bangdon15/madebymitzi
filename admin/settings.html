@@ -283,6 +283,11 @@
                 <i class="fas fa-copy"></i> Copy
               </button>
             </div>
+            <div style="margin-top:10px;">
+              <label style="font-size:0.78rem;font-weight:700;color:#166534;display:block;margin-bottom:4px;">Brevo Account / Verified Sender Email:</label>
+              <input type="email" id="email-brevo-sender" class="form-input" placeholder="e.g. madebymitzi26@gmail.com or brepublic15@gmail.com" />
+              <div style="font-size:0.73rem;color:#15803d;margin-top:3px;">Must be the email address you registered your Brevo account with.</div>
+            </div>
             <div style="margin-top:8px;font-size:0.75rem;color:#166534;">
               Sign up free at <a href="https://app.brevo.com" target="_blank" style="color:#15803d;font-weight:700;text-decoration:underline;">brevo.com</a> ➔ Go to <strong>SMTP & API</strong> ➔ <strong>Generate a new API key</strong> ➔ Paste it above.
             </div>
@@ -486,6 +491,10 @@
       if (brevoKeyInput) {
         brevoKeyInput.value = settings.brevoApiKey || localStorage.getItem('mbm_brevo_key') || '';
       }
+      const brevoSenderInput = document.getElementById('email-brevo-sender');
+      if (brevoSenderInput) {
+        brevoSenderInput.value = settings.brevoSenderEmail || localStorage.getItem('mbm_brevo_sender') || 'madebymitzi26@gmail.com';
+      }
       updateTestEmailPreview();
 
       // Admin Auth info
@@ -613,6 +622,7 @@
       const web3FormsKey = document.getElementById('email-web3-key').value.trim();
       const gmailAppPassword = (document.getElementById('email-gmail-app-pass')?.value || '').trim();
       const brevoApiKey = (document.getElementById('email-brevo-key')?.value || '').trim();
+      const brevoSenderEmail = (document.getElementById('email-brevo-sender')?.value || '').trim();
 
       if (!orderNotifyTo) {
         showToast('Please provide a valid "To:" email address.', 'error');
@@ -626,7 +636,8 @@
         emailDeliveryNote,
         web3FormsKey,
         gmailAppPassword,
-        brevoApiKey
+        brevoApiKey,
+        brevoSenderEmail
       });
 
       if (web3FormsKey) {
@@ -637,6 +648,9 @@
       }
       if (brevoApiKey) {
         localStorage.setItem('mbm_brevo_key', brevoApiKey);
+      }
+      if (brevoSenderEmail) {
+        localStorage.setItem('mbm_brevo_sender', brevoSenderEmail);
       }
 
       showToast('Email notification settings saved! 📧✅', 'success');

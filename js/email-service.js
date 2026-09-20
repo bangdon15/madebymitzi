@@ -330,6 +330,7 @@ const EmailService = {
     const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
     const gmailAppPassword = (settings.gmailAppPassword || localStorage.getItem('mbm_gmail_app_password') || '').replace(/\s+/g, '');
     const brevoApiKey = (settings.brevoApiKey || localStorage.getItem('mbm_brevo_key') || '').trim();
+    const brevoSenderEmail = (settings.brevoSenderEmail || localStorage.getItem('mbm_brevo_sender') || '').trim();
     const resendKey = settings.resendApiKey || localStorage.getItem('mbm_resend_key') || '';
     const web3Key = settings.web3FormsKey || localStorage.getItem('mbm_web3forms_key') || '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7';
 
@@ -363,18 +364,20 @@ const EmailService = {
           replyTo: replyTo || settings.orderNotifyTo || 'madebymitzi26@gmail.com',
           gmailAppPassword,
           brevoApiKey,
+          brevoSenderEmail,
           resendKey,
           web3Key
         })
       });
 
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (data) {
         if (data.success) {
           console.log(`✅ Email delivered to ${to} via ${data.method}:`, data);
           return { success: true, method: data.method, message: data.message || `Email delivered to ${to}` };
-        } else if (data.method === 'gmail_smtp_error') {
-          return { success: false, method: 'gmail_smtp_error', message: data.message };
+        } else if (data.method === 'gmail_smtp_error' || data.method === 'brevo_error') {
+          console.warn('Email provider error:', data);
+          return { success: false, method: data.method, message: data.message };
         }
       }
     } catch (apiErr) {
