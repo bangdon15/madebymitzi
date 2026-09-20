@@ -274,7 +274,15 @@
             <p style="font-size:0.78rem;color:#166534;margin:0 0 10px;line-height:1.45;">
               If your Google Account doesn't have 2-Step Verification, simply use Brevo! It sends 300 free emails/day to any customer with 1 free key.
             </p>
-            <input type="password" id="email-brevo-key" class="form-input" placeholder="xkeysib-..." style="font-family:monospace;" />
+            <div style="display:flex;gap:8px;">
+              <input type="password" id="email-brevo-key" class="form-input" placeholder="xkeysib-..." style="font-family:monospace;" />
+              <button type="button" class="btn btn-outline-blue" style="white-space:nowrap;padding:0 14px;" onclick="toggleBrevoKeyVisibility()" title="Show/Hide Key">
+                <i class="fas fa-eye" id="toggle-brevo-icon"></i>
+              </button>
+              <button type="button" class="btn btn-secondary" style="white-space:nowrap;padding:0 14px;" onclick="copyBrevoKey()" title="Copy Key">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
             <div style="margin-top:8px;font-size:0.75rem;color:#166534;">
               Sign up free at <a href="https://app.brevo.com" target="_blank" style="color:#15803d;font-weight:700;text-decoration:underline;">brevo.com</a> ➔ Go to <strong>SMTP & API</strong> ➔ <strong>Generate a new API key</strong> ➔ Paste it above.
             </div>
@@ -515,6 +523,35 @@
       }
     }
     window.toggleAppPassVisibility = toggleAppPassVisibility;
+
+    function toggleBrevoKeyVisibility() {
+      const input = document.getElementById('email-brevo-key');
+      const icon = document.getElementById('toggle-brevo-icon');
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        if (icon) icon.className = 'fas fa-eye';
+      }
+    }
+    window.toggleBrevoKeyVisibility = toggleBrevoKeyVisibility;
+
+    function copyBrevoKey() {
+      const input = document.getElementById('email-brevo-key');
+      const val = (input?.value || '').trim();
+      if (!val) {
+        showToast('No Brevo API key currently saved or entered.', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(val).then(() => {
+        showToast('Brevo API key copied to clipboard! Ready to paste into Vercel 📋✅', 'success');
+      }).catch(() => {
+        showToast('Failed to copy automatically. Please show key and copy manually.', 'error');
+      });
+    }
+    window.copyBrevoKey = copyBrevoKey;
 
     async function handleGcashImageUpload(e) {
       const file = e.target.files?.[0];
