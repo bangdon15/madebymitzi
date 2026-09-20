@@ -398,6 +398,12 @@
       const params = new URLSearchParams(window.location.search);
       const orderId = params.get('id') || params.get('confirm_order');
       const shouldConfirm = params.get('confirm') === '1' || params.get('action') === 'confirm';
+      const authKey = params.get('auth_key');
+
+      // If opened from private admin notification email with secret order auth key
+      if (orderId && authKey && typeof DB !== 'undefined' && DB.verifyOrderAuthToken(orderId, authKey)) {
+        DB.grantAdminSession(true);
+      }
 
       if (!orderId) {
         document.querySelector('.receipt-body').innerHTML = `

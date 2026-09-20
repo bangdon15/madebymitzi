@@ -321,11 +321,11 @@ const EmailService = {
         const payload = {
           access_key: activeWeb3Key,
           name: fromName || settings.emailSenderName || 'MadeByMitzi Orders',
-          email: to || settings.orderNotifyTo || 'orders@madebymitzi.com',
-          reply_to: replyTo || settings.orderNotifyTo || 'orders@madebymitzi.com',
+          email: to || settings.orderNotifyTo || 'madebymitzi26@gmail.com',
+          reply_to: replyTo || settings.orderNotifyTo || 'madebymitzi26@gmail.com',
           from_name: fromName || settings.emailSenderName || 'MadeByMitzi Orders',
           subject: subject,
-          message: text ? `${text}\n\n========================================\nHTML RECEIPT & DETAILS:\n${html}` : html
+          message: text || html
         };
 
         const res = await fetch('https://api.web3forms.com/submit', {
@@ -375,33 +375,49 @@ const EmailService = {
    */
   async sendOrderAlertToAdmin(order) {
     const settings = (typeof DB !== 'undefined') ? DB.getSettings() : {};
-    const adminEmail = settings.orderNotifyTo || 'orders@madebymitzi.com';
+    const adminEmail = settings.orderNotifyTo || 'madebymitzi26@gmail.com';
     const custName = order.customer?.name || 'Customer';
     const subject = `🛒 New Order Alert: ${order.id} (₱${order.total}) from ${custName}`;
     const html = this.generateAdminAlertHtml(order);
-    const confirmUrl = `${this.getBaseUrl()}/admin/orders.html?confirm_order=${order.id}&action=confirm`;
+
+    // Generate secure 1-click authentication token so Mitzi doesn't have to re-login from email
+    const authKey = (typeof DB !== 'undefined') ? DB.generateOrderAuthToken(order.id) : '';
+    const confirmUrl = `${this.getBaseUrl()}/admin/orders.html?confirm_order=${order.id}&action=confirm&auth_key=${authKey}`;
     const receiptUrl = `${this.getBaseUrl()}/receipt.html?id=${order.id}`;
 
+    const itemsList = (order.items || []).map((item, idx) => {
+      return `  ${idx + 1}. ${item.name || 'Digital Item'} (Qty: ${item.qty}) — ₱${Number((item.price || 0) * (item.qty || 1)).toLocaleString()}`;
+    }).join('\n');
+
     const text = `
-🛒 NEW ORDER RECEIVED - MADEBYMITZI
+🛒 NEW ORDER ALERT - MADEBYMITZI
 ========================================
 Order Number: ${order.id}
+Date: ${new Date(order.createdAt || Date.now()).toLocaleString('en-PH')}
 Customer Name: ${custName}
 Customer Email: ${order.customer?.email || 'N/A'}
 Customer Phone: ${order.customer?.phone || 'N/A'}
-Total Amount: ₱${Number(order.total || 0).toLocaleString()}
+
+📦 ITEMS ORDERED:
+${itemsList || '  (Digital Items)'}
+
+Subtotal: ₱${Number(order.subtotal || order.total || 0).toLocaleString()}
+${order.discount ? `Discount: -₱${Number(order.discount).toLocaleString()}\n` : ''}Total Amount: ₱${Number(order.total || 0).toLocaleString()}
 Payment Method: ${(order.paymentMethod || 'GCash').toUpperCase()}
 Reference / Ref #: ${order.refNumber || 'N/A'}
 
-👉 IMPORTANT ACTION REQUIRED:
-Check your ${(order.paymentMethod || 'GCash').toUpperCase()} account to confirm that ₱${Number(order.total || 0).toLocaleString()} was received.
-Once verified, click the link below to confirm the order and automatically email the digital download links to the buyer:
+----------------------------------------
+👉 ACTION REQUIRED (1-CLICK CONFIRMATION):
+Check your ${(order.paymentMethod || 'GCash').toUpperCase()} app to verify that ₱${Number(order.total || 0).toLocaleString()} has arrived in your account.
+Once verified, click the link below to verify payment and automatically email the digital download links to the buyer:
 
 👉 CLICK HERE IF YOU RECEIVED THE PAYMENT:
 ${confirmUrl}
 
-🧾 VIEW OFFICIAL RECEIPT ONLINE:
+----------------------------------------
+📄 VIEW OFFICIAL PRINTABLE RECEIPT / PDF:
 ${receiptUrl}
+(Open link to inspect, download, or print the official PDF receipt)
 ========================================
 `.trim();
 
@@ -433,13 +449,13 @@ ${receiptUrl}
     const itemsSummary = (order.items || []).map((item, idx) => {
       const prod = (typeof DB !== 'undefined') ? DB.getProduct(item.productId) : null;
       let links = '';
-      if (prod?.canvaLink) links += `\n   - Canva Template: ${prod.canvaLink}`;
-      if (prod?.pdfLink) links += `\n   - Printable PDF: ${prod.pdfLink}`;
+      if (prod?.canvaLink) links += `\n   🔗 Canva Template: ${prod.canvaLink}`;
+      if (prod?.pdfLink) links += `\n   📥 Printable PDF: ${prod.pdfLink}`;
       return `${idx + 1}. ${item.name || 'Digital Item'} (Qty: ${item.qty})${links}`;
-    }).join('\n');
+    }).join('\n\n');
 
     const text = `
-🎉 PAYMENT CONFIRMED - YOUR DESIGNS ARE READY!
+🎉 PAYMENT CONFIRMED - YOUR DIGITAL DESIGNS ARE READY!
 ========================================
 Hi ${order.customer?.name || 'Valued Customer'},
 
@@ -448,11 +464,17 @@ Thank you so much for ordering with MadeByMitzi! Your payment of ₱${Number(ord
 📥 YOUR DIGITAL FILES & ACCESS LINKS:
 ${itemsSummary}
 
-📄 VIEW & DOWNLOAD YOUR OFFICIAL RECEIPT:
+----------------------------------------
+📄 OFFICIAL PURCHASE RECEIPT / PRINTABLE PDF:
 ${receiptUrl}
+(Click the link above to view, download, or print your official PDF receipt anytime)
 
-💌 Note from Mitzi Santos:
+💌 A Note from Mitzi Santos:
 "${settings.emailDeliveryNote || 'Enjoy your designs! Tag us on Facebook or leave us a review.'}"
+
+Need help editing or printing?
+Reply directly to this email or message us on Facebook:
+${settings.shopFacebook || 'https://www.facebook.com/profile.php?id=100094438778151'}
 ========================================
 `.trim();
 

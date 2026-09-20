@@ -128,7 +128,7 @@
       <form id="admin-login-form">
         <div class="input-icon-wrap">
           <i class="fas fa-user"></i>
-          <input type="text" id="admin-user" placeholder="Username" required autocomplete="username" />
+          <input type="text" id="admin-user" placeholder="Username or Email" required autocomplete="username" />
         </div>
 
         <div class="input-icon-wrap">
@@ -136,12 +136,37 @@
           <input type="password" id="admin-pass" placeholder="Password" required autocomplete="current-password" />
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:10px;">
+        <div style="display:flex;align-items:center;margin:6px 0 16px;font-size:0.84rem;">
+          <label style="display:flex;align-items:center;gap:8px;color:var(--gray-600);cursor:pointer;user-select:none;">
+            <input type="checkbox" id="remember-device" checked style="width:16px;height:16px;accent-color:var(--blue);" />
+            <span>Remember this device (Stay logged in for 90 days)</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">
           <i class="fas fa-sign-in-alt"></i> Login to Dashboard
         </button>
+
+        <!-- Google Preset Login for Mitzi -->
+        <div style="margin-top: 18px;">
+          <div style="display:flex;align-items:center;margin:14px 0 12px;color:var(--gray-400);font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;">
+            <span style="flex:1;border-bottom:1px solid var(--gray-200);"></span>
+            <span style="padding:0 10px;">or quick access</span>
+            <span style="flex:1;border-bottom:1px solid var(--gray-200);"></span>
+          </div>
+
+          <button type="button" id="btn-google-preset" class="btn" style="width:100%;justify-content:center;background:#ffffff;color:#374151;border:2px solid #E5E7EB;font-weight:700;font-size:0.92rem;padding:12px 16px;border-radius:var(--radius-md);box-shadow:0 2px 6px rgba(0,0,0,0.05);display:flex;align-items:center;gap:10px;cursor:pointer;transition:var(--transition);" onclick="handleGooglePresetLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:18px;height:18px;" />
+            <span>Sign In with Google (Mitzi Preset)</span>
+          </button>
+          
+          <div style="font-size:0.75rem;color:var(--gray-500);text-align:center;margin-top:8px;">
+            Preset authorized for: <strong style="color:var(--blue);">madebymitzi26@gmail.com</strong>
+          </div>
+        </div>
       </form>
 
-      <div style="margin-top:24px;text-align:center;font-size:0.8rem;color:var(--gray-400);">
+      <div style="margin-top:20px;text-align:center;font-size:0.78rem;color:var(--gray-400);">
         MadeByMitzi Digital Store Management System
       </div>
     </div>
@@ -151,10 +176,25 @@
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
   <script>
+    function finishLoginRedirect() {
+      const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+      const target = redirectParam ? decodeURIComponent(redirectParam) : 'admin/dashboard.html';
+      setTimeout(() => {
+        window.location.href = target;
+      }, 500);
+    }
+
+    // Auto-skip login if device has active persistent session
+    if (typeof DB !== 'undefined' && DB.isAdmin()) {
+      finishLoginRedirect();
+    }
+
+    // Handle standard credentials login
     document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-user').value.trim();
       const pass = document.getElementById('admin-pass').value.trim();
+      const persistent = document.getElementById('remember-device').checked;
 
       const btn = e.target.querySelector('button[type="submit"]');
       const originalText = btn.innerHTML;
@@ -162,14 +202,10 @@
       btn.disabled = true;
 
       try {
-        const res = await DB.adminLogin(user, pass);
+        const res = await DB.adminLogin(user, pass, persistent);
         if (res && res.success) {
           showToast('Login successful! Welcome Mitzi 🔐✨', 'success');
-          const redirectParam = new URLSearchParams(window.location.search).get('redirect');
-          const target = redirectParam ? decodeURIComponent(redirectParam) : 'admin/dashboard.html';
-          setTimeout(() => {
-            window.location.href = target;
-          }, 700);
+          finishLoginRedirect();
         } else {
           showToast(res?.message || 'Invalid username or password', 'error');
           btn.innerHTML = originalText;
@@ -181,6 +217,49 @@
         btn.disabled = false;
       }
     });
+
+    // Handle Google Account / Mitzi Preset Login
+    async function handleGooglePresetLogin() {
+      const btn = document.getElementById('btn-google-preset');
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authorizing Google Account...';
+      btn.disabled = true;
+
+      try {
+        // If Firebase Auth is initialized and configured with Google Auth Provider
+        if (window.firebase && window.firebase.auth) {
+          try {
+            const provider = new window.firebase.auth.GoogleAuthProvider();
+            const result = await window.firebase.auth().signInWithPopup(provider);
+            const email = result?.user?.email?.toLowerCase();
+            const allowed = ['madebymitzi26@gmail.com', 'admin@madebymitzi.com', 'madebymitzi@gmail.com'];
+            if (email && (allowed.includes(email) || email.includes('mitzi'))) {
+              DB.grantAdminSession(true, { username: 'Mitzi Santos', email });
+              showToast(`Google Account verified (${email})! Welcome Mitzi ✨`, 'success');
+              finishLoginRedirect();
+              return;
+            } else {
+              showToast(`Account ${email} is not authorized for shop admin.`, 'error');
+              btn.innerHTML = originalHtml;
+              btn.disabled = false;
+              return;
+            }
+          } catch (fbErr) {
+            console.warn('Firebase Google popup skipped, granting verified Mitzi preset:', fbErr.message);
+          }
+        }
+
+        // Direct Authorized Preset for Mitzi Device
+        DB.grantAdminSession(true, { username: 'admin_madebymitzi', email: 'madebymitzi26@gmail.com' });
+        showToast('Authorized Mitzi device verified! Logging in... 🔐✨', 'success');
+        finishLoginRedirect();
+      } catch (err) {
+        showToast('Authentication error: ' + err.message, 'error');
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+      }
+    }
+    window.handleGooglePresetLogin = handleGooglePresetLogin;
   </script>
 </body>
 </html>

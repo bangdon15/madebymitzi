@@ -66,6 +66,15 @@ const FirebaseService = {
           }
         }).catch(() => {});
 
+        // Automatically sync store settings from cloud
+        this.fetchSettings().then(cloudSettings => {
+          if (cloudSettings && typeof window.DB !== 'undefined') {
+            const current = window.DB.getSettings();
+            window.DB.set(window.DB.KEYS.SETTINGS, { ...current, ...cloudSettings });
+            console.log('⚙️ Store settings synced from Cloud Firestore.');
+          }
+        }).catch(() => {});
+
         return true;
       }
     } catch (err) {
@@ -268,6 +277,38 @@ const FirebaseService = {
       return null;
     } catch (err) {
       console.warn('Error fetching admin auth from Firestore:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Sync store settings to Firestore mbm_settings collection
+   */
+  async syncSettings(settingsData) {
+    if (!this.isInitialized || !this.db) return false;
+    try {
+      await this.db.collection('mbm_settings').doc('main_settings').set(settingsData, { merge: true });
+      console.log('✅ Store settings synced to Cloud Firestore.');
+      return true;
+    } catch (err) {
+      console.warn('Error syncing settings to Firestore:', err);
+      return false;
+    }
+  },
+
+  /**
+   * Fetch store settings from Firestore mbm_settings collection
+   */
+  async fetchSettings() {
+    if (!this.isInitialized || !this.db) return null;
+    try {
+      const doc = await this.db.collection('mbm_settings').doc('main_settings').get();
+      if (doc.exists) {
+        return doc.data();
+      }
+      return null;
+    } catch (err) {
+      console.warn('Error fetching settings from Firestore:', err);
       return null;
     }
   }
