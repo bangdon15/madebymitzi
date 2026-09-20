@@ -439,7 +439,7 @@ const DB = {
     const orderData = this.encodeOrderData(order);
     const receiptUrl = (typeof window !== 'undefined' && window.location)
       ? `${window.location.origin}/receipt.html?id=${order.id}&order_data=${orderData}`
-      : `https://madebymitzi-web.vercel.app/receipt.html?id=${order.id}&order_data=${orderData}`;
+      : `https://madebymitziph.com/receipt.html?id=${order.id}&order_data=${orderData}`;
 
     const body = `Hi ${cust.name || 'Valued Customer'},
 

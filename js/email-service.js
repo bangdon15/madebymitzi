@@ -18,7 +18,7 @@ const EmailService = {
       // If running on custom domain or vercel
       return window.location.origin;
     }
-    return 'https://madebymitzi-web.vercel.app';
+    return 'https://madebymitziph.com';
   },
 
   /**
