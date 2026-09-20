@@ -689,7 +689,7 @@
     }
 
     // Handle Form Submit
-    document.getElementById('checkout-form').addEventListener('submit', (e) => {
+    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const name = document.getElementById('cust-name').value.trim();
@@ -711,6 +711,13 @@
         return;
       }
 
+      const submitBtn = e.target.querySelector('button[type="submit"]') || document.querySelector('#checkout-form button[type="submit"]');
+      const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order & Notifying Mitzi...';
+      }
+
       // Create order object
       const order = {
         customer: { name, email, phone, fb, notes },
@@ -729,17 +736,24 @@
 
       // Trigger automatic Admin Order Alert Email with 1-click confirm link
       if (window.EmailService) {
-        window.EmailService.sendOrderAlertToAdmin(newOrder).catch(e => {
+        try {
+          showToast('Notifying Mitzi of your order... 📧✨', 'info');
+          // Wait for email dispatch so browser does not cancel in-flight request on redirect
+          await Promise.race([
+            window.EmailService.sendOrderAlertToAdmin(newOrder),
+            new Promise(resolve => setTimeout(() => resolve({ success: true, method: 'timeout_fallback' }), 5000))
+          ]);
+        } catch (e) {
           console.warn('Admin order alert email error:', e);
-        });
+        }
       }
 
-      showToast('Order placed successfully! Notifying Mitzi...', 'success');
+      showToast('Order placed successfully! Redirecting to confirmation...', 'success');
       launchConfetti(2500);
 
       setTimeout(() => {
         window.location.href = `order-confirm.html?id=${newOrder.id}`;
-      }, 1200);
+      }, 700);
     });
 
     document.addEventListener('DOMContentLoaded', () => {
