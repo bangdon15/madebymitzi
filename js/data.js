@@ -163,14 +163,41 @@ const DB = {
 
   getOrder(id) { return this.getOrders().find(o => o.id === id) || null; },
 
-  // Encodes order into a URL-safe Base64 token for seamless cross-device sharing (e.g. email links to tablets)
+  // Encodes order into a minified, URL-safe Base64 token for seamless cross-device sharing (tablets/phones)
   encodeOrderData(order) {
     try {
-      if (!order) return '';
-      // Exclude heavy screenshots to keep link lightweight (< 1KB)
-      const { receiptImage, ...compact } = order;
+      if (!order || !order.id) return '';
+      // Minify keys and strictly exclude images to keep size under 300 bytes
+      const compact = {
+        id: order.id,
+        createdAt: order.createdAt,
+        c: {
+          n: (order.customer?.name || '').substring(0, 50),
+          e: (order.customer?.email || '').substring(0, 50),
+          p: (order.customer?.phone || '').substring(0, 25),
+          fb: (order.customer?.fb || '').substring(0, 50),
+          nt: (order.customer?.notes || '').substring(0, 100)
+        },
+        items: (order.items || []).map(i => ({
+          id: i.productId,
+          n: (i.name || '').substring(0, 60),
+          p: Number(i.price || 0),
+          q: Number(i.qty || 1)
+        })),
+        pm: order.paymentMethod || 'gcash',
+        ref: (order.refNumber || '').substring(0, 40),
+        tot: Number(order.total || 0),
+        st: order.status || 'pending'
+      };
       const json = JSON.stringify(compact);
-      return encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
+      const b64 = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+      const encoded = encodeURIComponent(b64);
+      // Hard safeguard: URLs must never exceed 1500 chars
+      if (encoded.length > 1500) {
+        console.warn('Encoded order exceeds safe URL limit, omitting URL payload.');
+        return '';
+      }
+      return encoded;
     } catch (e) {
       console.warn('Order encoding error:', e);
       return '';
@@ -181,8 +208,35 @@ const DB = {
   decodeOrderData(encoded) {
     try {
       if (!encoded) return null;
-      const json = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
-      return JSON.parse(json);
+      const rawB64 = decodeURIComponent(encoded);
+      const binary = atob(rawB64);
+      const json = decodeURIComponent(binary.split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      const parsed = JSON.parse(json);
+      // Support compact minified schema
+      if (parsed.c || parsed.tot !== undefined) {
+        return {
+          id: parsed.id,
+          createdAt: parsed.createdAt || new Date().toISOString(),
+          customer: {
+            name: parsed.c?.n || parsed.customer?.name || 'Customer',
+            email: parsed.c?.e || parsed.customer?.email || '',
+            phone: parsed.c?.p || parsed.customer?.phone || '',
+            fb: parsed.c?.fb || parsed.customer?.fb || '',
+            notes: parsed.c?.nt || parsed.customer?.notes || ''
+          },
+          items: (parsed.items || []).map(i => ({
+            productId: i.id || i.productId,
+            name: i.n || i.name,
+            price: i.p !== undefined ? i.p : i.price,
+            qty: i.q !== undefined ? i.q : (i.qty || 1)
+          })),
+          paymentMethod: parsed.pm || parsed.paymentMethod || 'gcash',
+          refNumber: parsed.ref || parsed.refNumber || '',
+          total: parsed.tot !== undefined ? parsed.tot : (parsed.total || 0),
+          status: parsed.st || parsed.status || 'pending'
+        };
+      }
+      return parsed;
     } catch (e) {
       console.warn('Order decoding error:', e);
       return null;

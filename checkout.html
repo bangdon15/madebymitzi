@@ -754,9 +754,8 @@
       showToast('Order placed successfully! Redirecting to confirmation...', 'success');
       launchConfetti(2500);
 
-      const orderData = DB.encodeOrderData(newOrder);
       setTimeout(() => {
-        window.location.href = `order-confirm.html?id=${newOrder.id}&order_data=${orderData}`;
+        window.location.href = `order-confirm.html?id=${newOrder.id}`;
       }, 700);
     });
 
