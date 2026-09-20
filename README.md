@@ -182,14 +182,34 @@ Shopee-style cart with live subtotal calculation, coupon discounts (`MITZI10` / 
 ![Shopping Cart](screenshots/06_checkout_gcash.png)
 
 ### 7. Real-Time Admin Dashboard
-Dedicated admin suite at `/admin` for tracking orders, reviewing earnings, approving payments, inspecting customer receipts, adding/editing products, and updating payment QR codes.
+Dedicated admin suite at `/admin` for tracking orders, reviewing verified earnings, inspecting customer receipts, adding/editing products, and updating payment QR codes.
 
 ![Admin Portal](screenshots/07_admin_dashboard.png)
 
-### 8. Admin Portal Login & Fast Authentication
-Secure portal login with Google Preset authentication for the store owner, preventing unauthorized access.
+### 8. Order Management & Payment Verification
+Centralized order inspection interface where the store owner reviews uploaded GCash receipts, verifies transaction numbers, and approves digital asset delivery with one click.
 
-![Admin Login Portal](screenshots/08_admin_login_portal.png)
+![Admin Orders](screenshots/08_admin_orders.png)
+
+### 9. Product Catalog & Inventory Management
+Live inventory management allowing the admin to add new sticker packs or invitation templates, manage pricing, toggle active status, and link Canva editable templates.
+
+![Admin Products](screenshots/09_admin_products.png)
+
+### 10. Admin Configuration & Brevo / Cloud Settings
+Control center for updating GCash numbers, bank accounts, Brevo automated email dispatch keys, and Google Cloud Firestore database synchronization.
+
+![Admin Settings](screenshots/10_admin_settings.png)
+
+### 11. Customer Official Digital Receipt & Status Tracker
+Interactive branded receipt page featuring a live verification stepper (`Pending` ➔ `Confirmed`), reference number tracking, and instant buttons to access Canva templates and downloadable PDFs.
+
+![Customer Digital Receipt](screenshots/11_customer_receipt.png)
+
+### 12. Secure Admin Login Portal with Google Preset
+Multi-tiered authentication portal featuring encrypted credentials verification, brute-force rate-limiting, and 1-click **Sign In with Google (Mitzi Preset)** for authorized store owner devices.
+
+![Admin Login Portal](screenshots/12_admin_login.png)
 
 ---
 
