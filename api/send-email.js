@@ -77,6 +77,7 @@ module.exports = async (req, res) => {
 
     // 2. Brevo API (Sendinblue) — Free 300 emails/day to ANY recipient
     const brevoKey = (process.env.BREVO_API_KEY || req.body?.brevoApiKey || '').trim();
+    const brevoSender = process.env.BREVO_SENDER_EMAIL || req.body?.brevoSenderEmail || 'madebymitzi26@gmail.com';
     if (brevoKey) {
       try {
         const response = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -89,10 +90,10 @@ module.exports = async (req, res) => {
           body: JSON.stringify({
             sender: {
               name: fromName || 'MadeByMitzi Digital Store',
-              email: 'madebymitzi26@gmail.com'
+              email: brevoSender
             },
             to: [{ email: to, name: to.split('@')[0] }],
-            replyTo: { email: replyTo || 'madebymitzi26@gmail.com', name: 'MadeByMitzi' },
+            replyTo: { email: replyTo || brevoSender, name: 'MadeByMitzi' },
             subject: subject,
             htmlContent: html || text,
             textContent: text

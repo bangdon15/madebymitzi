@@ -358,8 +358,9 @@
       }
 
       document.getElementById('order-id-display').textContent = `Order ID: ${order.id}`;
+      const enc = DB.encodeOrderData(order);
       const receiptBtn = document.getElementById('btn-view-receipt');
-      if (receiptBtn) receiptBtn.href = `receipt.html?id=${order.id}`;
+      if (receiptBtn) receiptBtn.href = `receipt.html?id=${order.id}${enc ? `&order_data=${enc}` : ''}`;
       const noticeEmail = document.getElementById('notice-cust-email');
       if (noticeEmail) noticeEmail.textContent = order.customer?.email || 'your email';
       document.getElementById('cust-name-val').textContent = order.customer?.name || 'Valued Customer';

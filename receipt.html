@@ -270,15 +270,6 @@
   <div class="receipt-container">
     <div class="receipt-card" id="receipt-print-area">
       
-      <!-- Admin Quick-Action Banner (Visible if Admin or confirm param) -->
-      <div id="admin-action-banner" class="admin-banner" style="display:none;">
-        <div style="font-size:0.9rem;color:#1E40AF;">
-          <strong>🔐 Admin Confirmation Portal:</strong> Check your GCash/Bank app, then confirm receipt below.
-        </div>
-        <button class="btn btn-green btn-sm" id="btn-admin-confirm" onclick="handleAdminConfirmClick()">
-          <i class="fas fa-check-circle"></i> Confirm Payment & Dispatch Email
-        </button>
-      </div>
 
       <!-- Receipt Header -->
       <div class="receipt-header">
@@ -528,12 +519,12 @@
         document.getElementById('rec-delivery-note').textContent = settings.emailDeliveryNote;
       }
 
-      // Admin Action Banner
-      if (DB.isAdmin() || shouldConfirm) {
-        const banner = document.getElementById('admin-action-banner');
+      // Admin Action Banner (Clean customer view)
+      const banner = document.getElementById('admin-action-banner');
+      if (banner && (DB.isAdmin() || shouldConfirm)) {
         banner.style.display = 'flex';
         const btn = document.getElementById('btn-admin-confirm');
-        if (isConfirmed) {
+        if (btn && isConfirmed) {
           btn.innerHTML = '<i class="fas fa-check"></i> Already Confirmed';
           btn.className = 'btn btn-secondary btn-sm';
           btn.disabled = true;
