@@ -10,7 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="https://madebymitzi-web.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Live%20Production-madebymitzi--web.vercel.app-00A86B?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo on Vercel" /></a>
+  <a href="https://madebymitziph.com" target="_blank"><img src="https://img.shields.io/badge/Official%20Store-madebymitziph.com-00A86B?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Official Store at madebymitziph.com" /></a>
+  <a href="https://madebymitzi-web.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Vercel%20Mirror-madebymitzi--web.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Mirror" /></a>
 </p>
 
 <p align="center">
@@ -109,7 +110,7 @@ Security and data integrity were systematically addressed during Phase 2. Below 
 * **Mitigation Implemented**:
   - Alert resolved on GitHub as **"Publicly exposed by design"**.
   - Security is enforced via **Firestore Security Rules** on Google's servers, rather than attempting to hide public client keys.
-  - Optional domain restriction configured to restrict key usage strictly to `madebymitzi-web.vercel.app` and `localhost`.
+  - Optional domain restriction configured to restrict key usage strictly to `madebymitziph.com`, `madebymitzi-web.vercel.app`, and `localhost`.
 
 ### 2. Firestore Database Access & Rules Hardening
 * **Risk Identified**: Open database rules (`allow read, write: if true;`) expose collections to unauthorized deletions.
@@ -233,7 +234,7 @@ With Phase 2 successfully completed, the project now enters **Phase 3 (Semi-Fina
 ## 🔑 Demo & Testing Credentials
 
 For testing admin features on staging/production:
-- **Admin URL**: [`/login.html`](https://madebymitzi-web.vercel.app/login.html) or [`/admin/dashboard.html`](https://madebymitzi-web.vercel.app/admin/dashboard.html)
+- **Admin URL**: [`/login.html`](https://madebymitziph.com/login.html) or [`/admin/dashboard.html`](https://madebymitziph.com/admin/dashboard.html)
 - **Username**: `admin_madebymitzi` (or `madebymitzi26@gmail.com`)
 - **Emergency Password**: `superUser112922`
 - **1-Click Option**: Click **"Sign In with Google (Mitzi Preset)"** on verified devices.
