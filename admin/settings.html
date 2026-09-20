@@ -453,6 +453,58 @@
           </div>
         </div>
 
+        <!-- Cross-Browser & Cross-Device Sync (Backup & Restore) -->
+        <div class="card" style="grid-column: 1 / -1; border: 2px solid #3b82f6; background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <div style="font-weight:800;font-size:1.05rem;color:#1e40af;display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-sync-alt" style="color:#2563eb;font-size:1.2rem;"></i>
+              <span>Cross-Browser & Multi-Device Sync (Store Backup / Transfer)</span>
+            </div>
+            <span style="font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;background:#dbeafe;color:#1e40af;">
+              Instant Zero-Cloud Transfer
+            </span>
+          </div>
+
+          <p style="font-size:0.83rem;color:#334155;line-height:1.55;margin-bottom:16px;">
+            <strong>Why do other browsers look empty?</strong> Browsers (Chrome, Edge, Safari, Incognito) are sandboxed by security design — each has its own separate local storage. To transfer your real products, pricing, and settings from your main browser into any other computer, tablet, or browser, use this 1-click backup transfer:
+          </p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <!-- Export -->
+            <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div style="font-weight:700;font-size:0.9rem;color:#1e3a8a;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                  <i class="fas fa-download" style="color:#2563eb;"></i> Step 1: Export from this Browser
+                </div>
+                <div style="font-size:0.78rem;color:#64748b;line-height:1.45;margin-bottom:12px;">
+                  Downloads a complete backup file (<code>.json</code>) containing all your products, Canva/PDF links, orders, and payment settings.
+                </div>
+              </div>
+              <button type="button" class="btn btn-blue btn-block" style="justify-content:center;padding:10px;font-weight:700;" onclick="exportStoreBackup()">
+                <i class="fas fa-file-export"></i> Download Store Backup (.json)
+              </button>
+            </div>
+
+            <!-- Import -->
+            <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div style="font-weight:700;font-size:0.9rem;color:#1e3a8a;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                  <i class="fas fa-upload" style="color:#059669;"></i> Step 2: Import into Other Browser
+                </div>
+                <div style="font-size:0.78rem;color:#64748b;line-height:1.45;margin-bottom:12px;">
+                  Open this page on your other browser or device, click below, and select the backup file. It will instantly restore 100% of your store!
+                </div>
+              </div>
+              <div>
+                <input type="file" id="import-backup-file" accept=".json,application/json" style="display:none;" onchange="handleImportBackupFile(event)" />
+                <button type="button" class="btn btn-green btn-block" style="justify-content:center;padding:10px;font-weight:700;background:#059669;color:#fff;border-color:#059669;" onclick="document.getElementById('import-backup-file').click()">
+                  <i class="fas fa-file-import"></i> Choose & Restore Backup File
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
 
@@ -1157,6 +1209,45 @@
       }
     }
     window.syncSecurityToCloud = syncSecurityToCloud;
+
+    function exportStoreBackup() {
+      const backup = DB.exportBackup();
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `madebymitzi_store_backup_${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Store backup downloaded! 💾 Transfer this file to any other browser or device.', 'success');
+    }
+    window.exportStoreBackup = exportStoreBackup;
+
+    function handleImportBackupFile(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          const result = DB.importBackup(json);
+          if (result.success) {
+            showToast(result.message + ' Refreshing...', 'success');
+            setTimeout(() => window.location.reload(), 1200);
+          } else {
+            showToast(result.message || 'Failed to import backup.', 'error');
+          }
+        } catch (err) {
+          showToast('Invalid backup file. Please provide a valid JSON file.', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+    window.handleImportBackupFile = handleImportBackupFile;
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCurrentSettings();

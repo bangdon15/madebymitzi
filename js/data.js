@@ -610,6 +610,44 @@ Mitzi Santos — MadeByMitzi ✨`;
     return true;
   },
 
+  // ── BACKUP & RESTORE (Cross-Browser / Cross-Device) ──────────
+  exportBackup() {
+    return {
+      exportedAt: new Date().toISOString(),
+      storeName: 'MadeByMitzi',
+      products: this.getProducts(),
+      orders: this.getOrders(),
+      settings: this.getSettings(),
+      reviews: this.getReviews(),
+      adminAuth: this.getAdminAuth()
+    };
+  },
+
+  importBackup(backup) {
+    if (!backup || typeof backup !== 'object') {
+      return { success: false, message: 'Invalid backup file format.' };
+    }
+    if (Array.isArray(backup.products)) {
+      this.setProducts(backup.products);
+    }
+    if (Array.isArray(backup.orders)) {
+      this.setOrders(backup.orders);
+    }
+    if (backup.settings && typeof backup.settings === 'object') {
+      this.saveSettings(backup.settings);
+    }
+    if (Array.isArray(backup.reviews)) {
+      this.set(this.KEYS.REVIEWS, backup.reviews);
+    }
+    if (backup.adminAuth && typeof backup.adminAuth === 'object') {
+      this.set(this.KEYS.AUTH, backup.adminAuth);
+    }
+    return {
+      success: true,
+      message: `Restored ${(backup.products || []).length} products and ${(backup.orders || []).length} orders successfully!`
+    };
+  },
+
   // ── SEED DATA ─────────────────────────────────────
   seedProducts() {
     const products = [
