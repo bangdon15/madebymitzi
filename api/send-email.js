@@ -23,6 +23,45 @@ module.exports = async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET') {
+    const brevoKey = (process.env.BREVO_API_KEY || '').trim();
+    if (!brevoKey) {
+      return res.status(200).json({ status: 'no_brevo_key_in_env' });
+    }
+    try {
+      // 1. Check Brevo account info
+      const acctRes = await fetch('https://api.brevo.com/v3/account', {
+        headers: { 'api-key': brevoKey, 'accept': 'application/json' }
+      });
+      const acctData = await acctRes.json();
+
+      // 2. Check recent transactional logs / email events
+      const logsRes = await fetch('https://api.brevo.com/v3/smtp/emails?limit=10&sort=desc', {
+        headers: { 'api-key': brevoKey, 'accept': 'application/json' }
+      });
+      const logsData = await logsRes.json();
+
+      // 3. Check senders list
+      const sendersRes = await fetch('https://api.brevo.com/v3/senders', {
+        headers: { 'api-key': brevoKey, 'accept': 'application/json' }
+      });
+      const sendersData = await sendersRes.json();
+
+      return res.status(200).json({
+        account: {
+          email: acctData.email,
+          companyName: acctData.companyName,
+          plan: acctData.plan,
+          relay: acctData.relay
+        },
+        senders: sendersData.senders || sendersData,
+        recentEmails: logsData
+      });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method Not Allowed' });
   }
