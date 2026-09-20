@@ -389,6 +389,7 @@ const DB = {
       shopEtsy: 'https://www.etsy.com/shop/MadeBymitzidigital',
       web3FormsKey: '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7',
       gmailAppPassword: '',
+      brevoApiKey: '',
       resendApiKey: '',
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};

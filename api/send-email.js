@@ -75,7 +75,53 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 2. Resend API Key
+    // 2. Brevo API (Sendinblue) — Free 300 emails/day to ANY recipient
+    const brevoKey = (process.env.BREVO_API_KEY || req.body?.brevoApiKey || '').trim();
+    if (brevoKey) {
+      try {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'api-key': brevoKey,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            sender: {
+              name: fromName || 'MadeByMitzi Digital Store',
+              email: 'madebymitzi26@gmail.com'
+            },
+            to: [{ email: to, name: to.split('@')[0] }],
+            replyTo: { email: replyTo || 'madebymitzi26@gmail.com', name: 'MadeByMitzi' },
+            subject: subject,
+            htmlContent: html || text,
+            textContent: text
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.messageId) {
+          console.log('✅ Email sent via Brevo to:', to, 'ID:', data.messageId);
+          return res.status(200).json({
+            success: true,
+            method: 'brevo',
+            message: `Email delivered to ${to} via Brevo`,
+            messageId: data.messageId
+          });
+        } else {
+          console.warn('Brevo response error:', data);
+          return res.status(400).json({
+            success: false,
+            method: 'brevo_error',
+            message: data.message || 'Brevo API error'
+          });
+        }
+      } catch (brevoErr) {
+        console.warn('Brevo error:', brevoErr.message);
+      }
+    }
+
+    // 3. Resend API Key
     const resendKey = process.env.RESEND_API_KEY || req.body?.resendKey;
     if (resendKey) {
       try {
