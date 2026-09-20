@@ -59,6 +59,13 @@ const FirebaseService = {
         this.isInitialized = true;
       }
 
+      if (this.isInitialized && window.firebase && typeof window.firebase.analytics === 'function' && config.measurementId) {
+        try {
+          this.analytics = window.firebase.analytics();
+          console.log('📊 Firebase Analytics active (' + config.measurementId + ')');
+        } catch (e) {}
+      }
+
       if (this.isInitialized && this.db) {
         // 1. Initial product sync
         this.fetchProducts().then(cloudProds => {
@@ -144,7 +151,18 @@ const FirebaseService = {
       scriptApp.onload = () => {
         const scriptFirestore = document.createElement('script');
         scriptFirestore.src = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js';
-        scriptFirestore.onload = () => resolve();
+        scriptFirestore.onload = () => {
+          const config = this.getConfig();
+          if (config && config.measurementId) {
+            const scriptAnalytics = document.createElement('script');
+            scriptAnalytics.src = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js';
+            scriptAnalytics.onload = () => resolve();
+            scriptAnalytics.onerror = () => resolve(); // don't fail if analytics blocked
+            document.head.appendChild(scriptAnalytics);
+          } else {
+            resolve();
+          }
+        };
         scriptFirestore.onerror = (e) => reject(new Error('Failed to load Firebase Firestore script'));
         document.head.appendChild(scriptFirestore);
       };
