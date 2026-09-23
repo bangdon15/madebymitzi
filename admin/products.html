@@ -37,6 +37,106 @@
       .admin-sidebar { display: none; }
       .admin-main { margin-left: 0; padding: 20px 16px; }
     }
+
+    /* Modern Markdown Description Editor */
+    .md-editor-container {
+      border: 1.5px solid var(--cream-border, #E2D9C8);
+      border-radius: 14px;
+      background: #ffffff;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .md-editor-container:focus-within {
+      border-color: var(--forest, #6B8E5A);
+      box-shadow: 0 0 0 3px rgba(107, 142, 90, 0.15);
+    }
+    .md-editor-header {
+      background: #FDFBF7;
+      border-bottom: 1.5px solid var(--cream-border, #E2D9C8);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .md-toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .md-tool-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 0.82rem;
+      color: var(--gray-700);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .md-tool-btn:hover {
+      background: #EAE6DF;
+      color: var(--gray-900);
+    }
+    .md-tool-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--cream-border, #E2D9C8);
+      margin: 0 4px;
+    }
+    .md-tabs {
+      display: flex;
+      background: #EFECE6;
+      padding: 3px;
+      border-radius: 8px;
+      gap: 3px;
+    }
+    .md-tab-btn {
+      border: none;
+      background: transparent;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .md-tab-btn.active {
+      background: #ffffff;
+      color: var(--forest, #6B8E5A);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .md-editor-textarea {
+      width: 100%;
+      min-height: 170px;
+      border: none;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--gray-800);
+      resize: vertical;
+      outline: none;
+      background: #fff;
+    }
+    .md-editor-preview {
+      display: none;
+      min-height: 170px;
+      padding: 16px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--gray-800);
+      background: #FAF9F6;
+      overflow-y: auto;
+      max-height: 320px;
+    }
   </style>
 </head>
 <body>
@@ -163,9 +263,65 @@
           </div>
         </div>
 
+        <!-- Enhanced Markdown Description Editor -->
         <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea id="prod-desc" class="form-textarea" rows="3" placeholder="Describe the stickers or invitation features"></textarea>
+          <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span><i class="fas fa-align-left" style="color:var(--forest, #6B8E5A);"></i> Product Description *</span>
+            <span style="font-size:0.75rem;color:var(--gray-500);font-weight:normal;">Markdown &amp; Emojis supported</span>
+          </label>
+          
+          <div class="md-editor-container">
+            <div class="md-editor-header">
+              <!-- Toolbar -->
+              <div class="md-toolbar-group">
+                <button type="button" class="md-tool-btn" onclick="insertMd('**', '**', 'bold text')" title="Bold (Ctrl+B)">
+                  <i class="fas fa-bold"></i>
+                </button>
+                <button type="button" class="md-tool-btn" onclick="insertMd('*', '*', 'italic text')" title="Italic (Ctrl+I)">
+                  <i class="fas fa-italic"></i>
+                </button>
+                <button type="button" class="md-tool-btn" onclick="insertMd('### ', '', 'Section Title')" title="Heading">
+                  <i class="fas fa-heading"></i>
+                </button>
+                <div class="md-tool-sep"></div>
+                <button type="button" class="md-tool-btn" onclick="insertMd('- ', '', 'Feature item')" title="Bullet List">
+                  <i class="fas fa-list-ul"></i>
+                </button>
+                <button type="button" class="md-tool-btn" onclick="insertMd('1. ', '', 'Step item')" title="Numbered List">
+                  <i class="fas fa-list-ol"></i>
+                </button>
+                <button type="button" class="md-tool-btn" onclick="insertMd('> ', '', 'Important note or quote')" title="Quote / Callout">
+                  <i class="fas fa-quote-left"></i>
+                </button>
+                <button type="button" class="md-tool-btn" onclick="insertMd('[badge: ', ']', 'Handmade')" title="Add Badge Pill">
+                  <i class="fas fa-tag"></i> Badge
+                </button>
+                <div class="md-tool-sep"></div>
+                <!-- Quick Emojis -->
+                <button type="button" class="md-tool-btn" onclick="insertEmoji('✨')" title="Sparkles">✨</button>
+                <button type="button" class="md-tool-btn" onclick="insertEmoji('⭐')" title="Star">⭐</button>
+                <button type="button" class="md-tool-btn" onclick="insertEmoji('💌')" title="Love letter">💌</button>
+                <button type="button" class="md-tool-btn" onclick="insertEmoji('📏')" title="Ruler / Size">📏</button>
+                <button type="button" class="md-tool-btn" onclick="insertEmoji('🌸')" title="Flower">🌸</button>
+              </div>
+
+              <!-- Write / Preview Tabs -->
+              <div class="md-tabs">
+                <button type="button" class="md-tab-btn active" id="btn-tab-write" onclick="switchMdTab('write')">
+                  <i class="fas fa-pen"></i> Write
+                </button>
+                <button type="button" class="md-tab-btn" id="btn-tab-preview" onclick="switchMdTab('preview')">
+                  <i class="fas fa-eye"></i> Preview
+                </button>
+              </div>
+            </div>
+
+            <!-- Textarea -->
+            <textarea id="prod-desc" class="md-editor-textarea" placeholder="Describe the sticker pack, paper finish, invitation sizes, custom details, etc...&#10;&#10;Use the toolbar above or markdown:&#10;**Bold text**, *Italics*, ### Headings&#10;- Feature 1&#10;- Feature 2&#10;[badge: High Quality]"></textarea>
+
+            <!-- Preview Box -->
+            <div id="prod-desc-preview" class="md-editor-preview"></div>
+          </div>
         </div>
 
         <!-- 3 Product Images -->
@@ -300,6 +456,8 @@
           <label for="prod-featured" style="font-weight:700;font-size:0.9rem;cursor:pointer;">Feature on Homepage Carousel</label>
         </div>
 
+        <div id="prod-modal-error" style="display:none;background:#fef2f2;border:1.5px solid #f87171;color:#b91c1c;padding:12px 14px;border-radius:10px;font-size:0.84rem;margin-top:16px;line-height:1.5;"></div>
+
         <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
           <button type="button" class="btn btn-outline-blue btn-sm" onclick="closeProductModal()">Cancel</button>
           <button type="submit" class="btn btn-green btn-sm" id="btn-save-prod">Save Product</button>
@@ -308,6 +466,9 @@
     </div>
   </div>
 
+  <!-- Firebase Compat SDKs loaded directly -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/main.js"></script>
@@ -381,6 +542,57 @@
       });
     }
 
+    // ── Modern Markdown Editor Handlers ──
+    function switchMdTab(tab) {
+      const textarea = document.getElementById('prod-desc');
+      const preview = document.getElementById('prod-desc-preview');
+      const writeBtn = document.getElementById('btn-tab-write');
+      const prevBtn = document.getElementById('btn-tab-preview');
+      if (!textarea || !preview) return;
+
+      if (tab === 'preview') {
+        const val = textarea.value.trim();
+        preview.innerHTML = val ? (typeof renderMarkdown === 'function' ? renderMarkdown(val) : val) : '<em style="color:var(--gray-400);">No description written yet. Type in the Write tab to see live preview.</em>';
+        textarea.style.display = 'none';
+        preview.style.display = 'block';
+        if (writeBtn) writeBtn.classList.remove('active');
+        if (prevBtn) prevBtn.classList.add('active');
+      } else {
+        textarea.style.display = 'block';
+        preview.style.display = 'none';
+        if (writeBtn) writeBtn.classList.add('active');
+        if (prevBtn) prevBtn.classList.remove('active');
+        textarea.focus();
+      }
+    }
+    window.switchMdTab = switchMdTab;
+
+    function insertMd(prefix, suffix, defaultText) {
+      switchMdTab('write');
+      const ta = document.getElementById('prod-desc');
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const selected = ta.value.substring(start, end) || defaultText;
+      const replacement = prefix + selected + suffix;
+      ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+      ta.focus();
+      ta.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+    }
+    window.insertMd = insertMd;
+
+    function insertEmoji(emoji) {
+      switchMdTab('write');
+      const ta = document.getElementById('prod-desc');
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      ta.value = ta.value.substring(0, start) + emoji + ta.value.substring(end);
+      ta.focus();
+      ta.setSelectionRange(start + emoji.length, start + emoji.length);
+    }
+    window.insertEmoji = insertEmoji;
+
     function renderSlotPreview(index) {
       const ph = document.getElementById(`ph-${index}`);
       const img = document.getElementById(`img-prev-${index}`);
@@ -404,7 +616,7 @@
       const ph = document.getElementById(`ph-${index}`);
       ph.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:1.6rem;color:var(--blue);display:block;margin-bottom:4px;"></i><span>Optimizing...</span>';
       try {
-        const compressed = await fileToBase64(file);
+        const compressed = await fileToBase64(file, 640, 0.70);
         prodImages[index] = compressed;
         renderSlotPreview(index);
       } catch (err) {
@@ -559,6 +771,10 @@
       }
       renderVideoPreview();
 
+      switchMdTab('write');
+      const errBox = document.getElementById('prod-modal-error');
+      if (errBox) errBox.style.display = 'none';
+
       document.getElementById('product-modal').classList.add('open');
     }
     window.openProductModal = openProductModal;
@@ -609,6 +825,10 @@
       }
       renderPdfBadge();
 
+      switchMdTab('write');
+      const errBox = document.getElementById('prod-modal-error');
+      if (errBox) errBox.style.display = 'none';
+
       document.getElementById('modal-title').textContent = 'Edit Product';
       document.getElementById('product-modal').classList.add('open');
     }
@@ -652,6 +872,8 @@
       e.preventDefault();
       const saveBtn = document.getElementById('btn-save-prod');
       const originalHtml = saveBtn.innerHTML;
+      const errBox = document.getElementById('prod-modal-error');
+      if (errBox) errBox.style.display = 'none';
 
       try {
         saveBtn.disabled = true;
@@ -716,29 +938,48 @@
           pdfFile: pdfFileMeta
         };
 
-        saveBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Syncing to Cloud...';
-
-        if (id) {
-          const res = await DB.updateProduct(id, productData);
-          if (res?.cloudResult?.success) {
-            showToast('Product updated & synced to Cloud Firestore! ✅', 'success');
-          } else {
-            showToast('Product updated locally! ✅', 'success');
+        // Safeguard total payload size for Firestore
+        const payloadLength = JSON.stringify(productData).length;
+        if (payloadLength > 880000) {
+          const kb = Math.round(payloadLength / 1024);
+          const msg = `Total product data (${kb} KB) exceeds the Firestore 1MB limit. Please compress or remove large images before saving.`;
+          showToast(msg, 'error');
+          if (errBox) {
+            errBox.style.display = 'block';
+            errBox.innerHTML = `<strong><i class="fas fa-exclamation-triangle"></i> Payload Too Large:</strong> ${msg}`;
           }
-        } else {
-          const res = await DB.addProduct(productData);
-          if (res?.cloudResult?.success) {
-            showToast('Product added & synced to Cloud Firestore! 🎉', 'success');
-          } else {
-            showToast('Product added successfully! 🎉', 'success');
-          }
+          return;
         }
 
-        closeProductModal();
-        renderProductsTable();
+        saveBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Syncing to Cloud...';
+
+        let res;
+        if (id) {
+          res = await DB.updateProduct(id, productData);
+        } else {
+          res = await DB.addProduct(productData);
+        }
+
+        if (res?.cloudResult?.success) {
+          showToast(id ? 'Product updated & synced to Cloud Firestore! ✅' : 'Product added & synced to Cloud Firestore! 🎉', 'success');
+          closeProductModal();
+          renderProductsTable();
+        } else {
+          const errMsg = res?.cloudResult?.error || 'Unknown cloud error';
+          console.error('Cloud Firestore sync failure:', errMsg);
+          showToast('❌ Cloud sync failed: ' + errMsg, 'error');
+          if (errBox) {
+            errBox.style.display = 'block';
+            errBox.innerHTML = `<strong><i class="fas fa-exclamation-triangle"></i> Cloud Sync Failed:</strong> ${errMsg}.<br/><span style="font-size:0.78rem;color:#7f1d1d;">The product is stored locally on this device, but failed to sync to Cloud Firestore. Please check your internet connection and click Save Product again.</span>`;
+          }
+        }
       } catch (err) {
         console.error('Error saving product:', err);
         showToast('Failed to save product: ' + (err.message || err), 'error');
+        if (errBox) {
+          errBox.style.display = 'block';
+          errBox.innerHTML = `<strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> ${err.message || err}`;
+        }
       } finally {
         saveBtn.disabled = false;
         saveBtn.innerHTML = originalHtml;

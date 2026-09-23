@@ -163,7 +163,7 @@ function launchConfetti(duration = 3000) {
 window.launchConfetti = launchConfetti;
 
 // ── File to base64 with auto-compression ──────────
-function fileToBase64(file, maxDimension = 800, quality = 0.82) {
+function fileToBase64(file, maxDimension = 640, quality = 0.72) {
   return new Promise((resolve, reject) => {
     if (!file) return resolve(null);
 
@@ -181,27 +181,30 @@ function fileToBase64(file, maxDimension = 800, quality = 0.82) {
       const img = new Image();
       img.onload = () => {
         try {
-          const canvas = document.createElement('canvas');
-          let { width, height } = img;
-
-          // Scale down if larger than maxDimension
-          if (width > maxDimension || height > maxDimension) {
-            if (width > height) {
-              height = Math.round((height * maxDimension) / width);
-              width = maxDimension;
-            } else {
-              width = Math.round((width * maxDimension) / height);
-              height = maxDimension;
+          const compressWith = (dim, q) => {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            if (width > dim || height > dim) {
+              if (width > height) {
+                height = Math.round((height * dim) / width);
+                width = dim;
+              } else {
+                width = Math.round((width * dim) / height);
+                height = dim;
+              }
             }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            return canvas.toDataURL('image/jpeg', q);
+          };
+
+          let compressed = compressWith(maxDimension, quality);
+          // If still over 180KB, do aggressive secondary pass for Firestore stability
+          if (compressed.length > 180000) {
+            compressed = compressWith(480, 0.58);
           }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Convert to compact JPEG dataURL
-          const compressed = canvas.toDataURL('image/jpeg', quality);
           resolve(compressed);
         } catch (err) {
           console.warn('Canvas compression error, using raw dataURL:', err);
@@ -216,6 +219,49 @@ function fileToBase64(file, maxDimension = 800, quality = 0.82) {
   });
 }
 window.fileToBase64 = fileToBase64;
+
+// ── Lightweight Markdown to HTML Renderer ──────────
+function renderMarkdown(md) {
+  if (!md || typeof md !== 'string') return '';
+  // 1. Escape HTML tags to prevent XSS
+  let html = md
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // 2. Headers (### Header, ## Header, # Header)
+  html = html.replace(/^### (.*$)/gim, '<h4 style="font-size:1.02rem;font-weight:750;margin:12px 0 6px;color:var(--gray-800);">$1</h4>');
+  html = html.replace(/^## (.*$)/gim, '<h3 style="font-size:1.12rem;font-weight:800;margin:14px 0 6px;color:var(--gray-800);">$1</h3>');
+  html = html.replace(/^# (.*$)/gim, '<h2 style="font-size:1.22rem;font-weight:800;margin:16px 0 8px;color:var(--gray-800);">$1</h2>');
+
+  // 3. Blockquotes (> Quote)
+  html = html.replace(/^> (.*$)/gim, '<blockquote style="border-left:3px solid var(--forest, #6B8E5A);padding-left:12px;margin:8px 0;color:var(--gray-600);font-style:italic;">$1</blockquote>');
+
+  // 4. Bold (**text** or __text__)
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight:700;color:var(--gray-900);">$1</strong>');
+  html = html.replace(/__(.*?)__/g, '<strong style="font-weight:700;color:var(--gray-900);">$1</strong>');
+
+  // 5. Italic (*text* or _text_)
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+
+  // 6. Badges [badge: text]
+  html = html.replace(/\[badge:\s*([^\]]+)\]/gi, '<span style="display:inline-block;background:var(--sage-light, #E8F0E6);color:var(--forest, #6B8E5A);padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:700;margin:2px 4px;">$1</span>');
+
+  // 7. Unordered lists (- item or * item)
+  html = html.replace(/^\s*[-*]\s+(.*$)/gim, '<li style="margin-bottom:4px;list-style-type:disc;margin-left:18px;">$1</li>');
+
+  // 8. Ordered lists (1. item)
+  html = html.replace(/^\s*(\d+)\.\s+(.*$)/gim, '<li style="margin-bottom:4px;list-style-type:decimal;margin-left:18px;">$2</li>');
+
+  // 9. Convert newlines
+  html = html.replace(/\n\n/g, '<div style="height:8px;"></div>');
+  html = html.replace(/(<\/(?:h2|h3|h4|li|blockquote)>)\n/gi, '$1');
+  html = html.replace(/\n/g, '<br/>');
+
+  return html;
+}
+window.renderMarkdown = renderMarkdown;
 
 // ── Marquee clone (seamless) ──────────────────────
 function initMarquee() {
