@@ -2,5 +2,4 @@ node_modules/
 .vercel/
 .system_generated/
 take-screenshots.js
-
-.vercel
+*.zip
