@@ -1360,7 +1360,7 @@
       }
 
       const allProds = (typeof DB !== 'undefined') ? DB.getProducts() : [];
-      const prod = allProds[1] || allProds[0] || { id: 'prod_002', name: 'Floral Birthday Invitation — Editable (Canva Template + Printable PDF)', price: 299 };
+      const prod = allProds[0] || { id: 'sample_product', name: 'Digital Template', price: 150 };
 
       const sampleOrder = {
         id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
@@ -1465,7 +1465,7 @@
       }
 
       const allProds = (typeof DB !== 'undefined') ? DB.getProducts() : [];
-      const prod = allProds[1] || allProds[0] || { id: 'prod_002', name: 'Floral Birthday Invitation — Editable', price: 299 };
+      const prod = allProds[0] || { id: 'sample_product', name: 'Digital Template', price: 150 };
 
       const sampleConfirmedOrder = {
         id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
@@ -1577,7 +1577,7 @@
 
       showToast('Dispatching test order alert to ' + to + '...', 'info');
       const allProds = (typeof DB !== 'undefined') ? DB.getProducts() : [];
-      const prod = allProds[1] || allProds[0] || { id: 'prod_002', name: 'Floral Birthday Invitation — Editable', price: 299 };
+      const prod = allProds[0] || { id: 'sample_product', name: 'Digital Template', price: 150 };
 
       const sampleOrder = {
         id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),

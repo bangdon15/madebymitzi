@@ -925,6 +925,11 @@
       renderCart();
       loadRecommended();
     });
+
+    window.addEventListener('mbm_products_synced', () => {
+      loadRecommended();
+      renderCart();
+    });
   </script>
 </body>
 </html>
