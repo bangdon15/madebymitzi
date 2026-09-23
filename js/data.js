@@ -221,6 +221,31 @@ const DB = {
 
   getOrder(id) { return this.getOrders().find(o => o.id === id) || null; },
 
+  async deleteOrder(id) {
+    const orders = this.getOrders().filter(o => o.id !== id);
+    this.setOrders(orders);
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.deleteOrderFromCloud === 'function') {
+      try {
+        await window.FirebaseService.deleteOrderFromCloud(id);
+      } catch (e) {
+        console.warn('Cloud delete order error:', e);
+      }
+    }
+    return orders;
+  },
+
+  async clearAllOrders() {
+    this.setOrders([]);
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.clearAllOrdersFromCloud === 'function') {
+      try {
+        await window.FirebaseService.clearAllOrdersFromCloud();
+      } catch (e) {
+        console.warn('Cloud clear orders error:', e);
+      }
+    }
+    return [];
+  },
+
   // Encodes order into a minified, URL-safe Base64 token for seamless cross-device sharing (tablets/phones)
   encodeOrderData(order) {
     try {
@@ -766,7 +791,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-sticker1.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['birthday', 'sticker', 'celebration'],
-        status: 'active', sales: 42, featured: true,
+        status: 'active', sales: 0, featured: true,
         createdAt: new Date().toISOString(),
       },
       {
@@ -776,7 +801,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-invite1.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['invitation', 'floral', 'birthday'],
-        status: 'active', sales: 87, featured: true,
+        status: 'active', sales: 0, featured: true,
         createdAt: new Date().toISOString(),
       },
       {
@@ -786,7 +811,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-sticker2.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['princess', 'sticker', 'kids'],
-        status: 'active', sales: 61, featured: false,
+        status: 'active', sales: 0, featured: false,
         createdAt: new Date().toISOString(),
       },
       {
@@ -796,7 +821,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-invite2.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['wedding', 'invitation', 'minimalist'],
-        status: 'active', sales: 34, featured: true,
+        status: 'active', sales: 0, featured: true,
         createdAt: new Date().toISOString(),
       },
       {
@@ -806,7 +831,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-sticker3.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['kawaii', 'food', 'sticker'],
-        status: 'active', sales: 119, featured: false,
+        status: 'active', sales: 0, featured: false,
         createdAt: new Date().toISOString(),
       },
       {
@@ -816,7 +841,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-invite3.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['safari', 'kids', 'invitation', 'jungle'],
-        status: 'active', sales: 55, featured: false,
+        status: 'active', sales: 0, featured: false,
         createdAt: new Date().toISOString(),
       },
       {
@@ -826,7 +851,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-sticker1.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['digital', 'planner', 'stickers', 'goodnotes', 'file-only'],
-        status: 'active', sales: 78, featured: true,
+        status: 'active', sales: 0, featured: true,
         createdAt: new Date().toISOString(),
       },
       {
@@ -836,7 +861,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-sticker2.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['svg', 'cricut', 'doodles', 'file-only', 'cut-files'],
-        status: 'active', sales: 64, featured: false,
+        status: 'active', sales: 0, featured: false,
         createdAt: new Date().toISOString(),
       },
       {
@@ -846,7 +871,7 @@ Mitzi Santos — MadeByMitzi ✨`;
         images: ['assets/placeholder-sticker3.svg'],
         pdfLink: '', canvaLink: '', sampleImages: [],
         tags: ['coffee', 'motivation', 'digital-stickers', 'file-only'],
-        status: 'active', sales: 92, featured: false,
+        status: 'active', sales: 0, featured: false,
         createdAt: new Date().toISOString(),
       },
     ];
