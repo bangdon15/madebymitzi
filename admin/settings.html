@@ -119,7 +119,10 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="admin-sidebar-header">
-        <div class="admin-sidebar-logo">🎨 MadeByMitzi</div>
+        <div class="admin-sidebar-logo" style="display:flex;align-items:center;gap:10px;">
+          <img src="../images/madebymitzi.jpg" alt="Mitzi" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--totoro-sage);flex-shrink:0;" />
+          <span>MadeByMitzi</span>
+        </div>
         <div class="admin-sidebar-sub">Shop Administration</div>
       </div>
       <div class="admin-nav">
@@ -152,20 +155,25 @@
     <!-- Main Content -->
     <main class="admin-main">
       <div>
-        <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Payment Image Settings</h1>
-        <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Upload & update replaceable QR code images and account details for GCash and Bank Transfer</p>
+        <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Shop & Payment Settings</h1>
+        <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Customize storefront announcement banner, creator profile, background artwork, and payment QR codes</p>
       </div>
 
       <div class="settings-grid">
         
-        <!-- Shop Bio & Creator Profile (Etsy Style) -->
+        <!-- Shop Announcement & Creator Profile -->
         <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
-          <div class="settings-card-title" style="color:var(--forest-deep);">
-            <i class="fas fa-feather-alt" style="color:var(--forest-moss);"></i>
-            <span>Shop Bio & Creator Profile (Etsy Style)</span>
+          <div class="settings-card-title" style="color:var(--forest-deep);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-feather-alt" style="color:var(--forest-moss);"></i>
+              <span>Shop Announcement & Creator Profile</span>
+            </div>
+            <span style="font-size:0.75rem;background:#EBF3E8;color:var(--forest-moss);padding:3px 10px;border-radius:12px;font-weight:800;border:1px solid var(--totoro-sage);">
+              📢 Storefront Banner & Bio
+            </span>
           </div>
           <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:20px;">
-            Personalize your store with an artisan touch. Share your story, announcement banner, and artist profile directly with your customers.
+            Personalize your store with an artisan touch. Share your story, top announcement banner, and artist profile directly with your customers.
           </p>
 
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;">
@@ -191,20 +199,24 @@
             </div>
 
             <div>
-              <div class="form-group">
-                <label class="form-label">Shop Announcement Banner (Top of Storefront)</label>
-                <input type="text" id="bio-announcement" class="form-input" placeholder="✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation." />
-                <div style="font-size:0.78rem;color:var(--gray-500);margin-top:4px;">Appears in the highlighted banner directly above or below the hero section.</div>
+              <div class="form-group" style="background:#FFFFFF;border:2px solid var(--forest-moss);border-radius:var(--radius-md);padding:14px;">
+                <label class="form-label" style="color:var(--forest-deep);font-weight:800;display:flex;align-items:center;gap:6px;">
+                  <i class="fas fa-bullhorn" style="color:var(--forest-moss);"></i> Shop Announcement Banner (Top of Storefront)
+                </label>
+                <input type="text" id="bio-announcement" class="form-input" placeholder="✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation." style="font-weight:600;" />
+                <div style="font-size:0.78rem;color:var(--forest-moss);margin-top:6px;line-height:1.4;">
+                  <i class="fas fa-info-circle"></i> Appears in the top green banner right below the navbar across your entire shop!
+                </div>
               </div>
 
-              <div class="form-group">
+              <div class="form-group" style="margin-top:14px;">
                 <label class="form-label">Creator Story & Bio</label>
                 <textarea id="bio-creator-story" class="form-input form-textarea" rows="5" placeholder="Tell customers about your story, design process, and creative passion..."></textarea>
-                <div style="font-size:0.78rem;color:var(--gray-500);margin-top:4px;">Displayed in the 'Meet the Creator' section on the homepage.</div>
+                <div style="font-size:0.78rem;color:var(--gray-500);margin-top:4px;">Displayed in the 'Meet the Maker' section on the homepage.</div>
               </div>
 
               <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:14px;" onclick="saveCreatorBioSettings()">
-                <i class="fas fa-save"></i> Save Creator Bio & Announcements
+                <i class="fas fa-save"></i> Save Announcement & Creator Bio
               </button>
             </div>
           </div>
@@ -769,15 +781,28 @@
       const announcement = document.getElementById('bio-announcement').value.trim();
       const bio = document.getElementById('bio-creator-story').value.trim();
 
+      const currentBio = DB.getBio();
+      const avatarToSave = creatorAvatarBase64 || currentBio.avatar || 'images/madebymitzi.jpg';
+
       DB.saveBio({
         name,
         title,
-        avatar: creatorAvatarBase64 || '../images/madebymitzi.jpg',
+        avatar: avatarToSave,
         bio,
         announcement
       });
 
-      showToast('Creator Bio & Announcements saved & synced! 🌿✨', 'success');
+      // Also ensure settings directly updates announcementText & shopAnnouncement
+      DB.saveSettings({
+        creatorName: name,
+        creatorTitle: title,
+        creatorAvatar: avatarToSave,
+        creatorBio: bio,
+        shopAnnouncement: announcement,
+        announcementText: announcement
+      });
+
+      showToast('Announcement Banner & Creator Bio saved & synced! 🌿✨', 'success');
     }
     window.saveCreatorBioSettings = saveCreatorBioSettings;
 
@@ -797,12 +822,15 @@
       const bioNameInput = document.getElementById('bio-creator-name');
       if (bioNameInput) {
         bioNameInput.value = bio.name || 'Mitzi';
-        document.getElementById('bio-creator-title').value = bio.title || 'Founder, Illustrator & Party Stationery Artist';
-        document.getElementById('bio-announcement').value = bio.announcement || '';
+        document.getElementById('bio-creator-title').value = bio.title || bio.tagline || 'Founder, Illustrator & Party Stationery Artist';
+        document.getElementById('bio-announcement').value = bio.announcement || settings.shopAnnouncement || settings.announcementText || '';
         document.getElementById('bio-creator-story').value = bio.bio || '';
         if (bio.avatar) {
           const avImg = document.getElementById('creator-avatar-preview');
-          if (avImg) avImg.src = bio.avatar;
+          const resolvedSrc = bio.avatar.startsWith('data:') 
+            ? bio.avatar 
+            : (bio.avatar.startsWith('../') ? bio.avatar : (bio.avatar.startsWith('http') ? bio.avatar : '../' + bio.avatar.replace(/^\//, '')));
+          if (avImg) avImg.src = resolvedSrc;
           creatorAvatarBase64 = bio.avatar;
         }
       }

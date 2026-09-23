@@ -461,12 +461,14 @@ const DB = {
       brevoApiKey: '',
       brevoSenderEmail: 'brepublic15@gmail.com',
       resendApiKey: '',
-      // Etsy-Style Shop Bio & Creator Profile
+      shopMessenger: 'https://m.me/100094438778151',
+      // Shop Bio & Creator Profile
       creatorName: 'Mitzi',
       creatorTitle: 'Founder, Illustrator & Party Stationery Artist',
       creatorAvatar: 'images/madebymitzi.jpg',
       creatorBio: 'Welcome to MadeByMitzi! 🌿 I specialize in creating aesthetic birthday invitation templates, printable party stationery, and waterproof sticker packs crafted with love. Every design is carefully hand-drawn and curated to make your celebrations personal, magical, and unforgettable.',
-      shopAnnouncement: '✨ Welcome to our artisan storefront! Instant digital downloads & Canva template links delivered with every order.',
+      shopAnnouncement: '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.',
+      announcementText: '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.',
       heroBackground: 'images/ghibli-bg-1.jpg',
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};
@@ -494,11 +496,13 @@ const DB = {
     const s = this.getSettings();
     return {
       name: s.creatorName || 'Mitzi',
-      title: s.creatorTitle || 'Founder, Illustrator & Designer',
+      title: s.creatorTitle || 'Founder, Illustrator & Party Stationery Artist',
+      tagline: s.creatorTitle || 'Founder, Illustrator & Party Stationery Artist',
       avatar: s.creatorAvatar || 'images/madebymitzi.jpg',
       bio: s.creatorBio || '',
-      announcement: s.shopAnnouncement || '',
+      announcement: s.shopAnnouncement || s.announcementText || '',
       facebook: s.shopFacebook || '',
+      messenger: s.shopMessenger || 'https://m.me/100094438778151',
       etsy: s.shopEtsy || ''
     };
   },
@@ -509,7 +513,8 @@ const DB = {
       creatorTitle: data.title,
       creatorAvatar: data.avatar,
       creatorBio: data.bio,
-      shopAnnouncement: data.announcement
+      shopAnnouncement: data.announcement,
+      announcementText: data.announcement
     });
   },
 

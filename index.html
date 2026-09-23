@@ -36,12 +36,7 @@
 
     .hero-content {
       flex: 1;
-      position: relative;
-      z-index: 2;
-    }
-
-    .hero-visual {
-      flex: 0 0 380px;
+      max-width: 740px;
       position: relative;
       z-index: 2;
     }
@@ -459,10 +454,10 @@
   </nav>
 
   <!-- ════════════════════ ANNOUNCEMENT BAR ════════════════════ -->
-  <div id="shop-announcement-bar" class="announcement-bar" style="display:none;">
+  <div id="shop-announcement-bar" class="announcement-bar">
     <div class="announcement-content">
       <span class="announcement-icon">🌿</span>
-      <span id="announcement-text">Welcome to MadeByMitzi! Enjoy handcrafted digital designs.</span>
+      <span id="announcement-text">✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.</span>
     </div>
   </div>
 
@@ -471,11 +466,10 @@
     <div class="hero-bg" id="hero-bg"></div>
     <div class="hero-content">
       <div class="hero-badge">
-        <span>✨</span> New designs every week!
+        <span>✨</span> Handcrafted with love
       </div>
-      <h1>Designs That<br /><span>Tell Your Story</span></h1>
-      <p>Premium sticker packs & birthday invitation designs — made with love by Mitzi. Customizable, printable, and
-        delivered digitally!</p>
+      <h1>Little designs for your<br /><span>special moments ✨</span></h1>
+      <p>I create cute, simple & customizable digital products to make your celebrations extra special. 💛</p>
       <div class="hero-actions">
         <a href="shop.html" class="btn btn-primary btn-lg">
           <i class="fas fa-store"></i> Shop Now
@@ -495,26 +489,6 @@
         </div>
         <div style="color:rgba(255,255,255,0.9);font-size:0.85rem;text-shadow:0 1px 4px rgba(0,0,0,0.3);">
           <span style="color:var(--rice-cream);font-weight:800;font-size:1.15rem;text-shadow:0 1px 6px rgba(0,0,0,0.3);">⭐ 5.0</span><br />Rating
-        </div>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-float-cards">
-        <div class="hero-float-card">
-          <div class="ghibli-card-icon"><i class="fas fa-palette"></i></div>
-          <div class="card-label">Sticker Packs</div>
-        </div>
-        <div class="hero-float-card">
-          <div class="ghibli-card-icon"><i class="fas fa-envelope-open-text"></i></div>
-          <div class="card-label">Invitations</div>
-        </div>
-        <div class="hero-float-card">
-          <div class="ghibli-card-icon"><i class="fas fa-pen-nib"></i></div>
-          <div class="card-label">Editable</div>
-        </div>
-        <div class="hero-float-card">
-          <div class="ghibli-card-icon"><i class="fas fa-print"></i></div>
-          <div class="card-label">Digital + Print</div>
         </div>
       </div>
     </div>
@@ -713,7 +687,9 @@
           </div>
           <div class="creator-actions">
             <a href="shop.html" class="btn btn-primary"><i class="fas fa-store"></i> Browse Collection</a>
-            <button type="button" onclick="window.MbmChat && window.MbmChat.open('chat')" class="btn btn-secondary"><i class="fab fa-facebook-messenger"></i> Message Mitzi</button>
+            <a href="https://m.me/100094438778151" id="creator-message-btn" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+              <i class="fab fa-facebook-messenger"></i> Message Mitzi
+            </a>
           </div>
         </div>
       </div>
@@ -756,7 +732,10 @@
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="logo">🎨 MadeByMitzi</div>
+        <div class="logo" style="display:flex;align-items:center;gap:10px;">
+          <img src="images/madebymitzi.jpg" alt="Mitzi" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--totoro-sage);flex-shrink:0;" />
+          <span>MadeByMitzi</span>
+        </div>
         <p>Premium sticker designs and birthday invitation designs made with love. Quality digital products for every
           celebration!</p>
         <div class="footer-social">
@@ -854,21 +833,29 @@
       const titleEl = document.getElementById('creator-title');
       const bioEl = document.getElementById('creator-bio');
       const avatarEl = document.getElementById('creator-avatar');
+      const msgBtn = document.getElementById('creator-message-btn');
 
       if (nameEl && bio.name) nameEl.textContent = bio.name;
-      if (titleEl && bio.tagline) titleEl.textContent = bio.tagline;
+      if (titleEl && (bio.title || bio.tagline)) titleEl.textContent = bio.title || bio.tagline;
       if (bioEl && bio.bio) bioEl.textContent = bio.bio;
-      if (avatarEl && bio.avatar) avatarEl.src = bio.avatar;
+      if (avatarEl && bio.avatar) {
+        avatarEl.src = bio.avatar.startsWith('data:') ? bio.avatar : bio.avatar.replace(/^\.\.\//, '');
+      }
+      if (msgBtn) {
+        msgBtn.href = bio.messenger || 'https://m.me/100094438778151';
+      }
     }
 
     function renderAnnouncement() {
       const settings = DB.getSettings();
+      const bio = DB.getBio ? DB.getBio() : {};
       const bar = document.getElementById('shop-announcement-bar');
       const textEl = document.getElementById('announcement-text');
       if (!bar) return;
 
-      if (settings && settings.announcementText && settings.announcementText.trim()) {
-        if (textEl) textEl.textContent = settings.announcementText.trim();
+      const announcement = (settings.shopAnnouncement || settings.announcementText || bio.announcement || '').trim();
+      if (announcement) {
+        if (textEl) textEl.textContent = announcement;
         bar.style.display = 'block';
       } else {
         bar.style.display = 'none';
