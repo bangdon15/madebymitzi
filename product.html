@@ -633,11 +633,18 @@
 
     function loadProduct() {
       const params = new URLSearchParams(window.location.search);
-      const id = params.get('id') || 'prod_001';
-      currentProduct = DB.getProduct(id);
+      const id = params.get('id');
+      const allProds = DB.getProducts();
+      currentProduct = id ? DB.getProduct(id) : allProds[0];
+
+      if (!currentProduct && allProds.length > 0) {
+        currentProduct = allProds[0];
+      }
 
       if (!currentProduct) {
-        currentProduct = DB.getProducts()[0];
+        const titleEl = document.getElementById('p-title');
+        if (titleEl) titleEl.textContent = 'Loading product details...';
+        return;
       }
 
       document.getElementById('breadcrumb-prod-name').textContent = currentProduct.name;

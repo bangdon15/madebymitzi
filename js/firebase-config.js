@@ -67,33 +67,13 @@ const FirebaseService = {
       }
 
       if (this.isInitialized || true) {
-        // 1. Initial product sync with non-destructive local reconciliation & deletion awareness
+        // 1. Initial product sync with Cloud Firestore as authoritative source
         this.fetchProducts().then(cloudProds => {
           if (typeof window.DB !== 'undefined' && Array.isArray(cloudProds)) {
-            const localProds = window.DB.getProducts() || [];
-            const cloudIds = new Set(cloudProds.map(p => p.id));
-            const deletedIds = new Set(JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]'));
-            const now = Date.now();
-
-            // Only push to cloud if NOT deleted and created recently (< 10 min)
-            const pendingLocal = localProds.filter(lp => {
-              if (deletedIds.has(lp.id)) return false;
-              const isRecent = lp.createdAt && (now - new Date(lp.createdAt).getTime() < 600000);
-              return !cloudIds.has(lp.id) && isRecent;
-            });
-
-            if (pendingLocal.length) {
-              console.log('🔄 Found ' + pendingLocal.length + ' pending local products. Syncing to Firestore...');
-              pendingLocal.forEach(p => {
-                this.syncProduct(p).catch(e => console.warn('Background sync failed for', p.id, e));
-              });
-            }
-
-            const cleanedCloudProds = cloudProds.filter(cp => !deletedIds.has(cp.id));
-            const merged = [...pendingLocal, ...cleanedCloudProds];
-            merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-            window.DB.setProducts(merged);
-            window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
+            const cleanedCloudProds = cloudProds.filter(cp => !window.DB.isTestProduct(cp));
+            cleanedCloudProds.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            window.DB.setProducts(cleanedCloudProds);
+            window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: cleanedCloudProds }));
           }
         }).catch((err) => console.warn('Initial fetchProducts error:', err));
 
@@ -121,25 +101,15 @@ const FirebaseService = {
             this.db.collection('mbm_products').onSnapshot(snapshot => {
               if (typeof window.DB !== 'undefined') {
                 const cloudProds = [];
-                snapshot.forEach(doc => cloudProds.push(doc.data()));
-                cloudProds.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-
-                const localProds = window.DB.getProducts() || [];
-                const cloudIds = new Set(cloudProds.map(p => p.id));
-                const deletedIds = new Set(JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]'));
-                const now = Date.now();
-
-                const pendingLocal = localProds.filter(lp => {
-                  if (deletedIds.has(lp.id)) return false;
-                  const isRecent = lp.createdAt && (now - new Date(lp.createdAt).getTime() < 600000);
-                  return !cloudIds.has(lp.id) && isRecent;
+                snapshot.forEach(doc => {
+                  const data = doc.data();
+                  if (!window.DB.isTestProduct(data)) {
+                    cloudProds.push(data);
+                  }
                 });
-
-                const cleanedCloudProds = cloudProds.filter(cp => !deletedIds.has(cp.id));
-                const merged = [...pendingLocal, ...cleanedCloudProds];
-                merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-                window.DB.setProducts(merged);
-                window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
+                cloudProds.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                window.DB.setProducts(cloudProds);
+                window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: cloudProds }));
               }
             }, err => console.warn('Products live listener notice:', err.message));
           } catch (e) {}
@@ -415,6 +385,11 @@ const FirebaseService = {
    * Sync a single product to Firestore (dual SDK + direct REST fallback)
    */
   async syncProduct(product) {
+    if (typeof window !== 'undefined' && window.DB && window.DB.isTestProduct(product)) {
+      console.log('Skipping cloud sync for test product:', product.id);
+      return { success: true };
+    }
+
     const sanitized = this.sanitizeProduct(product);
 
     // Safeguard against exceeding Firestore 1MB document limit

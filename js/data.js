@@ -117,14 +117,43 @@ const DB = {
     }
   },
 
+  isTestProduct(p) {
+    if (!p) return false;
+    const id = p.id || '';
+    if (/^prod_00[1-9]$/.test(id)) return true;
+    if (id === 'prod_test_ping' || id === 'prod_test_live_verify' || id === 'prod_1790146646399') return true;
+    if (p.images && p.images[0] && p.images[0].includes('placeholder-')) return true;
+    if (p.name && (
+      p.name.includes('Birthday Celebration Sticker Pack') ||
+      p.name.includes('Floral Birthday Invitation — Editable') ||
+      p.name.includes('Princess Party Sticker Bundle') ||
+      p.name.includes('Minimalist Wedding Invitation Set') ||
+      p.name.includes('Kawaii Food Sticker Set') ||
+      p.name.includes('Safari Adventure Birthday Invite') ||
+      p.name.includes('Cute Daily Planner Stickers') ||
+      p.name.includes('Pastel Aesthetic Doodles Cut Files') ||
+      p.name.includes('Coffee & Daily Motivation Digital Stickers') ||
+      p.name.includes('Test Live Ping') ||
+      p.name.includes('Live Sync Verification') ||
+      p.name.includes('Live Sync') ||
+      p.name.includes('Jessie Cowgirl') ||
+      p.name.includes('Toy Story Inspired')
+    )) return true;
+    return false;
+  },
+
   // ── PRODUCTS ──────────────────────────────────────
   getProducts() {
     const prods = this.get(this.KEYS.PRODUCTS);
-    // If the admin has saved products (including an empty catalog [] when all test products are deleted), respect it!
     if (prods !== null && Array.isArray(prods)) {
-      return prods;
+      // Purge any lingering dummy test products from localStorage
+      const cleaned = prods.filter(p => !this.isTestProduct(p));
+      if (cleaned.length !== prods.length) {
+        this.setProducts(cleaned);
+      }
+      return cleaned;
     }
-    // Only seed on initial launch if key does not exist at all
+    // In production, return empty catalog until Cloud Firestore syncs
     return this.seedProducts();
   },
   setProducts(arr) { return this.set(this.KEYS.PRODUCTS, arr); },
@@ -160,6 +189,7 @@ const DB = {
     product.sales = product.sales || 0;
     products.unshift(product);
     this.setProducts(products);
+    window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: products }));
 
     // Remove from deleted tracking if re-added
     try {
@@ -184,6 +214,7 @@ const DB = {
     if (idx === -1) return null;
     products[idx] = { ...products[idx], ...data, updatedAt: new Date().toISOString() };
     this.setProducts(products);
+    window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: products }));
 
     let cloudResult = { success: true, localOnly: true };
     if (typeof window !== 'undefined' && window.FirebaseService) {
@@ -205,6 +236,7 @@ const DB = {
 
     const products = this.getProducts().filter(p => p.id !== id);
     this.setProducts(products);
+    window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: products }));
     if (typeof window !== 'undefined' && window.FirebaseService) {
       try {
         await window.FirebaseService.deleteProductFromCloud?.(id);
@@ -783,111 +815,12 @@ Mitzi Santos — MadeByMitzi ✨`;
 
   // ── SEED DATA ─────────────────────────────────────
   seedProducts() {
-    const products = [
-      {
-        id: 'prod_001', name: 'Birthday Celebration Sticker Pack',
-        category: 'Stickers', price: 149,
-        description: 'A fun pack of 20 high-quality waterproof birthday-themed stickers. Perfect for gifts, planners, and decorations! Each sticker is vibrant and fade-resistant.',
-        images: ['assets/placeholder-sticker1.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['birthday', 'sticker', 'celebration'],
-        status: 'active', sales: 0, featured: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_002', name: 'Floral Birthday Invitation — Editable',
-        category: 'Invitations', price: 299,
-        description: 'Elegant floral birthday invitation design. Fully editable via Canva. Perfect for garden parties, bridal showers, and elegant celebrations. Comes with a printable PDF + digital version.',
-        images: ['assets/placeholder-invite1.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['invitation', 'floral', 'birthday'],
-        status: 'active', sales: 0, featured: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_003', name: 'Princess Party Sticker Bundle',
-        category: 'Stickers', price: 199,
-        description: '30 princess-themed stickers featuring crowns, wands, stars, and castles. Perfect for little girls\' birthdays and scrapbooking!',
-        images: ['assets/placeholder-sticker2.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['princess', 'sticker', 'kids'],
-        status: 'active', sales: 0, featured: false,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_004', name: 'Minimalist Wedding Invitation Set',
-        category: 'Invitations', price: 499,
-        description: 'Modern minimalist wedding invitation set including main invite, RSVP card, and details card. Fully editable in Canva. Available in 3 color variations.',
-        images: ['assets/placeholder-invite2.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['wedding', 'invitation', 'minimalist'],
-        status: 'active', sales: 0, featured: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_005', name: 'Kawaii Food Sticker Set',
-        category: 'Stickers', price: 129,
-        description: 'Adorable kawaii-style food stickers — ramen, sushi, boba, cake and more! Great for phones, laptops, water bottles, and planners.',
-        images: ['assets/placeholder-sticker3.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['kawaii', 'food', 'sticker'],
-        status: 'active', sales: 0, featured: false,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_006', name: 'Safari Adventure Birthday Invite',
-        category: 'Invitations', price: 249,
-        description: 'Jungle-themed birthday invitation perfect for kids\' parties. Features cute safari animals, tropical leaves, and vibrant colors. Editable template with custom name/date.',
-        images: ['assets/placeholder-invite3.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['safari', 'kids', 'invitation', 'jungle'],
-        status: 'active', sales: 0, featured: false,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_007', name: 'Cute Daily Planner Stickers (File Only)',
-        category: 'Sticker (File only)', price: 99,
-        description: 'Instant digital download! High-resolution transparent PNG cut files, GoodNotes sticker book, and printable A4 PDF. Perfect for iPad planning, scrapbooking, and home DIY printing.',
-        images: ['assets/placeholder-sticker1.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['digital', 'planner', 'stickers', 'goodnotes', 'file-only'],
-        status: 'active', sales: 0, featured: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_008', name: 'Pastel Aesthetic Doodles Cut Files (SVG & PNG)',
-        category: 'Sticker (File only)', price: 119,
-        description: 'Instant digital cut files only! 30+ aesthetic hand-drawn doodles formatted for Cricut, Silhouette, and digital bullet journals. Pre-cropped individual PNGs + vector SVG cut lines.',
-        images: ['assets/placeholder-sticker2.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['svg', 'cricut', 'doodles', 'file-only', 'cut-files'],
-        status: 'active', sales: 0, featured: false,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'prod_009', name: 'Coffee & Daily Motivation Digital Stickers (File Only)',
-        category: 'Sticker (File only)', price: 89,
-        description: 'Digital file only! Warm aesthetic coffee quotes, study trackers, and cup designs for digital journals and printable sticker sheets.',
-        images: ['assets/placeholder-sticker3.svg'],
-        pdfLink: '', canvaLink: '', sampleImages: [],
-        tags: ['coffee', 'motivation', 'digital-stickers', 'file-only'],
-        status: 'active', sales: 0, featured: false,
-        createdAt: new Date().toISOString(),
-      },
-    ];
-    this.setProducts(products);
-    return products;
+    this.setProducts([]);
+    return [];
   },
 
   seedReviews() {
-    const reviews = [
-      { id: 'rev_001', productId: 'prod_001', name: 'Maria S.', rating: 5, text: 'Super ganda ng designs! Natuwa talaga ang anak ko sa mga stickers. Very high quality and waterproof!', createdAt: '2026-08-10T10:00:00Z' },
-      { id: 'rev_002', productId: 'prod_002', name: 'Jasmine R.', rating: 5, text: 'The invitation was absolutely beautiful! Easy to edit in Canva and the colors were exactly as shown. Will definitely order again!', createdAt: '2026-08-15T14:30:00Z' },
-      { id: 'rev_003', productId: 'prod_001', name: 'Carla M.', rating: 4, text: 'Very cute stickers! Ang bilis pa ng delivery. Highly recommended!', createdAt: '2026-08-20T09:15:00Z' },
-      { id: 'rev_004', productId: 'prod_004', name: 'Angela T.', rating: 5, text: 'Our guests loved the wedding invitations! So elegant and classy. Mitzi was very accommodating with our customizations.', createdAt: '2026-08-25T16:00:00Z' },
-      { id: 'rev_005', productId: 'prod_005', name: 'Bea L.', rating: 5, text: 'The kawaii stickers are so adorable! Perfect for my bullet journal. The quality is amazing — very durable!', createdAt: '2026-09-01T11:30:00Z' },
-      { id: 'rev_006', productId: 'prod_003', name: 'Kristine P.', rating: 5, text: 'My daughter loved the princess stickers for her party! Lahat ng bisita nagtatanong kung saan nabili. So worth it!', createdAt: '2026-09-05T08:45:00Z' },
-    ];
+    const reviews = [];
     this.set(this.KEYS.REVIEWS, reviews);
     return reviews;
   },
