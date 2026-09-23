@@ -404,13 +404,11 @@ function renderAnnouncement() {
   const textEl = document.getElementById('announcement-text');
   if (!bar) return;
 
-  const announcement = (settings.shopAnnouncement || settings.announcementText || bio.announcement || '').trim();
-  if (announcement) {
-    if (textEl) textEl.textContent = announcement;
-    bar.style.display = 'block';
-  } else {
-    bar.style.display = 'none';
-  }
+  const defaultMsg = '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.';
+  const announcement = (settings.shopAnnouncement || settings.announcementText || bio.announcement || defaultMsg).trim();
+  if (textEl) textEl.textContent = announcement;
+  bar.style.display = 'block';
+  document.body.classList.add('has-announcement');
 }
 
 window.addEventListener('mbm_products_synced', () => {

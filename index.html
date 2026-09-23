@@ -468,7 +468,10 @@
       <div class="hero-badge">
         <span>✨</span> Handcrafted with love
       </div>
-      <h1>Little designs for your<br /><span>special moments ✨</span></h1>
+      <h1 class="hero-title">
+        <span class="hero-title-line1">Little designs for your</span>
+        <span class="hero-title-line2">special moments</span>
+      </h1>
       <p>I create cute, simple & customizable digital products to make your celebrations extra special. 💛</p>
       <div class="hero-actions">
         <a href="shop.html" class="btn btn-primary btn-lg">
@@ -853,13 +856,11 @@
       const textEl = document.getElementById('announcement-text');
       if (!bar) return;
 
-      const announcement = (settings.shopAnnouncement || settings.announcementText || bio.announcement || '').trim();
-      if (announcement) {
-        if (textEl) textEl.textContent = announcement;
-        bar.style.display = 'block';
-      } else {
-        bar.style.display = 'none';
-      }
+      const defaultMsg = '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.';
+      const announcement = (settings.shopAnnouncement || settings.announcementText || bio.announcement || defaultMsg).trim();
+      if (textEl) textEl.textContent = announcement;
+      bar.style.display = 'block';
+      document.body.classList.add('has-announcement');
     }
 
     function applyHeroBackground() {
