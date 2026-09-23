@@ -241,6 +241,14 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
   overflow: hidden;
 }
 
+body.has-announcement .hero {
+  padding-top: 48px;
+}
+
+body.has-announcement .page-header {
+  padding-top: 48px;
+}
+
 /* Background image layer (visible beneath the semi-transparent gradient) */
 .hero-bg {
   position: absolute;
@@ -306,21 +314,33 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
   animation: fadeInDown 0.6s ease both;
 }
 
-.hero h1 {
+.hero h1,
+.hero-title {
   font-family: var(--font-head);
-  font-size: clamp(2.3rem, 5.2vw, 4.2rem);
+  font-size: clamp(2rem, 4vw, 3.4rem);
   font-weight: 900;
   color: #FFFFFF;
   text-shadow: 0 3px 18px rgba(21, 28, 19, 0.75), 0 1px 3px rgba(0, 0, 0, 0.6);
-  line-height: 1.12;
+  line-height: 1.16;
   margin-bottom: 20px;
   animation: fadeInDown 0.7s ease 0.1s both;
 }
 
-.hero h1 span {
+.hero-title-line1 {
+  display: block;
+  white-space: nowrap;
+}
+
+.hero-title-line2 {
+  display: block;
   color: var(--rice-cream);
   text-shadow: 0 3px 18px rgba(21, 28, 19, 0.85), 0 1px 4px rgba(0, 0, 0, 0.7);
-  display: inline-block;
+}
+
+@media (max-width: 640px) {
+  .hero-title-line1 {
+    white-space: normal;
+  }
 }
 
 .hero p {
@@ -1452,16 +1472,18 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
    ANNOUNCEMENT BAR & CREATOR PROFILE (PHASE 4)
 ============================================================ */
 .announcement-bar {
-  background: linear-gradient(90deg, var(--forest-moss) 0%, #4E703E 50%, var(--forest-moss) 100%);
+  margin-top: var(--nav-h);
+  background: linear-gradient(90deg, #24351B 0%, #436636 50%, #24351B 100%);
   color: var(--rice-cream);
-  padding: 10px 16px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  border-bottom: 1.5px solid rgba(243, 232, 194, 0.3);
+  padding: 12px 16px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-bottom: 2px solid rgba(243, 232, 194, 0.4);
   position: relative;
   z-index: 99;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  letter-spacing: 0.2px;
 }
 
 .announcement-content {
