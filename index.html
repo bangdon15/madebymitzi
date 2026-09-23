@@ -35,8 +35,8 @@
     }
 
     .hero-content {
-      flex: 1;
-      max-width: 740px;
+      flex: 1 1 540px;
+      max-width: 620px;
       position: relative;
       z-index: 2;
     }
@@ -269,26 +269,41 @@
       will-change: opacity, transform;
     }
 
-    .cta-slide-1 { animation-delay: 0s; }
-    .cta-slide-2 { animation-delay: 6s; }
-    .cta-slide-3 { animation-delay: 12s; }
-    .cta-slide-4 { animation-delay: 18s; }
+    .cta-slide-1 {
+      animation-delay: 0s;
+    }
+
+    .cta-slide-2 {
+      animation-delay: 6s;
+    }
+
+    .cta-slide-3 {
+      animation-delay: 12s;
+    }
+
+    .cta-slide-4 {
+      animation-delay: 18s;
+    }
 
     @keyframes ghibliCrossfade {
       0% {
         opacity: 0;
         transform: scale(1.05);
       }
+
       8% {
         opacity: 1;
       }
+
       25% {
         opacity: 1;
       }
+
       33% {
         opacity: 0;
         transform: scale(1);
       }
+
       100% {
         opacity: 0;
         transform: scale(1.05);
@@ -299,13 +314,16 @@
     .cta-overlay-gradient {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        135deg,
-        rgba(10, 51, 35, 0.88) 0%,     /* Dark green */
-        rgba(16, 86, 102, 0.82) 30%,   /* Midnight green */
-        rgba(131, 153, 88, 0.74) 65%,  /* Moss green */
-        rgba(10, 51, 35, 0.90) 100%    /* Dark green */
-      );
+      background: linear-gradient(135deg,
+          rgba(10, 51, 35, 0.88) 0%,
+          /* Dark green */
+          rgba(16, 86, 102, 0.82) 30%,
+          /* Midnight green */
+          rgba(131, 153, 88, 0.74) 65%,
+          /* Moss green */
+          rgba(10, 51, 35, 0.90) 100%
+          /* Dark green */
+        );
       background-size: 280% 280%;
       animation: heroThemeGradientShift 9s ease infinite;
       pointer-events: none;
@@ -412,10 +430,28 @@
       border-color: #FFFFFF;
     }
 
-    @media(max-width:1024px) {
+    @media(max-width:992px) {
+      .hero {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 36px;
+      }
+
+      .hero-content {
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+
       .hero-visual {
-        flex: 0 0 auto;
-        max-width: 340px;
+        margin: 10px auto 0;
+        max-width: 320px;
       }
     }
 
@@ -424,8 +460,8 @@
         gap: 16px;
       }
 
-      .hero-float-cards {
-        max-width: 300px;
+      .hero-portfolio-card-wrap {
+        max-width: 290px;
       }
     }
   </style>
@@ -476,7 +512,8 @@
   <div id="shop-announcement-bar" class="announcement-bar">
     <div class="announcement-content">
       <span class="announcement-icon">🌿</span>
-      <span id="announcement-text">✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.</span>
+      <span id="announcement-text">✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva
+        editable links with every invitation.</span>
     </div>
   </div>
 
@@ -510,7 +547,25 @@
             id="hero-orders-count">400+</span><br />Happy Customers
         </div>
         <div style="color:rgba(255,255,255,0.9);font-size:0.85rem;text-shadow:0 1px 4px rgba(0,0,0,0.3);">
-          <span style="color:var(--rice-cream);font-weight:800;font-size:1.15rem;text-shadow:0 1px 6px rgba(0,0,0,0.3);">⭐ 5.0</span><br />Rating
+          <span
+            style="color:var(--rice-cream);font-weight:800;font-size:1.15rem;text-shadow:0 1px 6px rgba(0,0,0,0.3);">⭐
+            5.0</span><br />Rating
+        </div>
+      </div>
+    </div>
+
+    <!-- Portfolio Visual Showcase (Right Side of Hero) -->
+    <div class="hero-visual reveal">
+      <div class="hero-portfolio-card-wrap">
+        <div class="portfolio-tape"></div>
+        <div class="portfolio-rating-float">
+          <i class="fas fa-heart" style="color:#ffffff;"></i> Mitzi
+        </div>
+        <div class="hero-portfolio-frame">
+          <img src="images/mitzi-hero-card.png" alt="Mitzi - Designer & Digital Artisan" class="hero-portfolio-img" />
+        </div>
+        <div class="portfolio-badge-float">
+          <span class="badge-dot"></span> Digital Artisan & Creator
         </div>
       </div>
     </div>
@@ -538,11 +593,16 @@
 
   <!-- ════════════════════ FEATURES STRIP ════════════════════ -->
   <div class="features-strip">
-    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-bolt"></i></span> Fast Digital Delivery</div>
-    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-palette"></i></span> Fully Customizable</div>
-    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-credit-card"></i></span> GCash & Bank Transfer</div>
-    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-print"></i></span> Print-Ready Files</div>
-    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-comments"></i></span> Friendly Support</div>
+    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-bolt"></i></span> Fast Digital
+      Delivery</div>
+    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-palette"></i></span> Fully
+      Customizable</div>
+    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-credit-card"></i></span> GCash & Bank
+      Transfer</div>
+    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-print"></i></span> Print-Ready Files
+    </div>
+    <div class="feature-item"><span class="ghibli-feature-badge"><i class="fas fa-comments"></i></span> Friendly Support
+    </div>
   </div>
 
   <!-- ════════════════════ FEATURED PRODUCTS ════════════════════ -->
@@ -635,20 +695,26 @@
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;" class="reveal">
         <a href="shop.html?cat=Stickers" class="category-card cat-stickers">
           <div class="category-ghibli-icon"><i class="fas fa-palette"></i></div>
-          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker Packs</h3>
-          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Birthday, kawaii, floral, themed sticker collections</p>
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker Packs
+          </h3>
+          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Birthday, kawaii,
+            floral, themed sticker collections</p>
           <span class="cat-btn-pill">Shop Stickers →</span>
         </a>
         <a href="shop.html?cat=Invitations" class="category-card cat-invitations">
           <div class="category-ghibli-icon"><i class="fas fa-envelope-open-text"></i></div>
-          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Invitation Designs</h3>
-          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Birthday, wedding, party — editable & printable</p>
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Invitation
+            Designs</h3>
+          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Birthday, wedding,
+            party — editable & printable</p>
           <span class="cat-btn-pill">Shop Invitations →</span>
         </a>
         <a href="shop.html?cat=Sticker%20(File%20only)" class="category-card cat-cutfiles">
           <div class="category-ghibli-icon"><i class="fas fa-scissors"></i></div>
-          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker (File only)</h3>
-          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Instant download PNG cut files, SVG & printable sheets</p>
+          <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker (File
+            only)</h3>
+          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Instant download PNG
+            cut files, SVG & printable sheets</p>
           <span class="cat-btn-pill">Shop Digital Files →</span>
         </a>
       </div>
@@ -692,7 +758,8 @@
     <div class="container">
       <div class="creator-card">
         <div class="creator-avatar-wrap">
-          <img src="images/madebymitzi.jpg" alt="Mitzi" id="creator-avatar" class="creator-avatar" onerror="this.src='images/madebymitzi.jpg'" />
+          <img src="images/madebymitzi.jpg" alt="Mitzi" id="creator-avatar" class="creator-avatar"
+            onerror="this.src='images/madebymitzi.jpg'" />
           <div class="creator-badge"><i class="fas fa-check-circle"></i> Verified Maker</div>
         </div>
         <div class="creator-info">
@@ -700,7 +767,9 @@
           <h2 class="creator-name" id="creator-name">Mitzi</h2>
           <div class="creator-title" id="creator-title">Digital Artist & Invitation Designer</div>
           <p class="creator-bio" id="creator-bio">
-            Hi! I'm Mitzi, the creator behind MadeByMitzi. I handcraft joyful sticker packs, personalized birthday invitations, and digital celebration assets. Every design is crafted with love and attention to detail to help make your milestones magical!
+            Hi! I'm Mitzi, the creator behind MadeByMitzi. I handcraft joyful sticker packs, personalized birthday
+            invitations, and digital celebration assets. Every design is crafted with love and attention to detail to
+            help make your milestones magical!
           </p>
           <div class="creator-perks">
             <span class="creator-perk"><i class="fas fa-magic"></i> 100% Original Designs</span>
@@ -709,7 +778,8 @@
           </div>
           <div class="creator-actions">
             <a href="shop.html" class="btn btn-primary"><i class="fas fa-store"></i> Browse Collection</a>
-            <a href="https://m.me/100094438778151" id="creator-message-btn" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            <a href="https://m.me/100094438778151" id="creator-message-btn" target="_blank" rel="noopener noreferrer"
+              class="btn btn-secondary">
               <i class="fab fa-facebook-messenger"></i> Message Mitzi
             </a>
           </div>
@@ -735,7 +805,8 @@
       <h2>Let's Create Something <br />Beautiful Together!</h2>
       <p>Find us on Facebook and Etsy for more designs and updates</p>
       <div class="platforms">
-        <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank" class="platform-btn facebook-btn">
+        <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank"
+          class="platform-btn facebook-btn">
           <i class="fab fa-facebook-f"></i> Facebook Page
         </a>
         <a href="https://www.etsy.com/shop/MadeBymitzidigital" target="_blank" class="platform-btn etsy-btn">
@@ -755,7 +826,8 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo" style="display:flex;align-items:center;gap:10px;">
-          <img src="images/madebymitzi.jpg" alt="Mitzi" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--totoro-sage);flex-shrink:0;" />
+          <img src="images/madebymitzi.jpg" alt="Mitzi"
+            style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--totoro-sage);flex-shrink:0;" />
           <span>MadeByMitzi</span>
         </div>
         <p>Premium sticker designs and birthday invitation designs made with love. Quality digital products for every
