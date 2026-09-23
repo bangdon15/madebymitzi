@@ -35,10 +35,46 @@ const FirebaseService = {
     localStorage.setItem('mbm_firebase_config', JSON.stringify(config));
   },
 
+  isTestProduct(p) {
+    if (!p) return false;
+    const id = p.id || '';
+    if (/^prod_00[1-9]$/.test(id)) return true;
+    if (id === 'prod_test_ping' || id === 'prod_test_live_verify' || id === 'prod_1790146646399') return true;
+    if (p.images && p.images[0] && p.images[0].includes('placeholder-')) return true;
+    if (p.name && (
+      p.name.includes('Birthday Celebration Sticker Pack') ||
+      p.name.includes('Floral Birthday Invitation — Editable') ||
+      p.name.includes('Princess Party Sticker Bundle') ||
+      p.name.includes('Minimalist Wedding Invitation Set') ||
+      p.name.includes('Kawaii Food Sticker Set') ||
+      p.name.includes('Safari Adventure Birthday Invite') ||
+      p.name.includes('Cute Daily Planner Stickers') ||
+      p.name.includes('Pastel Aesthetic Doodles Cut Files') ||
+      p.name.includes('Coffee & Daily Motivation Digital Stickers') ||
+      p.name.includes('Test Live Ping') ||
+      p.name.includes('Live Sync Verification') ||
+      p.name.includes('Live Sync') ||
+      p.name.includes('Jessie Cowgirl') ||
+      p.name.includes('Toy Story Inspired')
+    )) return true;
+    return false;
+  },
+
   /**
    * Initializes Firebase using compat SDK
    */
   async init() {
+    // Immediate local storage test data purge on init
+    try {
+      const stored = JSON.parse(localStorage.getItem('mbm_products') || '[]');
+      if (Array.isArray(stored) && stored.length > 0) {
+        const cleaned = stored.filter(p => !this.isTestProduct(p));
+        if (cleaned.length !== stored.length) {
+          localStorage.setItem('mbm_products', JSON.stringify(cleaned));
+        }
+      }
+    } catch (e) {}
+
     const config = this.getConfig();
     if (!config || !config.apiKey || !config.projectId) {
       return false;
@@ -385,7 +421,7 @@ const FirebaseService = {
    * Sync a single product to Firestore (dual SDK + direct REST fallback)
    */
   async syncProduct(product) {
-    if (typeof window !== 'undefined' && window.DB && window.DB.isTestProduct(product)) {
+    if (this.isTestProduct(product) || (typeof window !== 'undefined' && window.DB && window.DB.isTestProduct(product))) {
       console.log('Skipping cloud sync for test product:', product.id);
       return { success: true };
     }
