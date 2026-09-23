@@ -469,7 +469,10 @@ const DB = {
       creatorBio: 'Welcome to MadeByMitzi! 🌿 I specialize in creating aesthetic birthday invitation templates, printable party stationery, and waterproof sticker packs crafted with love. Every design is carefully hand-drawn and curated to make your celebrations personal, magical, and unforgettable.',
       shopAnnouncement: '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.',
       announcementText: '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.',
-      heroBackground: 'images/ghibli-bg-1.jpg',
+      heroBackground: 'images/background.jpg',
+      heroGradientEnabled: true,
+      ctaGradientEnabled: true,
+      uploadedHeroBackgrounds: []
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};
     // Migration: ensure if stored has outdated placeholder email, upgrade to active madebymitzi26@gmail.com

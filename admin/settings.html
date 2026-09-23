@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -71,8 +72,14 @@
     }
 
     @media (max-width: 1080px) {
-      .admin-tablet-menu-btn { display: inline-flex !important; }
-      .settings-grid { grid-template-columns: 1fr; }
+      .admin-tablet-menu-btn {
+        display: inline-flex !important;
+      }
+
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
       .admin-sidebar {
         transform: translateX(-100%);
         position: fixed;
@@ -82,9 +89,11 @@
         z-index: 200;
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.28);
       }
+
       .admin-sidebar.open {
         transform: translateX(0);
       }
+
       .admin-main {
         margin-left: 0 !important;
         padding: 20px 16px !important;
@@ -95,6 +104,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="toast-container"></div>
@@ -104,10 +114,13 @@
     <a href="../index.html" class="nav-logo">
       <img src="../images/madebymitzi.jpg" alt="Mitzi"
         style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;" />
-      MadeByMitzi <span style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
+      MadeByMitzi <span
+        style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
     </a>
     <div class="nav-links" style="display:flex;align-items:center;gap:10px;">
-      <button type="button" class="btn btn-secondary btn-sm admin-tablet-menu-btn" onclick="document.querySelector('.admin-sidebar')?.classList.toggle('open')" style="display:none;padding:7px 12px;font-size:0.82rem;" title="Toggle Sidebar Navigation">
+      <button type="button" class="btn btn-secondary btn-sm admin-tablet-menu-btn"
+        onclick="document.querySelector('.admin-sidebar')?.classList.toggle('open')"
+        style="display:none;padding:7px 12px;font-size:0.82rem;" title="Toggle Sidebar Navigation">
         <i class="fas fa-bars"></i> Menu
       </button>
       <a href="../index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Live Site</a>
@@ -115,12 +128,13 @@
   </nav>
 
   <div class="admin-layout">
-    
+
     <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="admin-sidebar-header">
         <div class="admin-sidebar-logo" style="display:flex;align-items:center;gap:10px;">
-          <img src="../images/madebymitzi.jpg" alt="Mitzi" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--totoro-sage);flex-shrink:0;" />
+          <img src="../images/madebymitzi.jpg" alt="Mitzi"
+            style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--totoro-sage);flex-shrink:0;" />
           <span>MadeByMitzi</span>
         </div>
         <div class="admin-sidebar-sub">Shop Administration</div>
@@ -155,33 +169,43 @@
     <!-- Main Content -->
     <main class="admin-main">
       <div>
-        <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Shop & Payment Settings</h1>
-        <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Customize storefront announcement banner, creator profile, background artwork, and payment QR codes</p>
+        <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Shop & Payment
+          Settings</h1>
+        <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Customize storefront announcement banner,
+          creator profile, background artwork, and payment QR codes</p>
       </div>
 
       <div class="settings-grid">
-        
+
         <!-- Shop Announcement & Creator Profile -->
-        <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
-          <div class="settings-card-title" style="color:var(--forest-deep);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div class="settings-card"
+          style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
+          <div class="settings-card-title"
+            style="color:var(--forest-deep);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
             <div style="display:flex;align-items:center;gap:10px;">
               <i class="fas fa-feather-alt" style="color:var(--forest-moss);"></i>
               <span>Shop Announcement & Creator Profile</span>
             </div>
-            <span style="font-size:0.75rem;background:#EBF3E8;color:var(--forest-moss);padding:3px 10px;border-radius:12px;font-weight:800;border:1px solid var(--totoro-sage);">
+            <span
+              style="font-size:0.75rem;background:#EBF3E8;color:var(--forest-moss);padding:3px 10px;border-radius:12px;font-weight:800;border:1px solid var(--totoro-sage);">
               📢 Storefront Banner & Bio
             </span>
           </div>
           <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:20px;">
-            Personalize your store with an artisan touch. Share your story, top announcement banner, and artist profile directly with your customers.
+            Personalize your store with an artisan touch. Share your story, top announcement banner, and artist profile
+            directly with your customers.
           </p>
 
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;">
             <div>
               <label class="form-label">Creator Photo / Avatar</label>
-              <div class="qr-preview-box" onclick="document.getElementById('creator-avatar-file').click()" style="padding:16px;">
-                <input type="file" id="creator-avatar-file" accept="image/*" style="display:none;" onchange="handleCreatorAvatarUpload(event)" />
-                <img id="creator-avatar-preview" src="../images/madebymitzi.jpg" class="qr-current-img" style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--forest-moss);" alt="Mitzi" />
+              <div class="qr-preview-box" onclick="document.getElementById('creator-avatar-file').click()"
+                style="padding:16px;">
+                <input type="file" id="creator-avatar-file" accept="image/*" style="display:none;"
+                  onchange="handleCreatorAvatarUpload(event)" />
+                <img id="creator-avatar-preview" src="../images/madebymitzi.jpg" class="qr-current-img"
+                  style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--forest-moss);"
+                  alt="Mitzi" />
                 <div style="font-weight:700;font-size:0.82rem;color:var(--forest-moss);margin-top:8px;">
                   <i class="fas fa-camera"></i> Change Creator Photo
                 </div>
@@ -194,28 +218,38 @@
 
               <div class="form-group">
                 <label class="form-label">Creator Title / Tagline</label>
-                <input type="text" id="bio-creator-title" class="form-input" placeholder="Founder, Illustrator & Party Stationery Artist" />
+                <input type="text" id="bio-creator-title" class="form-input"
+                  placeholder="Founder, Illustrator & Party Stationery Artist" />
               </div>
             </div>
 
             <div>
-              <div class="form-group" style="background:#FFFFFF;border:2px solid var(--forest-moss);border-radius:var(--radius-md);padding:14px;">
-                <label class="form-label" style="color:var(--forest-deep);font-weight:800;display:flex;align-items:center;gap:6px;">
-                  <i class="fas fa-bullhorn" style="color:var(--forest-moss);"></i> Shop Announcement Banner (Top of Storefront)
+              <div class="form-group"
+                style="background:#FFFFFF;border:2px solid var(--forest-moss);border-radius:var(--radius-md);padding:14px;">
+                <label class="form-label"
+                  style="color:var(--forest-deep);font-weight:800;display:flex;align-items:center;gap:6px;">
+                  <i class="fas fa-bullhorn" style="color:var(--forest-moss);"></i> Shop Announcement Banner (Top of
+                  Storefront)
                 </label>
-                <input type="text" id="bio-announcement" class="form-input" placeholder="✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation." style="font-weight:600;" />
+                <input type="text" id="bio-announcement" class="form-input"
+                  placeholder="✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation."
+                  style="font-weight:600;" />
                 <div style="font-size:0.78rem;color:var(--forest-moss);margin-top:6px;line-height:1.4;">
-                  <i class="fas fa-info-circle"></i> Appears in the top green banner right below the navbar across your entire shop!
+                  <i class="fas fa-info-circle"></i> Appears in the top green banner right below the navbar across your
+                  entire shop!
                 </div>
               </div>
 
               <div class="form-group" style="margin-top:14px;">
                 <label class="form-label">Creator Story & Bio</label>
-                <textarea id="bio-creator-story" class="form-input form-textarea" rows="5" placeholder="Tell customers about your story, design process, and creative passion..."></textarea>
-                <div style="font-size:0.78rem;color:var(--gray-500);margin-top:4px;">Displayed in the 'Meet the Maker' section on the homepage.</div>
+                <textarea id="bio-creator-story" class="form-input form-textarea" rows="5"
+                  placeholder="Tell customers about your story, design process, and creative passion..."></textarea>
+                <div style="font-size:0.78rem;color:var(--gray-500);margin-top:4px;">Displayed in the 'Meet the Maker'
+                  section on the homepage.</div>
               </div>
 
-              <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:14px;" onclick="saveCreatorBioSettings()">
+              <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:14px;"
+                onclick="saveCreatorBioSettings()">
                 <i class="fas fa-save"></i> Save Announcement & Creator Bio
               </button>
             </div>
@@ -223,80 +257,82 @@
         </div>
 
         <!-- Storefront Main & Hero Background (Changeable) -->
-        <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
+        <div class="settings-card"
+          style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
           <div class="settings-card-title" style="color:var(--forest-deep);">
             <i class="fas fa-image" style="color:var(--forest-moss);"></i>
             <span>Storefront Main & Hero Background</span>
+        <!-- Storefront Main & Hero Background (Dynamic Uploads & Gradient Toggles) -->
+        <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
+          <div class="settings-card-title" style="color:var(--forest-deep);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-image" style="color:var(--bubblegum-pink, #FF84BA);"></i>
+              <span>Storefront Main & Hero Background</span>
+            </div>
+            <span style="font-size:0.75rem;background:#FFF0F6;color:var(--bubblegum-pink, #FF84BA);padding:4px 12px;border-radius:12px;font-weight:800;border:1px solid rgba(255,132,186,0.4);">
+              🖼️ Custom Backgrounds Gallery
+            </span>
           </div>
           <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:18px;">
-            Customize the main background artwork displayed behind the storefront hero and artisan banners. Select one of the handcrafted Studio Ghibli presets below or upload your own custom high-resolution background.
+            Customize the main background artwork displayed behind your storefront hero section. All images you upload appear right here in your gallery for instant 1-click activation.
           </p>
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:20px;">
-            <!-- Preset 1 -->
-            <div class="hero-bg-preset-card" id="preset-bg-1" onclick="selectHeroBgPreset('images/ghibli-bg-1.jpg', 'preset-bg-1')" style="border:2.5px solid var(--forest-moss);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
-              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-1.jpg') center/cover;position:relative;">
-                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:var(--forest-moss);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Artisan Studio</span>
-              </div>
-              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
-                <span>1. Craft Studio</span>
-                <i class="fas fa-check-circle" style="color:var(--forest-moss);"></i>
-              </div>
+          <!-- 2 Gradient Effect Toggles -->
+          <div style="background:white;padding:18px 20px;border-radius:var(--radius-lg);border:1.5px solid var(--cream-border);margin-bottom:22px;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+            <div style="font-family:var(--font-head);font-weight:800;font-size:0.95rem;color:var(--gray-800);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+              <i class="fas fa-magic" style="color:var(--bubblegum-pink, #FF84BA);"></i>
+              <span>Storefront Gradient Effect Controls</span>
             </div>
 
-            <!-- Preset 2 -->
-            <div class="hero-bg-preset-card" id="preset-bg-2" onclick="selectHeroBgPreset('images/ghibli-bg-2.jpg', 'preset-bg-2')" style="border:2px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
-              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-2.jpg') center/cover;position:relative;">
-                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Wildflower Hills</span>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:14px;">
+              <!-- Toggle 1: Hero Gradient -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#FFF9F5;border-radius:var(--radius-md);border:1px solid #F5DBCB;">
+                <div style="padding-right:12px;">
+                  <div style="font-weight:800;font-size:0.88rem;color:var(--gray-800);">1. Main Hero Gradient Overlay</div>
+                  <div style="font-size:0.76rem;color:var(--gray-500);margin-top:2px;">Turn off if you want your background photo to appear naturally without color overlay.</div>
+                </div>
+                <label class="switch-toggle">
+                  <input type="checkbox" id="toggle-hero-gradient" checked onchange="handleHeroGradientToggle(this.checked)" />
+                  <span class="slider-round"></span>
+                </label>
               </div>
-              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
-                <span>2. Rolling Hills</span>
-                <i class="fas fa-check-circle" style="color:var(--gray-300);"></i>
-              </div>
-            </div>
 
-            <!-- Preset 3 -->
-            <div class="hero-bg-preset-card" id="preset-bg-3" onclick="selectHeroBgPreset('images/ghibli-bg-3.jpg', 'preset-bg-3')" style="border:2px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
-              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-3.jpg') center/cover;position:relative;">
-                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Enchanted Forest</span>
-              </div>
-              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
-                <span>3. Forest Glade</span>
-                <i class="fas fa-check-circle" style="color:var(--gray-300);"></i>
-              </div>
-            </div>
-
-            <!-- Preset 4 -->
-            <div class="hero-bg-preset-card" id="preset-bg-4" onclick="selectHeroBgPreset('images/ghibli-bg-4.jpg', 'preset-bg-4')" style="border:2px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
-              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-4.jpg') center/cover;position:relative;">
-                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Coastal Village</span>
-              </div>
-              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
-                <span>4. Seaside Path</span>
-                <i class="fas fa-check-circle" style="color:var(--gray-300);"></i>
+              <!-- Toggle 2: CTA Slideshow Gradient -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#FFF9F5;border-radius:var(--radius-md);border:1px solid #F5DBCB;">
+                <div style="padding-right:12px;">
+                  <div style="font-weight:800;font-size:0.88rem;color:var(--gray-800);">2. Community Banner Gradient Overlay</div>
+                  <div style="font-size:0.76rem;color:var(--gray-500);margin-top:2px;">Turn off to see the Etsy & Facebook slideshow pictures directly without color tint.</div>
+                </div>
+                <label class="switch-toggle">
+                  <input type="checkbox" id="toggle-cta-gradient" checked onchange="handleCtaGradientToggle(this.checked)" />
+                  <span class="slider-round"></span>
+                </label>
               </div>
             </div>
           </div>
 
-          <!-- Custom Upload & Active URL Box -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;background:white;padding:16px 20px;border-radius:var(--radius-md);border:1.5px solid var(--cream-border);margin-bottom:16px;">
-            <div>
-              <label class="form-label" style="font-size:0.82rem;font-weight:700;">Or Upload Custom Background Image</label>
-              <input type="file" id="custom-hero-bg-file" accept="image/*" style="display:none;" onchange="handleCustomHeroBgUpload(event)" />
-              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('custom-hero-bg-file').click()">
-                <i class="fas fa-upload"></i> Browse Image File
-              </button>
-              <span id="custom-hero-bg-hint" style="font-size:0.75rem;color:var(--gray-500);margin-left:8px;">JPG, PNG, WEBP</span>
+          <!-- Dynamic Uploaded Backgrounds Gallery -->
+          <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-weight:800;font-size:0.92rem;color:var(--gray-800);display:flex;align-items:center;gap:8px;">
+              <i class="fas fa-th-large" style="color:var(--sky-candy, #99C2FF);"></i>
+              <span>Your Uploaded Backgrounds</span>
             </div>
-            <div>
-              <label class="form-label" style="font-size:0.82rem;font-weight:700;">Active Background Source / URL</label>
-              <input type="text" id="hero-bg-url-input" class="form-input" style="font-size:0.82rem;" placeholder="images/ghibli-bg-1.jpg" oninput="handleManualHeroBgInput(this.value)" />
-            </div>
+            <span id="uploaded-hero-count" style="font-size:0.75rem;font-weight:700;background:#EBF3FF;color:#2563EB;padding:2px 8px;border-radius:10px;">0 backgrounds</span>
           </div>
 
-          <button class="btn btn-green btn-block" style="width:100%;justify-content:center;padding:12px;font-size:0.95rem;font-weight:700;" onclick="saveHeroBgSettings()">
-            <i class="fas fa-save"></i> Save Storefront Main Background
-          </button>
+          <div id="uploaded-hero-bgs-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:16px;margin-bottom:20px;">
+            <!-- Populated dynamically via renderUploadedHeroBackgrounds() -->
+          </div>
+
+          <!-- Upload Box -->
+          <div style="background:white;padding:24px 20px;border-radius:var(--radius-lg);border:2.5px dashed var(--bubblegum-pink, #FF84BA);text-align:center;cursor:pointer;transition:var(--transition);" onclick="document.getElementById('custom-hero-bg-file').click()">
+            <input type="file" id="custom-hero-bg-file" accept="image/*" style="display:none;" onchange="handleCustomHeroBgUpload(event)" />
+            <div style="width:52px;height:52px;border-radius:50%;background:#FFF0F6;color:var(--bubblegum-pink, #FF84BA);display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:8px;">
+              <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div style="font-weight:800;font-size:0.98rem;color:var(--gray-800);">Upload New Hero Background</div>
+            <div style="font-size:0.8rem;color:var(--gray-500);margin-top:4px;">Click to select an image from your computer or tablet (JPG, PNG, WebP)</div>
+          </div>
         </div>
 
         <!-- GCash Settings -->
@@ -308,12 +344,15 @@
 
           <label class="form-label">GCash QR Code Image (Replaceable)</label>
           <div class="qr-preview-box" onclick="document.getElementById('gcash-file').click()">
-            <input type="file" id="gcash-file" accept="image/*" style="display:none;" onchange="handleGcashImageUpload(event)" />
+            <input type="file" id="gcash-file" accept="image/*" style="display:none;"
+              onchange="handleGcashImageUpload(event)" />
             <img id="gcash-preview" class="qr-current-img" style="display:none;" alt="GCash QR" />
             <div id="gcash-placeholder-text">
               <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--blue);margin-bottom:6px;"></i>
-              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New GCash QR Code</div>
-              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image</div>
+              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New GCash QR Code
+              </div>
+              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image
+              </div>
             </div>
           </div>
 
@@ -327,7 +366,8 @@
             <input type="text" id="gcash-number" class="form-input" placeholder="e.g. 0917-123-4567" />
           </div>
 
-          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveGcashSettings()">
+          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;"
+            onclick="saveGcashSettings()">
             <i class="fas fa-save"></i> Save GCash Settings
           </button>
         </div>
@@ -341,12 +381,15 @@
 
           <label class="form-label">Bank QR Code or Details Image (Replaceable)</label>
           <div class="qr-preview-box" onclick="document.getElementById('bank-file').click()">
-            <input type="file" id="bank-file" accept="image/*" style="display:none;" onchange="handleBankImageUpload(event)" />
+            <input type="file" id="bank-file" accept="image/*" style="display:none;"
+              onchange="handleBankImageUpload(event)" />
             <img id="bank-preview" class="qr-current-img" style="display:none;" alt="Bank QR" />
             <div id="bank-placeholder-text">
               <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--green);margin-bottom:6px;"></i>
-              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New Bank QR / Details Image</div>
-              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image</div>
+              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New Bank QR / Details
+                Image</div>
+              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image
+              </div>
             </div>
           </div>
 
@@ -357,7 +400,7 @@
 
           <div class="form-group">
             <label class="form-label">Account Holder Name</label>
-            <input type="text" id="bank-account" class="form-input" placeholder="e.g. Mitzi Santos" />
+            <input type="text" id="bank-account" class="form-input" placeholder="e.g. Mitzi" />
           </div>
 
           <div class="form-group">
@@ -365,7 +408,8 @@
             <input type="text" id="bank-number" class="form-input" placeholder="e.g. 1234-5678-9012" />
           </div>
 
-          <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveBankSettings()">
+          <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:10px;"
+            onclick="saveBankSettings()">
             <i class="fas fa-save"></i> Save Bank Settings
           </button>
         </div>
@@ -379,14 +423,17 @@
 
           <div class="form-group">
             <label class="form-label">To: (Primary Order Notification Email) *</label>
-            <input type="email" id="email-notify-to" class="form-input" placeholder="madebymitzi26@gmail.com" oninput="updateTestEmailPreview()" required />
-            <small style="color:var(--gray-500);font-size:0.78rem;">Email address that receives alerts whenever a customer places an order.</small>
+            <input type="email" id="email-notify-to" class="form-input" placeholder="madebymitzi26@gmail.com"
+              oninput="updateTestEmailPreview()" required />
+            <small style="color:var(--gray-500);font-size:0.78rem;">Email address that receives alerts whenever a
+              customer places an order.</small>
           </div>
 
           <div class="form-group">
             <label class="form-label">CC: (Secondary / Backup Notification Email)</label>
             <input type="email" id="email-notify-cc" class="form-input" placeholder="madebymitzi26@gmail.com" />
-            <small style="color:var(--gray-500);font-size:0.78rem;">Copied automatically when sending digital order files to customers.</small>
+            <small style="color:var(--gray-500);font-size:0.78rem;">Copied automatically when sending digital order
+              files to customers.</small>
           </div>
 
           <div class="form-group">
@@ -396,128 +443,182 @@
 
           <div class="form-group">
             <label class="form-label">Customer Delivery Note (Included in Receipt & Delivery Email)</label>
-            <textarea id="email-delivery-note" class="form-input" rows="3" placeholder="Thank you for your order! Here are your digital download links and Canva editable templates below..."></textarea>
+            <textarea id="email-delivery-note" class="form-input" rows="3"
+              placeholder="Thank you for your order! Here are your digital download links and Canva editable templates below..."></textarea>
           </div>
 
           <!-- 1. Google App Password (Gmail SMTP) -->
-          <div class="form-group" style="background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--radius-md);padding:16px;margin-bottom:20px;">
+          <div class="form-group"
+            style="background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--radius-md);padding:16px;margin-bottom:20px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <label class="form-label" style="font-weight:800;color:#1e40af;margin-bottom:0;display:flex;align-items:center;gap:8px;">
-                <i class="fab fa-google" style="color:#ea4335;"></i> Google App Password (Automated Customer & Admin Emails)
+              <label class="form-label"
+                style="font-weight:800;color:#1e40af;margin-bottom:0;display:flex;align-items:center;gap:8px;">
+                <i class="fab fa-google" style="color:#ea4335;"></i> Google App Password (Automated Customer & Admin
+                Emails)
               </label>
-              <span style="font-size:0.75rem;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:10px;font-weight:700;">100% Free • 500/day</span>
+              <span
+                style="font-size:0.75rem;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:10px;font-weight:700;">100%
+                Free • 500/day</span>
             </div>
             <p style="font-size:0.78rem;color:#1e3a8a;margin:0 0 10px;line-height:1.45;">
-              This enables MadeByMitzi to automatically dispatch real emails from <strong>madebymitzi26@gmail.com</strong> directly to buyers (1. Order receipt with pending status, and 2. Canva & PDF links upon payment confirmation).
+              This enables MadeByMitzi to automatically dispatch real emails from
+              <strong>madebymitzi26@gmail.com</strong> directly to buyers (1. Order receipt with pending status, and 2.
+              Canva & PDF links upon payment confirmation).
             </p>
             <div style="display:flex;gap:8px;">
-              <input type="password" id="email-gmail-app-pass" class="form-input" placeholder="e.g. abcd efgh ijkl mnop (16 letters)" style="font-family:monospace;letter-spacing:1px;" />
-              <button type="button" class="btn btn-outline-blue" style="white-space:nowrap;padding:0 14px;" onclick="toggleAppPassVisibility()">
+              <input type="password" id="email-gmail-app-pass" class="form-input"
+                placeholder="e.g. abcd efgh ijkl mnop (16 letters)" style="font-family:monospace;letter-spacing:1px;" />
+              <button type="button" class="btn btn-outline-blue" style="white-space:nowrap;padding:0 14px;"
+                onclick="toggleAppPassVisibility()">
                 <i class="fas fa-eye" id="toggle-pass-icon"></i>
               </button>
             </div>
-            <div style="margin-top:8px;padding:8px 12px;background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);font-size:0.76rem;color:#1e40af;line-height:1.5;">
-              <strong>🛠️ How to get your free 16-letter App Password in 30 seconds:</strong><br/>
-              1. Open <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#2563eb;font-weight:700;text-decoration:underline;">myaccount.google.com/apppasswords</a> while logged into <strong>madebymitzi26@gmail.com</strong>.<br/>
-              2. Ensure 2-Step Verification is active on your Google Account.<br/>
-              3. Enter App name: <code>MadeByMitzi Store</code>, click <strong>Create</strong>.<br/>
-              4. Copy the generated 16-letter password (e.g. <code>xxxx xxxx xxxx xxxx</code>), paste it above, and click <strong>Save Email Settings</strong> below!
+            <div
+              style="margin-top:8px;padding:8px 12px;background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);font-size:0.76rem;color:#1e40af;line-height:1.5;">
+              <strong>🛠️ How to get your free 16-letter App Password in 30 seconds:</strong><br />
+              1. Open <a href="https://myaccount.google.com/apppasswords" target="_blank"
+                style="color:#2563eb;font-weight:700;text-decoration:underline;">myaccount.google.com/apppasswords</a>
+              while logged into <strong>madebymitzi26@gmail.com</strong>.<br />
+              2. Ensure 2-Step Verification is active on your Google Account.<br />
+              3. Enter App name: <code>MadeByMitzi Store</code>, click <strong>Create</strong>.<br />
+              4. Copy the generated 16-letter password (e.g. <code>xxxx xxxx xxxx xxxx</code>), paste it above, and
+              click <strong>Save Email Settings</strong> below!
             </div>
           </div>
 
           <!-- Option 2: Brevo API (Zero Google Security Changes Needed) -->
-          <div class="form-group" style="background:#f0fdf4;border:2px solid #86efac;border-radius:var(--radius-md);padding:16px;margin-bottom:20px;">
+          <div class="form-group"
+            style="background:#f0fdf4;border:2px solid #86efac;border-radius:var(--radius-md);padding:16px;margin-bottom:20px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <label class="form-label" style="font-weight:800;color:#166534;margin-bottom:0;display:flex;align-items:center;gap:8px;">
-                <i class="fas fa-paper-plane" style="color:#16a34a;"></i> Option B: Brevo API Key (Free 300/day — No 2FA required)
+              <label class="form-label"
+                style="font-weight:800;color:#166534;margin-bottom:0;display:flex;align-items:center;gap:8px;">
+                <i class="fas fa-paper-plane" style="color:#16a34a;"></i> Option B: Brevo API Key (Free 300/day — No 2FA
+                required)
               </label>
-              <span style="font-size:0.75rem;background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:10px;font-weight:700;">Zero Google Hassle</span>
+              <span
+                style="font-size:0.75rem;background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:10px;font-weight:700;">Zero
+                Google Hassle</span>
             </div>
             <p style="font-size:0.78rem;color:#166534;margin:0 0 10px;line-height:1.45;">
-              If your Google Account doesn't have 2-Step Verification, simply use Brevo! It sends 300 free emails/day to any customer with 1 free key.
+              If your Google Account doesn't have 2-Step Verification, simply use Brevo! It sends 300 free emails/day to
+              any customer with 1 free key.
             </p>
             <div style="display:flex;gap:8px;">
-              <input type="password" id="email-brevo-key" class="form-input" placeholder="xkeysib-..." style="font-family:monospace;" />
-              <button type="button" class="btn btn-outline-blue" style="white-space:nowrap;padding:0 14px;" onclick="toggleBrevoKeyVisibility()" title="Show/Hide Key">
+              <input type="password" id="email-brevo-key" class="form-input" placeholder="xkeysib-..."
+                style="font-family:monospace;" />
+              <button type="button" class="btn btn-outline-blue" style="white-space:nowrap;padding:0 14px;"
+                onclick="toggleBrevoKeyVisibility()" title="Show/Hide Key">
                 <i class="fas fa-eye" id="toggle-brevo-icon"></i>
               </button>
-              <button type="button" class="btn btn-secondary" style="white-space:nowrap;padding:0 14px;" onclick="copyBrevoKey()" title="Copy Key">
+              <button type="button" class="btn btn-secondary" style="white-space:nowrap;padding:0 14px;"
+                onclick="copyBrevoKey()" title="Copy Key">
                 <i class="fas fa-copy"></i> Copy
               </button>
             </div>
             <div style="margin-top:10px;">
-              <label style="font-size:0.78rem;font-weight:700;color:#166534;display:block;margin-bottom:4px;">Brevo Account / Verified Sender Email:</label>
-              <input type="email" id="email-brevo-sender" class="form-input" value="brepublic15@gmail.com" placeholder="brepublic15@gmail.com" readonly style="background:#f0fdf4;border-color:#86efac;font-weight:700;color:#166534;" />
+              <label style="font-size:0.78rem;font-weight:700;color:#166534;display:block;margin-bottom:4px;">Brevo
+                Account / Verified Sender Email:</label>
+              <input type="email" id="email-brevo-sender" class="form-input" value="brepublic15@gmail.com"
+                placeholder="brepublic15@gmail.com" readonly
+                style="background:#f0fdf4;border-color:#86efac;font-weight:700;color:#166534;" />
               <div style="font-size:0.73rem;color:#15803d;margin-top:3px;">
-                <i class="fas fa-check-circle"></i> Verified active sender in Brevo (<strong>brepublic15@gmail.com</strong>). All automated emails are sent through this verified channel, with all customer replies routing directly to <strong>madebymitzi26@gmail.com</strong>.
+                <i class="fas fa-check-circle"></i> Verified active sender in Brevo
+                (<strong>brepublic15@gmail.com</strong>). All automated emails are sent through this verified channel,
+                with all customer replies routing directly to <strong>madebymitzi26@gmail.com</strong>.
               </div>
             </div>
             <div style="margin-top:8px;font-size:0.75rem;color:#166534;">
-              Sign up free at <a href="https://app.brevo.com" target="_blank" style="color:#15803d;font-weight:700;text-decoration:underline;">brevo.com</a> ➔ Go to <strong>SMTP & API</strong> ➔ <strong>Generate a new API key</strong> ➔ Paste it above.
+              Sign up free at <a href="https://app.brevo.com" target="_blank"
+                style="color:#15803d;font-weight:700;text-decoration:underline;">brevo.com</a> ➔ Go to <strong>SMTP &
+                API</strong> ➔ <strong>Generate a new API key</strong> ➔ Paste it above.
             </div>
-            <div style="margin-top:10px;padding:8px 12px;background:#ffffff;border:1px solid #86efac;border-radius:var(--radius-sm);font-size:0.76rem;color:#166534;line-height:1.5;">
-              <strong>⚡ Essential Step for 24/7 Customer Order Emails:</strong><br/>
-              Because customers order from their own phones or computers (which cannot read your local admin browser storage), paste this same key into your Vercel Project:<br/>
-              1. Open <a href="https://vercel.com/dashboard" target="_blank" style="color:#16a34a;font-weight:700;text-decoration:underline;">vercel.com</a> ➔ Click your <strong>madebymitzi</strong> project ➔ <strong>Settings</strong> ➔ <strong>Environment Variables</strong>.<br/>
-              2. Add Key: <code>BREVO_API_KEY</code>, Value: (paste your <code>xkeysib-...</code> key) ➔ Click <strong>Save</strong>.<br/>
+            <div
+              style="margin-top:10px;padding:8px 12px;background:#ffffff;border:1px solid #86efac;border-radius:var(--radius-sm);font-size:0.76rem;color:#166534;line-height:1.5;">
+              <strong>⚡ Essential Step for 24/7 Customer Order Emails:</strong><br />
+              Because customers order from their own phones or computers (which cannot read your local admin browser
+              storage), paste this same key into your Vercel Project:<br />
+              1. Open <a href="https://vercel.com/dashboard" target="_blank"
+                style="color:#16a34a;font-weight:700;text-decoration:underline;">vercel.com</a> ➔ Click your
+              <strong>madebymitzi</strong> project ➔ <strong>Settings</strong> ➔ <strong>Environment
+                Variables</strong>.<br />
+              2. Add Key: <code>BREVO_API_KEY</code>, Value: (paste your <code>xkeysib-...</code> key) ➔ Click
+              <strong>Save</strong>.<br />
               <em>Once saved in Vercel, every customer order worldwide will automatically receive emails instantly!</em>
             </div>
           </div>
 
           <div class="form-group">
             <label class="form-label">Web3Forms Access Key (Inbound Backup)</label>
-            <input type="text" id="email-web3-key" class="form-input" value="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" placeholder="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" />
+            <input type="text" id="email-web3-key" class="form-input" value="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7"
+              placeholder="3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7" />
             <div style="margin-top:6px;font-size:0.75rem;color:var(--gray-500);">
               Backup forwarder for notifications sent to admin.
             </div>
           </div>
 
-          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:14px;padding:12px;font-weight:700;font-size:0.95rem;" onclick="saveEmailSettings()">
+          <button class="btn btn-blue btn-block"
+            style="width:100%;justify-content:center;margin-top:14px;padding:12px;font-weight:700;font-size:0.95rem;"
+            onclick="saveEmailSettings()">
             <i class="fas fa-save"></i> Save Email Settings
           </button>
 
           <!-- High-Visibility Live Email Testing Panel -->
-          <div style="margin-top: 22px; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 2px solid #8b5cf6; border-radius: var(--radius-lg); padding: 20px; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.15);">
+          <div
+            style="margin-top: 22px; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 2px solid #8b5cf6; border-radius: var(--radius-lg); padding: 20px; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.15);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-              <div style="font-weight: 800; font-size: 0.95rem; color: #5b21b6; display: flex; align-items: center; gap: 8px;">
+              <div
+                style="font-weight: 800; font-size: 0.95rem; color: #5b21b6; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-vial" style="font-size: 1.1rem; color: #7c3aed;"></i>
                 <span>Email Delivery Diagnostics & Test</span>
               </div>
-              <span id="test-email-badge" style="font-size: 0.75rem; font-weight: 800; background: #ddd6fe; color: #4c1d95; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
+              <span id="test-email-badge"
+                style="font-size: 0.75rem; font-weight: 800; background: #ddd6fe; color: #4c1d95; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
                 <i class="fas fa-circle" style="font-size: 7px; color: #10b981;"></i> Ready
               </span>
             </div>
-            
+
             <p style="font-size: 0.82rem; color: #5b21b6; margin: 0 0 14px; line-height: 1.45;">
-              Test sending emails to verify your configuration. Both customer order receipt (pending) and confirmed payment with PDF download links can be tested with 1 click.
+              Test sending emails to verify your configuration. Both customer order receipt (pending) and confirmed
+              payment with PDF download links can be tested with 1 click.
             </p>
 
             <!-- Test Recipient Input -->
             <div style="margin-bottom: 12px;">
-              <label style="font-size: 0.78rem; font-weight: 700; color: #5b21b6; display: block; margin-bottom: 4px;">Test Recipient Email (Where test emails will arrive):</label>
-              <input type="email" id="test-recipient-email" class="form-input" placeholder="e.g. brepublic15@gmail.com" value="brepublic15@gmail.com" style="background:#ffffff;" />
+              <label
+                style="font-size: 0.78rem; font-weight: 700; color: #5b21b6; display: block; margin-bottom: 4px;">Test
+                Recipient Email (Where test emails will arrive):</label>
+              <input type="email" id="test-recipient-email" class="form-input" placeholder="e.g. brepublic15@gmail.com"
+                value="brepublic15@gmail.com" style="background:#ffffff;" />
             </div>
 
             <!-- Action Buttons Grid -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-              <button id="btn-test-cust-pending" class="btn" style="justify-content: center; background: #0F52BA; color: #ffffff; font-weight: 700; font-size: 0.85rem; padding: 12px 10px; border-radius: var(--radius-md); border: none; cursor: pointer; text-align:center;" onclick="testSendCustomerPending()">
+              <button id="btn-test-cust-pending" class="btn"
+                style="justify-content: center; background: #0F52BA; color: #ffffff; font-weight: 700; font-size: 0.85rem; padding: 12px 10px; border-radius: var(--radius-md); border: none; cursor: pointer; text-align:center;"
+                onclick="testSendCustomerPending()">
                 <i class="fas fa-file-invoice"></i>
                 <span>1. Test Customer Receipt (Pending)</span>
               </button>
 
-              <button id="btn-test-cust-delivery" class="btn" style="justify-content: center; background: #16A34A; color: #ffffff; font-weight: 700; font-size: 0.85rem; padding: 12px 10px; border-radius: var(--radius-md); border: none; cursor: pointer; text-align:center;" onclick="testSendCustomerDelivery()">
+              <button id="btn-test-cust-delivery" class="btn"
+                style="justify-content: center; background: #16A34A; color: #ffffff; font-weight: 700; font-size: 0.85rem; padding: 12px 10px; border-radius: var(--radius-md); border: none; cursor: pointer; text-align:center;"
+                onclick="testSendCustomerDelivery()">
                 <i class="fas fa-check-circle"></i>
                 <span>2. Test Confirm (PDF Links)</span>
               </button>
             </div>
 
-            <button id="btn-test-email" class="btn" style="width: 100%; justify-content: center; background: #7c3aed; color: #ffffff; font-weight: 700; font-size: 0.88rem; padding: 12px; border-radius: var(--radius-md); border: none; cursor: pointer;" onclick="testSendOrderEmail()">
+            <button id="btn-test-email" class="btn"
+              style="width: 100%; justify-content: center; background: #7c3aed; color: #ffffff; font-weight: 700; font-size: 0.88rem; padding: 12px; border-radius: var(--radius-md); border: none; cursor: pointer;"
+              onclick="testSendOrderEmail()">
               <i class="fas fa-bell"></i>
               <span>3. Test Admin Order Alert (Mitzi)</span>
             </button>
 
             <!-- Real-Time Status Feedback Banner -->
-            <div id="test-email-status-box" style="margin-top: 14px; font-size: 0.84rem; border-radius: var(--radius-md); padding: 12px 16px; display: none; line-height: 1.45;"></div>
+            <div id="test-email-status-box"
+              style="margin-top: 14px; font-size: 0.84rem; border-radius: var(--radius-md); padding: 12px 16px; display: none; line-height: 1.45;">
+            </div>
           </div>
         </div>
 
@@ -528,7 +629,8 @@
             <span>Admin Account Security & Password</span>
           </div>
 
-          <div style="background:#fef2f2;border:1px solid #fecaca;padding:12px 16px;border-radius:var(--radius-md);margin-bottom:16px;">
+          <div
+            style="background:#fef2f2;border:1px solid #fecaca;padding:12px 16px;border-radius:var(--radius-md);margin-bottom:16px;">
             <div style="font-size:0.85rem;color:#991b1b;font-weight:700;">
               <i class="fas fa-shield-alt"></i> Protected with Salted SHA-256 Encryption
             </div>
@@ -539,7 +641,8 @@
 
           <div class="form-group">
             <label class="form-label">Current Admin Password *</label>
-            <input type="password" id="sec-current-pass" class="form-input" placeholder="Required to authorize changes" required />
+            <input type="password" id="sec-current-pass" class="form-input" placeholder="Required to authorize changes"
+              required />
           </div>
 
           <div class="form-group">
@@ -549,7 +652,8 @@
 
           <div class="form-group">
             <label class="form-label">New Password (Min 8 characters)</label>
-            <input type="password" id="sec-new-pass" class="form-input" placeholder="Leave blank to keep current password" />
+            <input type="password" id="sec-new-pass" class="form-input"
+              placeholder="Leave blank to keep current password" />
           </div>
 
           <div class="form-group">
@@ -557,7 +661,9 @@
             <input type="password" id="sec-confirm-pass" class="form-input" placeholder="Re-type new password" />
           </div>
 
-          <button class="btn btn-primary btn-block" style="width:100%;justify-content:center;margin-top:10px;background:#DC2626;border-color:#DC2626;" onclick="handleUpdateSecurity()">
+          <button class="btn btn-primary btn-block"
+            style="width:100%;justify-content:center;margin-top:10px;background:#DC2626;border-color:#DC2626;"
+            onclick="handleUpdateSecurity()">
             <i class="fas fa-lock"></i> Update Admin Password & Security
           </button>
         </div>
@@ -569,15 +675,18 @@
             <span>Cloud Database & Sync (Firebase Firestore)</span>
           </div>
 
-          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;">
+          <div
+            style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
               <span style="font-size:0.82rem;font-weight:700;color:var(--gray-700);">Connection Status:</span>
-              <span id="fb-status-badge" style="font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;background:#E0E7FF;color:#4338CA;">
+              <span id="fb-status-badge"
+                style="font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;background:#E0E7FF;color:#4338CA;">
                 Checking...
               </span>
             </div>
             <p style="font-size:0.78rem;color:var(--gray-500);margin:0;line-height:1.4;">
-              Syncs orders, products, and customer records in real-time across devices. High-availability local backup operates automatically.
+              Syncs orders, products, and customer records in real-time across devices. High-availability local backup
+              operates automatically.
             </p>
           </div>
 
@@ -593,14 +702,17 @@
 
           <div class="form-group">
             <label class="form-label">Auth Domain (Optional)</label>
-            <input type="text" id="fb-auth-domain" class="form-input" placeholder="e.g. madebymitzi-web.firebaseapp.com" />
+            <input type="text" id="fb-auth-domain" class="form-input"
+              placeholder="e.g. madebymitzi-web.firebaseapp.com" />
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
             <button class="btn btn-secondary" style="justify-content:center;" onclick="testFirebaseConn()">
               <i class="fas fa-plug"></i> Test Connection
             </button>
-            <button class="btn btn-primary" style="justify-content:center;background:#F59E0B;border-color:#F59E0B;color:#fff;" onclick="saveFirebaseSettings()">
+            <button class="btn btn-primary"
+              style="justify-content:center;background:#F59E0B;border-color:#F59E0B;color:#fff;"
+              onclick="saveFirebaseSettings()">
               <i class="fas fa-save"></i> Save Firebase Config
             </button>
           </div>
@@ -616,50 +728,66 @@
         </div>
 
         <!-- Cross-Browser & Cross-Device Sync (Backup & Restore) -->
-        <div class="card" style="grid-column: 1 / -1; border: 2px solid #3b82f6; background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div class="card"
+          style="grid-column: 1 / -1; border: 2px solid #3b82f6; background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);">
+          <div
+            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
             <div style="font-weight:800;font-size:1.05rem;color:#1e40af;display:flex;align-items:center;gap:10px;">
               <i class="fas fa-sync-alt" style="color:#2563eb;font-size:1.2rem;"></i>
               <span>Cross-Browser & Multi-Device Sync (Store Backup / Transfer)</span>
             </div>
-            <span style="font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;background:#dbeafe;color:#1e40af;">
+            <span
+              style="font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;background:#dbeafe;color:#1e40af;">
               Instant Zero-Cloud Transfer
             </span>
           </div>
 
           <p style="font-size:0.83rem;color:#334155;line-height:1.55;margin-bottom:16px;">
-            <strong>Why do other browsers look empty?</strong> Browsers (Chrome, Edge, Safari, Incognito) are sandboxed by security design — each has its own separate local storage. To transfer your real products, pricing, and settings from your main browser into any other computer, tablet, or browser, use this 1-click backup transfer:
+            <strong>Why do other browsers look empty?</strong> Browsers (Chrome, Edge, Safari, Incognito) are sandboxed
+            by security design — each has its own separate local storage. To transfer your real products, pricing, and
+            settings from your main browser into any other computer, tablet, or browser, use this 1-click backup
+            transfer:
           </p>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
             <!-- Export -->
-            <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
+            <div
+              style="background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
               <div>
-                <div style="font-weight:700;font-size:0.9rem;color:#1e3a8a;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                <div
+                  style="font-weight:700;font-size:0.9rem;color:#1e3a8a;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
                   <i class="fas fa-download" style="color:#2563eb;"></i> Step 1: Export from this Browser
                 </div>
                 <div style="font-size:0.78rem;color:#64748b;line-height:1.45;margin-bottom:12px;">
-                  Downloads a complete backup file (<code>.json</code>) containing all your products, Canva/PDF links, orders, and payment settings.
+                  Downloads a complete backup file (<code>.json</code>) containing all your products, Canva/PDF links,
+                  orders, and payment settings.
                 </div>
               </div>
-              <button type="button" class="btn btn-blue btn-block" style="justify-content:center;padding:10px;font-weight:700;" onclick="exportStoreBackup()">
+              <button type="button" class="btn btn-blue btn-block"
+                style="justify-content:center;padding:10px;font-weight:700;" onclick="exportStoreBackup()">
                 <i class="fas fa-file-export"></i> Download Store Backup (.json)
               </button>
             </div>
 
             <!-- Import -->
-            <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
+            <div
+              style="background:#ffffff;border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
               <div>
-                <div style="font-weight:700;font-size:0.9rem;color:#1e3a8a;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                <div
+                  style="font-weight:700;font-size:0.9rem;color:#1e3a8a;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
                   <i class="fas fa-upload" style="color:#059669;"></i> Step 2: Import into Other Browser
                 </div>
                 <div style="font-size:0.78rem;color:#64748b;line-height:1.45;margin-bottom:12px;">
-                  Open this page on your other browser or device, click below, and select the backup file. It will instantly restore 100% of your store!
+                  Open this page on your other browser or device, click below, and select the backup file. It will
+                  instantly restore 100% of your store!
                 </div>
               </div>
               <div>
-                <input type="file" id="import-backup-file" accept=".json,application/json" style="display:none;" onchange="handleImportBackupFile(event)" />
-                <button type="button" class="btn btn-green btn-block" style="justify-content:center;padding:10px;font-weight:700;background:#059669;color:#fff;border-color:#059669;" onclick="document.getElementById('import-backup-file').click()">
+                <input type="file" id="import-backup-file" accept=".json,application/json" style="display:none;"
+                  onchange="handleImportBackupFile(event)" />
+                <button type="button" class="btn btn-green btn-block"
+                  style="justify-content:center;padding:10px;font-weight:700;background:#059669;color:#fff;border-color:#059669;"
+                  onclick="document.getElementById('import-backup-file').click()">
                   <i class="fas fa-file-import"></i> Choose & Restore Backup File
                 </button>
               </div>
@@ -685,85 +813,138 @@
     let gcashImageBase64 = null;
     let bankImageBase64 = null;
     let creatorAvatarBase64 = null;
-    let currentHeroBgUrl = 'images/ghibli-bg-1.jpg';
+    let currentHeroBgUrl = 'images/background.jpg';
 
-    function highlightHeroBgPreset(url) {
-      const presets = [
-        { id: 'preset-bg-1', path: 'images/ghibli-bg-1.jpg' },
-        { id: 'preset-bg-2', path: 'images/ghibli-bg-2.jpg' },
-        { id: 'preset-bg-3', path: 'images/ghibli-bg-3.jpg' },
-        { id: 'preset-bg-4', path: 'images/ghibli-bg-4.jpg' },
-      ];
-      presets.forEach(p => {
-        const el = document.getElementById(p.id);
-        if (!el) return;
-        const icon = el.querySelector('.fa-check-circle');
-        if (url && (url.includes(p.path) || url === p.path)) {
-          el.style.borderColor = 'var(--green)';
-          el.style.boxShadow = '0 0 0 3px rgba(74, 124, 89, 0.35)';
-          if (icon) {
-            icon.style.color = 'var(--green)';
-          }
-        } else {
-          el.style.borderColor = 'var(--gray-200)';
-          el.style.boxShadow = '0 4px 14px rgba(0,0,0,0.06)';
-          if (icon) {
-            icon.style.color = 'var(--gray-300)';
-          }
-        }
-      });
+    function renderUploadedHeroBackgrounds() {
+      const grid = document.getElementById('uploaded-hero-bgs-grid');
+      const countEl = document.getElementById('uploaded-hero-count');
+      if (!grid) return;
+
+      const settings = DB.getSettings();
+      let list = Array.isArray(settings.uploadedHeroBackgrounds) ? [...settings.uploadedHeroBackgrounds] : [];
+
+      // Ensure active background is in the list
+      const currentActive = currentHeroBgUrl || settings.heroBackground || '';
+      if (currentActive && !list.includes(currentActive)) {
+        list.unshift(currentActive);
+        DB.saveSettings({ uploadedHeroBackgrounds: list });
+      }
+
+      if (countEl) {
+        countEl.textContent = `${list.length} background${list.length === 1 ? '' : 's'}`;
+      }
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: white; border-radius: var(--radius-lg); border: 2px dashed #CBD5E1; padding: 36px 20px; text-align: center;">
+            <i class="fas fa-images" style="font-size: 2.4rem; color: var(--sky-candy, #99C2FF); margin-bottom: 10px;"></i>
+            <div style="font-weight: 800; font-size: 0.98rem; color: var(--gray-800);">No Uploaded Backgrounds Yet</div>
+            <p style="font-size: 0.82rem; color: var(--gray-500); margin: 6px auto 0; max-width: 440px;">
+              Upload your custom hero backgrounds using the box below. All your uploaded backgrounds will appear right here for 1-click preview and selection!
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map((bgUrl, idx) => {
+        const isActive = (currentHeroBgUrl === bgUrl || (!currentHeroBgUrl && idx === 0));
+        const encodedUrl = encodeURIComponent(bgUrl);
+        return `
+          <div class="uploaded-bg-card" style="border: 2.5px solid ${isActive ? 'var(--bubblegum-pink, #FF84BA)' : 'var(--gray-200)'}; border-radius: var(--radius-lg); overflow: hidden; background: white; box-shadow: ${isActive ? '0 8px 24px rgba(255, 132, 186, 0.3)' : '0 2px 10px rgba(0,0,0,0.05)'}; transition: all 0.25s ease;">
+            <div style="aspect-ratio: 16/9; background: url('${bgUrl}') center/cover; position: relative; cursor: pointer;" onclick="selectUploadedHeroBg(decodeURIComponent('${encodedUrl}'))">
+              ${isActive ? `
+                <span style="position: absolute; top: 8px; right: 8px; background: var(--bubblegum-pink, #FF84BA); color: white; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="fas fa-check-circle"></i> Active
+                </span>
+              ` : `
+                <span style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.55); color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px;">
+                  Click to Activate
+                </span>
+              `}
+            </div>
+            <div style="padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--gray-100);">
+              <button type="button" class="btn btn-sm ${isActive ? 'btn-green' : 'btn-secondary'}" style="padding: 5px 12px; font-size: 0.78rem;" onclick="selectUploadedHeroBg(decodeURIComponent('${encodedUrl}'))">
+                ${isActive ? '<i class="fas fa-check"></i> In Use' : 'Set as Current'}
+              </button>
+              <button type="button" class="btn btn-sm btn-danger" style="padding: 5px 10px; font-size: 0.78rem;" title="Delete background" onclick="deleteUploadedHeroBg(decodeURIComponent('${encodedUrl}'))">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
-    window.highlightHeroBgPreset = highlightHeroBgPreset;
+    window.renderUploadedHeroBackgrounds = renderUploadedHeroBackgrounds;
 
-    function selectHeroBgPreset(url, cardId) {
+    function selectUploadedHeroBg(url) {
       currentHeroBgUrl = url;
-      const input = document.getElementById('hero-bg-url-input');
-      if (input) input.value = url;
-      highlightHeroBgPreset(url);
-      showToast('Background preset selected! Click "Save Storefront Main Background" to apply.', 'info');
+      DB.saveSettings({ heroBackground: url });
+      renderUploadedHeroBackgrounds();
+      showToast('Background selected and activated! 🎨✨', 'success');
     }
-    window.selectHeroBgPreset = selectHeroBgPreset;
+    window.selectUploadedHeroBg = selectUploadedHeroBg;
+
+    function deleteUploadedHeroBg(url) {
+      if (!confirm('Are you sure you want to remove this background image from your gallery?')) return;
+      const settings = DB.getSettings();
+      let list = Array.isArray(settings.uploadedHeroBackgrounds) ? [...settings.uploadedHeroBackgrounds] : [];
+      list = list.filter(item => item !== url);
+
+      let newActive = settings.heroBackground;
+      if (settings.heroBackground === url) {
+        newActive = list.length > 0 ? list[0] : 'images/background.jpg';
+        currentHeroBgUrl = newActive;
+      }
+
+      DB.saveSettings({
+        uploadedHeroBackgrounds: list,
+        heroBackground: newActive
+      });
+      renderUploadedHeroBackgrounds();
+      showToast('Background removed from gallery.', 'info');
+    }
+    window.deleteUploadedHeroBg = deleteUploadedHeroBg;
 
     async function handleCustomHeroBgUpload(e) {
       const file = e.target.files?.[0];
       if (!file) return;
       try {
-        const base64 = await fileToBase64(file, 1280, 0.72);
+        const base64 = await fileToBase64(file, 1600, 0.82);
         currentHeroBgUrl = base64;
-        const input = document.getElementById('hero-bg-url-input');
-        if (input) input.value = 'Custom Uploaded Image (Base64)';
-        const hint = document.getElementById('custom-hero-bg-hint');
-        if (hint) hint.innerHTML = '<span style="color:var(--green);font-weight:700;"><i class="fas fa-check"></i> Image loaded!</span>';
-        highlightHeroBgPreset('');
-        showToast('Custom image loaded! Click Save to apply.', 'success');
+
+        const settings = DB.getSettings();
+        const list = Array.isArray(settings.uploadedHeroBackgrounds) ? [...settings.uploadedHeroBackgrounds] : [];
+        if (!list.includes(base64)) {
+          list.unshift(base64);
+        }
+
+        DB.saveSettings({
+          uploadedHeroBackgrounds: list,
+          heroBackground: base64
+        });
+
+        renderUploadedHeroBackgrounds();
+        showToast('New hero background uploaded & activated! 🌟✨', 'success');
       } catch (err) {
         console.error('Error reading custom background:', err);
         showToast('Failed to load image file.', 'error');
       }
+      e.target.value = '';
     }
     window.handleCustomHeroBgUpload = handleCustomHeroBgUpload;
 
-    function handleManualHeroBgInput(val) {
-      currentHeroBgUrl = (val || '').trim();
-      highlightHeroBgPreset(currentHeroBgUrl);
+    function handleHeroGradientToggle(enabled) {
+      DB.saveSettings({ heroGradientEnabled: enabled });
+      showToast(enabled ? 'Hero Gradient Overlay turned ON' : 'Hero Gradient Overlay turned OFF', 'info');
     }
-    window.handleManualHeroBgInput = handleManualHeroBgInput;
+    window.handleHeroGradientToggle = handleHeroGradientToggle;
 
-    function saveHeroBgSettings() {
-      const urlInput = document.getElementById('hero-bg-url-input');
-      const chosen = (urlInput && urlInput.value.trim() !== 'Custom Uploaded Image (Base64)' && urlInput.value.trim()) 
-        ? urlInput.value.trim() 
-        : currentHeroBgUrl;
-
-      if (!chosen) {
-        showToast('Please select or enter a valid background image URL/file.', 'warning');
-        return;
-      }
-
-      DB.saveSettings({ heroBackground: chosen });
-      showToast('Storefront Main Background saved & synced! 🎨✨', 'success');
+    function handleCtaGradientToggle(enabled) {
+      DB.saveSettings({ ctaGradientEnabled: enabled });
+      showToast(enabled ? 'Community Banner Gradient turned ON' : 'Community Banner Gradient turned OFF', 'info');
     }
-    window.saveHeroBgSettings = saveHeroBgSettings;
+    window.handleCtaGradientToggle = handleCtaGradientToggle;
 
     async function handleCreatorAvatarUpload(e) {
       const file = e.target.files?.[0];
@@ -809,13 +990,13 @@
     function loadCurrentSettings() {
       const settings = DB.getSettings();
 
-      // Storefront Hero Background
-      currentHeroBgUrl = settings.heroBackground || 'images/ghibli-bg-1.jpg';
-      const heroBgInput = document.getElementById('hero-bg-url-input');
-      if (heroBgInput) {
-        heroBgInput.value = currentHeroBgUrl.startsWith('data:image') ? 'Custom Uploaded Image (Base64)' : currentHeroBgUrl;
-      }
-      highlightHeroBgPreset(currentHeroBgUrl);
+      // Storefront Hero Background & Gradient Toggles
+      currentHeroBgUrl = settings.heroBackground || 'images/background.jpg';
+      const toggleHeroGrad = document.getElementById('toggle-hero-gradient');
+      if (toggleHeroGrad) toggleHeroGrad.checked = (settings.heroGradientEnabled !== false);
+      const toggleCtaGrad = document.getElementById('toggle-cta-gradient');
+      if (toggleCtaGrad) toggleCtaGrad.checked = (settings.ctaGradientEnabled !== false);
+      renderUploadedHeroBackgrounds();
 
       // Creator Bio & Profile
       const bio = DB.getBio ? DB.getBio() : {};
@@ -827,8 +1008,8 @@
         document.getElementById('bio-creator-story').value = bio.bio || '';
         if (bio.avatar) {
           const avImg = document.getElementById('creator-avatar-preview');
-          const resolvedSrc = bio.avatar.startsWith('data:') 
-            ? bio.avatar 
+          const resolvedSrc = bio.avatar.startsWith('data:')
+            ? bio.avatar
             : (bio.avatar.startsWith('../') ? bio.avatar : (bio.avatar.startsWith('http') ? bio.avatar : '../' + bio.avatar.replace(/^\//, '')));
           if (avImg) avImg.src = resolvedSrc;
           creatorAvatarBase64 = bio.avatar;
@@ -1565,4 +1746,5 @@
     });
   </script>
 </body>
+
 </html>

@@ -19,7 +19,7 @@
   <style>
     /* ── Hero Artisan Layout ── */
     .hero {
-      gap: 40px;
+      gap: clamp(24px, 3.5vw, 50px);
       position: relative;
       overflow: hidden;
     }
@@ -42,14 +42,14 @@
     }
 
     .features-strip {
-      background: var(--moss-green, #839958);
-      padding: 22px clamp(16px, 5vw, 80px);
+      background: linear-gradient(90deg, #8EB8FA 0%, #99C2FF 50%, #B2D3FF 100%);
+      padding: 20px clamp(16px, 5vw, 80px);
       display: flex;
       gap: 32px;
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      border-bottom: 2px solid rgba(10, 51, 35, 0.15);
+      border-bottom: 2px solid rgba(255, 132, 186, 0.3);
     }
 
     .feature-item {
@@ -57,32 +57,32 @@
       align-items: center;
       gap: 12px;
       font-family: var(--font-head);
-      font-weight: 700;
+      font-weight: 800;
       font-size: 0.92rem;
-      color: #FFFFFF;
-      text-shadow: 0 1px 3px rgba(10, 51, 35, 0.45);
+      color: #1F1528;
     }
 
     .ghibli-feature-badge {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      background: var(--beige, #F7F4D5);
-      color: var(--dark-green, #0A3323);
+      background: var(--bubblegum-pink, #FF84BA);
+      color: #FFFFFF;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: 1rem;
-      box-shadow: 0 3px 8px rgba(10, 51, 35, 0.25);
-      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 4px 10px rgba(255, 132, 186, 0.4);
+      border: 2px solid #FFFFFF;
       flex-shrink: 0;
       transition: transform 0.3s ease, background 0.3s ease;
     }
 
     .feature-item:hover .ghibli-feature-badge {
-      transform: scale(1.15) rotate(6deg);
-      background: #FFFFFF;
-      color: var(--midnight-green, #105666);
+      transform: scale(1.18) rotate(8deg);
+      background: var(--lemon-honey, #FFDF82);
+      color: #2A1D36;
+      border-color: #FFFFFF;
     }
 
     /* Showcase strip */
@@ -216,8 +216,9 @@
       font-family: var(--font-head);
       font-weight: 900;
       font-size: 4rem;
-      color: var(--rosy-brown, #D3968C);
+      color: var(--lemon-honey, #FFDF82);
       line-height: 1;
+      text-shadow: 0 2px 10px rgba(255, 223, 130, 0.35);
     }
 
     .rating-stars {
@@ -232,7 +233,7 @@
     }
 
     .rating-stars .star {
-      color: var(--rosy-brown, #D3968C);
+      color: var(--lemon-honey, #FFDF82);
       font-size: 1.4rem;
     }
 
@@ -310,19 +311,15 @@
       }
     }
 
-    /* Studio Ghibli Theme Palette Gradient Overlay (matches shop & main hero) */
+    /* Sweet Pastel Theme Palette Gradient Overlay (matches shop & main hero) */
     .cta-overlay-gradient {
       position: absolute;
       inset: 0;
       background: linear-gradient(135deg,
-          rgba(10, 51, 35, 0.88) 0%,
-          /* Dark green */
-          rgba(16, 86, 102, 0.82) 30%,
-          /* Midnight green */
-          rgba(131, 153, 88, 0.74) 65%,
-          /* Moss green */
-          rgba(10, 51, 35, 0.90) 100%
-          /* Dark green */
+          rgba(255, 132, 186, 0.78) 0%,   /* Bubblegum Pink */
+          rgba(153, 194, 255, 0.70) 35%,  /* Sky Candy */
+          rgba(255, 223, 130, 0.65) 70%,  /* Lemon Honey */
+          rgba(255, 132, 186, 0.75) 100%  /* Bubblegum Pink */
         );
       background-size: 280% 280%;
       animation: heroThemeGradientShift 9s ease infinite;
@@ -966,9 +963,28 @@
       }
     }
 
+    function applyGradientSettings() {
+      try {
+        const settings = DB.getSettings();
+        if (settings.heroGradientEnabled === false) {
+          document.body.classList.add('no-hero-gradient');
+        } else {
+          document.body.classList.remove('no-hero-gradient');
+        }
+        if (settings.ctaGradientEnabled === false) {
+          document.body.classList.add('no-cta-gradient');
+        } else {
+          document.body.classList.remove('no-cta-gradient');
+        }
+      } catch (e) {
+        console.error('Error applying gradient settings:', e);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // Storefront Hero Background
+      // Storefront Hero Background & Gradient Toggles
       applyHeroBackground();
+      applyGradientSettings();
 
       // Featured products showcase
       renderHomepageProducts();
@@ -1010,18 +1026,11 @@
 
     window.addEventListener('mbm_settings_synced', () => {
       applyHeroBackground();
+      applyGradientSettings();
       renderCreatorBio();
       renderAnnouncement();
     });
   </script>
-
-  <style>
-    .category-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: var(--yellow) !important;
-      box-shadow: var(--shadow-lg);
-    }
-  </style>
 </body>
 
 </html>

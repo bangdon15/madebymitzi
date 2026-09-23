@@ -1,11 +1,10 @@
 /* ===================================================
    MadeByMitzi — Global Design System
-   Official Artisan Palette:
-   • Dark green:     #0A3323
-   • Moss green:     #839958
-   • Beige:          #F7F4D5
-   • Rosy brown:     #D3968C
-   • Midnight green: #105666
+   Sweet Artisan Kawaii Palette:
+   • Bubblegum Pink: #FF84BA
+   • Lemon Honey:    #FFDF82
+   • Sky Candy:      #99C2FF
+   • Warm Cream:     #FFEFE3
 =================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800&display=swap');
@@ -13,46 +12,45 @@
 /* ── CSS Variables ── */
 :root {
   /* Official Brand Palette from owner */
-  --dark-green:     #0A3323;
-  --moss-green:     #839958;
-  --beige:          #F7F4D5;
-  --rosy-brown:     #D3968C;
-  --midnight-green: #105666;
+  --bubblegum-pink: #FF84BA;
+  --lemon-honey:    #FFDF82;
+  --sky-candy:      #99C2FF;
+  --warm-cream:     #FFEFE3;
 
   /* Aliased functional tokens for seamless sitewide harmony */
-  --forest-moss:   #839958; /* Moss green */
-  --forest-dark:   #0A3323; /* Dark green */
-  --forest-deep:   #0A3323; /* Dark green */
-  --forest-light:  #9ab570;
+  --forest-moss:   #FF84BA; /* Bubblegum Pink primary */
+  --forest-dark:   #EE6FA7;
+  --forest-deep:   #23182C; /* Deep Plum/Navy for dark panels */
+  --forest-light:  #FFA3CD;
 
-  --totoro-sage:   #839958;
-  --sage-light:    #e4edd6;
-  --sage-subtle:   #F7F4D5;
+  --totoro-sage:   #99C2FF; /* Sky Candy */
+  --sage-light:    #E5EFFF;
+  --sage-subtle:   #FFEFE3;
 
-  --rice-cream:    #F7F4D5; /* Beige */
-  --cream-light:   #FAF8E2;
-  --cream-border:  #E8E3BC;
+  --rice-cream:    #FFEFE3; /* Warm Cream */
+  --cream-light:   #FFF8F2;
+  --cream-border:  #F5DBCB;
 
-  --blue:        #105666; /* Midnight green */
-  --blue-dark:   #0A3323; /* Dark green */
-  --blue-light:  #18788f;
-  --green:       #839958; /* Moss green */
-  --green-dark:  #0A3323;
-  --green-light: #9ab570;
-  --yellow:      #D3968C; /* Rosy brown accent */
-  --yellow-dark: #b87b71;
-  --yellow-light:#f2ded9;
-  --teal:        #105666;
-  --azure:       #EBF2EA;
-  --azure-dark:  #CBE0C6;
+  --blue:        #99C2FF; /* Sky Candy */
+  --blue-dark:   #6BA3F5;
+  --blue-light:  #C2DCFF;
+  --green:       #FF84BA; /* Bubblegum Pink */
+  --green-dark:  #EE6FA7;
+  --green-light: #FFA3CD;
+  --yellow:      #FFDF82; /* Lemon Honey */
+  --yellow-dark: #E8C665;
+  --yellow-light:#FFF4D1;
+  --teal:        #23182C;
+  --azure:       #EBF3FF;
+  --azure-dark:  #C8E0FF;
   --white:       #FFFFFF;
-  --gray-50:     #FAF8EB;
-  --gray-100:    #F2EED6;
-  --gray-200:    #E0D9BC;
-  --gray-400:    #8E9A89;
-  --gray-600:    #4D5849;
-  --gray-800:    #162419;
-  --black:       #0A140C;
+  --gray-50:     #FFF9F5;
+  --gray-100:    #F7EBE2;
+  --gray-200:    #EBD6C8;
+  --gray-400:    #A38C9B;
+  --gray-600:    #6E5868;
+  --gray-800:    #2A1D36;
+  --black:       #160C1F;
 
   --font-head:  'Poppins', sans-serif;
   --font-body:  'Nunito', sans-serif;
@@ -63,18 +61,18 @@
   --radius-xl:  32px;
   --radius-pill:999px;
 
-  --shadow-sm:  0 2px 8px rgba(10,51,35,0.08);
-  --shadow-md:  0 8px 24px rgba(10,51,35,0.12);
-  --shadow-lg:  0 16px 48px rgba(10,51,35,0.18);
-  --shadow-yellow: 0 8px 24px rgba(211,150,140,0.35);
-  --shadow-green:  0 8px 24px rgba(131,153,88,0.32);
+  --shadow-sm:  0 2px 8px rgba(35,24,44,0.06);
+  --shadow-md:  0 8px 24px rgba(35,24,44,0.10);
+  --shadow-lg:  0 16px 48px rgba(35,24,44,0.16);
+  --shadow-yellow: 0 8px 24px rgba(255,223,130,0.45);
+  --shadow-green:  0 8px 24px rgba(255,132,186,0.35);
 
   --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   --transition-bounce: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
 
   --nav-h: 72px;
 
-  --paper-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.14'/%3E%3C/svg%3E");
+  --paper-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.10'/%3E%3C/svg%3E");
 }
 
 /* ── Reset ── */
@@ -83,7 +81,7 @@ html { scroll-behavior: smooth; font-size: 16px; }
 body {
   font-family: var(--font-body);
   color: var(--gray-800);
-  background: var(--beige);
+  background: var(--warm-cream);
   overflow-x: hidden;
   line-height: 1.6;
 }
@@ -96,8 +94,16 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--gray-100); }
-::-webkit-scrollbar-thumb { background: var(--blue); border-radius: var(--radius-pill); }
-::-webkit-scrollbar-thumb:hover { background: var(--blue-dark); }
+::-webkit-scrollbar-thumb { background: var(--bubblegum-pink); border-radius: var(--radius-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--forest-dark); }
+
+/* ── Dynamic Gradient On/Off Toggles ── */
+body.no-hero-gradient .hero-bg::after {
+  display: none !important;
+}
+body.no-cta-gradient .cta-overlay-gradient {
+  display: none !important;
+}
 
 /* ============================================================
    NAVIGATION
@@ -107,10 +113,10 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
   top: 0; left: 0; right: 0;
   z-index: 1000;
   height: var(--nav-h);
-  background: rgba(10, 51, 35, 0.96);
+  background: rgba(35, 24, 44, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 2px solid rgba(247, 244, 213, 0.22);
+  border-bottom: 2px solid rgba(255, 132, 186, 0.25);
   display: flex;
   align-items: center;
   padding: 0 clamp(16px, 4vw, 48px);
@@ -129,7 +135,7 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
   z-index: -1;
 }
 .navbar.scrolled {
-  background: rgba(8, 40, 27, 0.98);
+  background: rgba(26, 17, 33, 0.98);
   box-shadow: var(--shadow-lg);
 }
 .nav-logo {
@@ -254,10 +260,12 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
 ============================================================ */
 .hero {
   min-height: 100vh;
-  background: var(--rice-cream);
+  background: var(--warm-cream);
   display: flex;
   align-items: center;
-  padding: calc(var(--nav-h) + 40px) clamp(16px, 5vw, 80px) 60px;
+  justify-content: center;
+  gap: clamp(28px, 4vw, 56px);
+  padding: calc(var(--nav-h) + 36px) clamp(16px, 4vw, 64px) 60px;
   position: relative;
   overflow: hidden;
 }
@@ -281,17 +289,17 @@ body.has-announcement .page-header {
   pointer-events: none;
 }
 
-/* Semi-transparent animated Ghibli theme gradient - rich deep tones for crystal clear text visibility */
+/* Semi-transparent animated sweet pastel theme gradient */
 .hero-bg::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(10, 51, 35, 0.85) 0%,     /* Dark green */
-    rgba(16, 86, 102, 0.80) 35%,   /* Midnight green */
-    rgba(131, 153, 88, 0.72) 70%,  /* Moss green */
-    rgba(10, 51, 35, 0.88) 100%    /* Dark green */
+    rgba(255, 132, 186, 0.52) 0%,   /* Bubblegum Pink */
+    rgba(153, 194, 255, 0.48) 35%,  /* Sky Candy */
+    rgba(255, 223, 130, 0.42) 70%,  /* Lemon Honey */
+    rgba(255, 132, 186, 0.58) 100%  /* Bubblegum Pink */
   );
   background-size: 300% 300%;
   animation: heroThemeGradientShift 8s ease infinite;
@@ -312,35 +320,36 @@ body.has-announcement .page-header {
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 600px;
+  max-width: 540px;
+  flex: 1 1 480px;
 }
 
 .hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.22);
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.35);
+  border: 1.5px solid rgba(255, 132, 186, 0.5);
   color: #FFFFFF;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  padding: 6px 16px;
+  text-shadow: 0 1px 4px rgba(42, 29, 54, 0.4);
+  padding: 6px 18px;
   border-radius: var(--radius-pill);
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 800;
   font-family: var(--font-head);
   letter-spacing: 0.5px;
   margin-bottom: 24px;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   animation: fadeInDown 0.6s ease both;
 }
 
 .hero h1,
 .hero-title {
   font-family: var(--font-head);
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(2.1rem, 4vw, 3.4rem);
   font-weight: 900;
   color: #FFFFFF;
-  text-shadow: 0 3px 18px rgba(21, 28, 19, 0.75), 0 1px 3px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 3px 20px rgba(35, 24, 44, 0.75), 0 1px 4px rgba(0, 0, 0, 0.6);
   line-height: 1.16;
   margin-bottom: 20px;
   animation: fadeInDown 0.7s ease 0.1s both;
@@ -353,8 +362,8 @@ body.has-announcement .page-header {
 
 .hero-title-line2 {
   display: block;
-  color: var(--rice-cream);
-  text-shadow: 0 3px 18px rgba(21, 28, 19, 0.85), 0 1px 4px rgba(0, 0, 0, 0.7);
+  color: var(--lemon-honey, #FFDF82);
+  text-shadow: 0 3px 20px rgba(35, 24, 44, 0.85), 0 1px 5px rgba(0, 0, 0, 0.7);
 }
 
 @media (max-width: 640px) {
@@ -364,8 +373,8 @@ body.has-announcement .page-header {
 }
 
 .hero p {
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 1px 10px rgba(35, 24, 44, 0.55);
   font-size: clamp(1rem, 2vw, 1.15rem);
   margin-bottom: 36px;
   animation: fadeInDown 0.7s ease 0.2s both;
@@ -380,12 +389,11 @@ body.has-announcement .page-header {
 }
 
 /* ============================================================
-   HERO PORTFOLIO SHOWCASE CARD
+   HERO PORTFOLIO SHOWCASE CARD (Larger & Centered Balance)
 ============================================================ */
 .hero-visual {
   position: relative;
   z-index: 2;
-  margin-left: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -395,17 +403,17 @@ body.has-announcement .page-header {
 
 .hero-portfolio-card-wrap {
   position: relative;
-  max-width: 350px;
+  max-width: clamp(380px, 34vw, 440px);
   width: 100%;
 }
 
 .hero-portfolio-frame {
   position: relative;
   background: #FFFFFF;
-  border-radius: 28px;
+  border-radius: 30px;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(10, 51, 35, 0.38), 0 8px 24px rgba(0, 0, 0, 0.16);
-  border: 4px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 24px 60px rgba(35, 24, 44, 0.25), 0 8px 24px rgba(255, 132, 186, 0.2);
+  border: 4px solid rgba(255, 255, 255, 0.98);
   transform: rotate(2deg);
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   animation: heroCardFloat 6s ease-in-out infinite;
@@ -413,7 +421,7 @@ body.has-announcement .page-header {
 
 .hero-portfolio-card-wrap:hover .hero-portfolio-frame {
   transform: translateY(-8px) rotate(0deg) scale(1.02);
-  box-shadow: 0 32px 75px rgba(10, 51, 35, 0.48), 0 12px 32px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 32px 75px rgba(35, 24, 44, 0.32), 0 12px 32px rgba(255, 132, 186, 0.3);
 }
 
 .hero-portfolio-img {
@@ -429,12 +437,12 @@ body.has-announcement .page-header {
   top: -12px;
   left: 50%;
   transform: translateX(-50%) rotate(-2deg);
-  width: 96px;
-  height: 24px;
-  background: rgba(211, 150, 140, 0.85);
+  width: 104px;
+  height: 25px;
+  background: rgba(255, 132, 186, 0.85);
   backdrop-filter: blur(4px);
-  border-left: 2px dashed rgba(255, 255, 255, 0.65);
-  border-right: 2px dashed rgba(255, 255, 255, 0.65);
+  border-left: 2px dashed rgba(255, 255, 255, 0.7);
+  border-right: 2px dashed rgba(255, 255, 255, 0.7);
   z-index: 5;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   pointer-events: none;
@@ -445,17 +453,17 @@ body.has-announcement .page-header {
   position: absolute;
   bottom: 22px;
   left: -16px;
-  background: rgba(10, 51, 35, 0.95);
+  background: rgba(35, 24, 44, 0.95);
   backdrop-filter: blur(12px);
-  color: var(--beige, #F7F4D5);
+  color: #FFFFFF;
   padding: 9px 18px;
   border-radius: var(--radius-pill);
   font-size: 0.82rem;
   font-weight: 800;
   font-family: var(--font-head);
   letter-spacing: 0.3px;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
-  border: 1.5px solid rgba(247, 244, 213, 0.4);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid rgba(255, 132, 186, 0.4);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -467,8 +475,8 @@ body.has-announcement .page-header {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 10px #22c55e;
+  background: var(--bubblegum-pink, #FF84BA);
+  box-shadow: 0 0 10px var(--bubblegum-pink, #FF84BA);
   flex-shrink: 0;
 }
 
@@ -477,14 +485,14 @@ body.has-announcement .page-header {
   position: absolute;
   top: -8px;
   right: -12px;
-  background: var(--rosy-brown, #D3968C);
-  color: #FFFFFF;
+  background: var(--lemon-honey, #FFDF82);
+  color: #2A1D36;
   padding: 6px 14px;
   border-radius: var(--radius-pill);
   font-size: 0.76rem;
   font-weight: 800;
   font-family: var(--font-head);
-  box-shadow: 0 6px 20px rgba(211, 150, 140, 0.55);
+  box-shadow: 0 6px 20px rgba(255, 223, 130, 0.5);
   border: 2px solid #FFFFFF;
   z-index: 6;
   display: flex;
@@ -739,8 +747,8 @@ body.has-announcement .page-header {
   gap: 4px;
   margin-bottom: 10px;
 }
-.star { color: rgba(211, 150, 140, 0.35); font-size: 0.85rem; }
-.star.filled { color: var(--rosy-brown, #D3968C); }
+.star { color: rgba(255, 223, 130, 0.4); font-size: 0.85rem; }
+.star.filled { color: var(--lemon-honey, #FFDF82); }
 .star-count { font-size: 0.75rem; color: var(--gray-600); margin-left: 4px; }
 .product-price-row {
   display: flex;
@@ -1113,68 +1121,70 @@ body.has-announcement .page-header {
   border-radius: var(--radius-xl);
   padding: 42px 32px;
   text-align: center;
-  color: white;
+  color: #2A1D36;
   transition: var(--transition-bounce);
   display: block;
-  border: 2px solid rgba(247, 244, 213, 0.2);
-  box-shadow: 0 10px 30px rgba(16, 86, 102, 0.25);
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 32px rgba(153, 194, 255, 0.22);
   position: relative;
   overflow: hidden;
-  background: var(--midnight-green, #105666);
+  background: #FFFFFF;
 }
 .category-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 45px rgba(16, 86, 102, 0.38);
-  border-color: var(--rosy-brown, #D3968C);
+  box-shadow: 0 22px 50px rgba(255, 132, 186, 0.32);
+  border-color: var(--bubblegum-pink, #FF84BA);
 }
 .category-card.cat-stickers {
-  background: var(--midnight-green, #105666);
+  background: linear-gradient(150deg, #FFFFFF 0%, #FFF0F6 100%);
+  border-color: rgba(255, 132, 186, 0.35);
 }
 .category-card.cat-invitations {
-  background: var(--midnight-green, #105666);
+  background: linear-gradient(150deg, #FFFFFF 0%, #F0F6FF 100%);
+  border-color: rgba(153, 194, 255, 0.45);
 }
 .category-card.cat-cutfiles {
-  background: var(--midnight-green, #105666);
+  background: linear-gradient(150deg, #FFFFFF 0%, #FFFCEB 100%);
+  border-color: rgba(255, 223, 130, 0.55);
 }
 .category-ghibli-icon {
   width: 82px;
   height: 82px;
   margin: 0 auto 18px;
   border-radius: 50%;
-  background: rgba(247, 244, 213, 0.18);
-  border: 2px solid rgba(247, 244, 213, 0.45);
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 2.5px solid var(--bubblegum-pink, #FF84BA);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.2rem;
-  color: var(--beige, #F7F4D5);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  color: var(--bubblegum-pink, #FF84BA);
+  box-shadow: 0 6px 18px rgba(255, 132, 186, 0.22);
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .category-card:hover .category-ghibli-icon {
-  transform: scale(1.12) rotate(-5deg);
-  background: rgba(247, 244, 213, 0.3);
+  transform: scale(1.15) rotate(-6deg);
+  background: var(--bubblegum-pink, #FF84BA);
   border-color: #FFFFFF;
   color: #FFFFFF;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 28px rgba(255, 132, 186, 0.45);
 }
 .category-card .cat-btn-pill {
   display: inline-block;
-  background: var(--rosy-brown, #D3968C);
+  background: var(--bubblegum-pink, #FF84BA);
   color: #FFFFFF;
-  padding: 10px 26px;
+  padding: 10px 28px;
   border-radius: var(--radius-pill);
   font-weight: 800;
   font-size: 0.88rem;
-  box-shadow: 0 4px 14px rgba(211, 150, 140, 0.45);
+  box-shadow: 0 4px 14px rgba(255, 132, 186, 0.35);
   transition: all 0.25s ease;
 }
 .category-card:hover .cat-btn-pill {
-  background: #deb0a7;
+  background: #EE6FA7;
   color: #FFFFFF;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(211, 150, 140, 0.65);
+  box-shadow: 0 8px 22px rgba(255, 132, 186, 0.55);
 }
 
 .ghibli-title-badge {
@@ -1401,13 +1411,13 @@ body.has-announcement .page-header {
 }
 
 /* ============================================================
-   BANNER / MARQUEE (Midnight Green Background)
+   BANNER / MARQUEE (Lemon Honey Background)
 ============================================================ */
 .marquee-bar {
-  background: var(--midnight-green, #105666);
-  border-top: 1px solid rgba(247, 244, 213, 0.2);
-  border-bottom: 1px solid rgba(247, 244, 213, 0.2);
-  padding: 12px 0;
+  background: var(--lemon-honey, #FFDF82);
+  border-top: 1.5px solid rgba(255, 132, 186, 0.25);
+  border-bottom: 1.5px solid rgba(255, 132, 186, 0.25);
+  padding: 13px 0;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -1421,13 +1431,13 @@ body.has-announcement .page-header {
   align-items: center;
   gap: 10px;
   font-family: var(--font-head);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.88rem;
-  color: var(--beige, #F7F4D5);
+  color: #2A1D36;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.marquee-dot { color: var(--rosy-brown, #D3968C); font-size: 1.2rem; }
+.marquee-dot { color: var(--bubblegum-pink, #FF84BA); font-size: 1.2rem; }
 
 /* ============================================================
    PAGE HEADER (inner pages)
