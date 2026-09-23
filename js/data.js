@@ -472,7 +472,8 @@ const DB = {
       heroBackground: 'images/background.jpg',
       heroGradientEnabled: true,
       ctaGradientEnabled: true,
-      uploadedHeroBackgrounds: []
+      uploadedHeroBackgrounds: [],
+      ctaSlideshowImages: []
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};
     // Migration: ensure if stored has outdated placeholder email, upgrade to active madebymitzi26@gmail.com

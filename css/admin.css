@@ -10,7 +10,7 @@ body { background: var(--warm-cream, #FFEFE3); }
 /* Sidebar */
 .admin-sidebar {
   width: 260px;
-  background: var(--forest-deep, #23182C);
+  background: var(--forest-deep, #442D48);
   min-height: calc(100vh - var(--nav-h));
   position: fixed;
   top: var(--nav-h); left: 0;

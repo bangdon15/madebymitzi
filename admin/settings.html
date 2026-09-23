@@ -328,6 +328,45 @@
           </div>
         </div>
 
+        <!-- Community Banner Slideshow (Facebook & Etsy Section) -->
+        <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
+          <div class="settings-card-title" style="color:var(--forest-deep);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-film" style="color:var(--sky-candy, #99C2FF);"></i>
+              <span>Community Banner Slideshow (Facebook & Etsy Section)</span>
+            </div>
+            <span style="font-size:0.75rem;background:#EBF3FF;color:#2563EB;padding:4px 12px;border-radius:12px;font-weight:800;border:1px solid rgba(153,194,255,0.4);">
+              ✨ Transitioning Photos
+            </span>
+          </div>
+          <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:18px;">
+            Upload custom photos for the background crossfade slideshow behind your Facebook & Etsy community section. All uploaded photos save to your database and automatically transition smoothly on customer screens.
+          </p>
+
+          <!-- Uploaded Slides Grid -->
+          <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-weight:800;font-size:0.92rem;color:var(--gray-800);display:flex;align-items:center;gap:8px;">
+              <i class="fas fa-images" style="color:var(--bubblegum-pink, #FF84BA);"></i>
+              <span>Active Slideshow Photos</span>
+            </div>
+            <span id="uploaded-cta-count" style="font-size:0.75rem;font-weight:700;background:#FFF0F6;color:var(--bubblegum-pink, #FF84BA);padding:2px 8px;border-radius:10px;">0 photos</span>
+          </div>
+
+          <div id="uploaded-cta-slides-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:16px;margin-bottom:20px;">
+            <!-- Populated dynamically via renderUploadedCtaSlideshow() -->
+          </div>
+
+          <!-- Upload Box -->
+          <div style="background:white;padding:24px 20px;border-radius:var(--radius-lg);border:2.5px dashed var(--sky-candy, #99C2FF);text-align:center;cursor:pointer;transition:var(--transition);" onclick="document.getElementById('custom-cta-slide-file').click()">
+            <input type="file" id="custom-cta-slide-file" accept="image/*" style="display:none;" onchange="handleCustomCtaSlideUpload(event)" />
+            <div style="width:52px;height:52px;border-radius:50%;background:#EBF3FF;color:#2563EB;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:8px;">
+              <i class="fas fa-plus"></i>
+            </div>
+            <div style="font-weight:800;font-size:0.98rem;color:var(--gray-800);">Add Photo to Community Slideshow</div>
+            <div style="font-size:0.8rem;color:var(--gray-500);margin-top:4px;">Upload stationery photos, shop highlights, or customer celebration pictures (JPG, PNG, WebP)</div>
+          </div>
+        </div>
+
         <!-- GCash Settings -->
         <div class="settings-card">
           <div class="settings-card-title">
@@ -941,6 +980,86 @@
     }
     window.handleCtaGradientToggle = handleCtaGradientToggle;
 
+    function renderUploadedCtaSlideshow() {
+      const grid = document.getElementById('uploaded-cta-slides-grid');
+      const countEl = document.getElementById('uploaded-cta-count');
+      if (!grid) return;
+
+      const settings = DB.getSettings();
+      let list = Array.isArray(settings.ctaSlideshowImages) ? [...settings.ctaSlideshowImages] : [];
+
+      if (countEl) {
+        countEl.textContent = `${list.length} photo${list.length === 1 ? '' : 's'}`;
+      }
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: white; border-radius: var(--radius-lg); border: 2px dashed #CBD5E1; padding: 36px 20px; text-align: center;">
+            <i class="fas fa-film" style="font-size: 2.4rem; color: var(--sky-candy, #99C2FF); margin-bottom: 10px;"></i>
+            <div style="font-weight: 800; font-size: 0.98rem; color: var(--gray-800);">No Community Slideshow Photos Yet</div>
+            <p style="font-size: 0.82rem; color: var(--gray-500); margin: 6px auto 0; max-width: 440px;">
+              Upload your custom photos below. They will transition smoothly in the background of your Facebook & Etsy section.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map((url, idx) => {
+        return `
+          <div class="uploaded-bg-card" style="border: 2px solid var(--cream-border); border-radius: var(--radius-lg); overflow: hidden; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.25s ease;">
+            <div style="aspect-ratio: 16/9; background: url('${url}') center/cover; position: relative;">
+              <span style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.65); color: white; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 12px;">
+                Slide #${idx + 1}
+              </span>
+            </div>
+            <div style="padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--gray-100);">
+              <span style="font-size:0.78rem;font-weight:700;color:var(--gray-600);">Transitioning Photo</span>
+              <button type="button" class="btn btn-sm btn-danger" style="padding: 5px 10px; font-size: 0.78rem;" title="Remove from slideshow" onclick="deleteUploadedCtaSlide(${idx})">
+                <i class="fas fa-trash-alt"></i> Remove
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    window.renderUploadedCtaSlideshow = renderUploadedCtaSlideshow;
+
+    async function handleCustomCtaSlideUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const base64 = await fileToBase64(file, 1280, 0.72, 350000);
+        const settings = DB.getSettings();
+        let list = Array.isArray(settings.ctaSlideshowImages) ? [...settings.ctaSlideshowImages] : [];
+        list = list.filter(item => item !== base64);
+        list.push(base64);
+        if (list.length > 8) {
+          list = list.slice(-8);
+        }
+
+        DB.saveSettings({ ctaSlideshowImages: list });
+        renderUploadedCtaSlideshow();
+        showToast('New photo added to Community Slideshow & synced! ✨🎉', 'success');
+      } catch (err) {
+        console.error('Error uploading CTA slide:', err);
+        showToast('Failed to load image file.', 'error');
+      }
+      e.target.value = '';
+    }
+    window.handleCustomCtaSlideUpload = handleCustomCtaSlideUpload;
+
+    function deleteUploadedCtaSlide(index) {
+      if (!confirm('Are you sure you want to remove this photo from your slideshow?')) return;
+      const settings = DB.getSettings();
+      let list = Array.isArray(settings.ctaSlideshowImages) ? [...settings.ctaSlideshowImages] : [];
+      list.splice(index, 1);
+      DB.saveSettings({ ctaSlideshowImages: list });
+      renderUploadedCtaSlideshow();
+      showToast('Photo removed from slideshow.', 'info');
+    }
+    window.deleteUploadedCtaSlide = deleteUploadedCtaSlide;
+
     async function handleCreatorAvatarUpload(e) {
       const file = e.target.files?.[0];
       if (!file) return;
@@ -992,6 +1111,7 @@
       const toggleCtaGrad = document.getElementById('toggle-cta-gradient');
       if (toggleCtaGrad) toggleCtaGrad.checked = (settings.ctaGradientEnabled !== false);
       renderUploadedHeroBackgrounds();
+      renderUploadedCtaSlideshow();
 
       // Creator Bio & Profile
       const bio = DB.getBio ? DB.getBio() : {};
