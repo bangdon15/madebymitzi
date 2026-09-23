@@ -81,13 +81,13 @@
     .feature-item:hover .ghibli-feature-badge {
       transform: scale(1.18) rotate(8deg);
       background: var(--lemon-honey, #FFDF82);
-      color: #2A1D36;
+      color: #442D48;
       border-color: #FFFFFF;
     }
 
     /* Showcase strip */
     .showcase-section {
-      background: var(--beige, #F7F4D5);
+      background: var(--warm-cream, #FFEFE3);
     }
 
     .showcase-scroll {
@@ -266,49 +266,8 @@
       background-size: cover;
       background-position: center center;
       opacity: 0;
-      animation: ghibliCrossfade 24s infinite ease-in-out;
+      transition: opacity 1.2s ease-in-out;
       will-change: opacity, transform;
-    }
-
-    .cta-slide-1 {
-      animation-delay: 0s;
-    }
-
-    .cta-slide-2 {
-      animation-delay: 6s;
-    }
-
-    .cta-slide-3 {
-      animation-delay: 12s;
-    }
-
-    .cta-slide-4 {
-      animation-delay: 18s;
-    }
-
-    @keyframes ghibliCrossfade {
-      0% {
-        opacity: 0;
-        transform: scale(1.05);
-      }
-
-      8% {
-        opacity: 1;
-      }
-
-      25% {
-        opacity: 1;
-      }
-
-      33% {
-        opacity: 0;
-        transform: scale(1);
-      }
-
-      100% {
-        opacity: 0;
-        transform: scale(1.05);
-      }
     }
 
     /* Sweet Pastel Theme Palette Gradient Overlay (matches shop & main hero) */
@@ -787,14 +746,11 @@
 
   <!-- ════════════════════ CTA ════════════════════ -->
   <section class="cta-section" id="contact">
-    <!-- Seamless Ghibli Background Crossfade Slideshow -->
-    <div class="cta-bg-slideshow">
-      <div class="cta-bg-slide cta-slide-1" style="background-image:url('images/ghibli-bg-1.jpg');"></div>
-      <div class="cta-bg-slide cta-slide-2" style="background-image:url('images/ghibli-bg-2.jpg');"></div>
-      <div class="cta-bg-slide cta-slide-3" style="background-image:url('images/ghibli-bg-3.jpg');"></div>
-      <div class="cta-bg-slide cta-slide-4" style="background-image:url('images/ghibli-bg-4.jpg');"></div>
+    <!-- Seamless Background Crossfade Slideshow (Dynamic from Settings) -->
+    <div class="cta-bg-slideshow" id="cta-bg-slideshow">
+      <!-- Populated dynamically via renderCtaSlideshow() from settings.ctaSlideshowImages -->
     </div>
-    <!-- Matching Ghibli Theme Palette Gradient Overlay -->
+    <!-- Sweet Pastel Theme Palette Gradient Overlay -->
     <div class="cta-overlay-gradient"></div>
 
     <div class="container" style="position:relative;z-index:2;">
@@ -956,10 +912,58 @@
         const settings = DB.getSettings();
         const heroBg = document.getElementById('hero-bg');
         if (!heroBg) return;
-        const bg = settings.heroBackground || 'images/ghibli-bg-1.jpg';
+        const bg = settings.heroBackground || 'images/background.jpg';
         heroBg.style.backgroundImage = `url('${bg}')`;
       } catch (e) {
         console.error('Error applying hero background:', e);
+      }
+    }
+
+    function renderCtaSlideshow() {
+      try {
+        const settings = DB.getSettings();
+        const container = document.getElementById('cta-bg-slideshow');
+        if (!container) return;
+
+        let images = Array.isArray(settings.ctaSlideshowImages) && settings.ctaSlideshowImages.length > 0
+          ? settings.ctaSlideshowImages
+          : (settings.heroBackground ? [settings.heroBackground] : ['images/background.jpg']);
+
+        const N = images.length;
+        if (N === 1) {
+          container.innerHTML = `<div class="cta-bg-slide" style="background-image:url('${images[0]}'); opacity:1;"></div>`;
+          return;
+        }
+
+        const slideDuration = 6;
+        const totalDuration = N * slideDuration;
+        const fadePct = ((1.5 / totalDuration) * 100).toFixed(1);
+        const stayPct = (((slideDuration - 0.5) / totalDuration) * 100).toFixed(1);
+        const fadeOutPct = ((slideDuration / totalDuration) * 100).toFixed(1);
+
+        let styleEl = document.getElementById('dynamic-cta-keyframes');
+        if (!styleEl) {
+          styleEl = document.createElement('style');
+          styleEl.id = 'dynamic-cta-keyframes';
+          document.head.appendChild(styleEl);
+        }
+
+        styleEl.textContent = `
+          @keyframes ctaCrossfadeDynamic {
+            0% { opacity: 0; transform: scale(1.04); }
+            ${fadePct}% { opacity: 1; }
+            ${stayPct}% { opacity: 1; }
+            ${fadeOutPct}% { opacity: 0; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.04); }
+          }
+        `;
+
+        container.innerHTML = images.map((url, i) => {
+          const delay = (i * slideDuration).toFixed(1);
+          return `<div class="cta-bg-slide" style="background-image:url('${url}'); animation: ctaCrossfadeDynamic ${totalDuration}s infinite ease-in-out; animation-delay: ${delay}s;"></div>`;
+        }).join('');
+      } catch (e) {
+        console.error('Error rendering CTA slideshow:', e);
       }
     }
 
@@ -982,8 +986,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Storefront Hero Background & Gradient Toggles
+      // Storefront Hero Background & Dynamic CTA Slideshow
       applyHeroBackground();
+      renderCtaSlideshow();
       applyGradientSettings();
 
       // Featured products showcase
@@ -1026,6 +1031,7 @@
 
     window.addEventListener('mbm_settings_synced', () => {
       applyHeroBackground();
+      renderCtaSlideshow();
       applyGradientSettings();
       renderCreatorBio();
       renderAnnouncement();
