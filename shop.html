@@ -100,7 +100,7 @@
     <!-- Shop Banner -->
     <div class="shop-banner reveal">
       <div class="shop-banner-text">
-        <h2>🎉 New Designs Added Weekly!</h2>
+        <h2>New Designs Added Weekly!</h2>
         <p>Browse our growing collection — all fully customizable & digital delivery</p>
       </div>
       <div class="shop-banner-emoji">✨</div>
@@ -216,6 +216,7 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
+<script src="js/after-sales-chat.js"></script>
 <script>
 let allProducts = [];
 let activeFilters = { cat: 'All', sort: 'newest', search: '', minPrice: 0, maxPrice: Infinity };
@@ -378,10 +379,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => {
     filterToggle.style.display = window.innerWidth <= 900 ? 'inline-flex' : 'none';
   });
+});
 
-  window.addEventListener('mbm_products_synced', () => {
-    loadProducts();
-  });
+window.addEventListener('mbm_products_synced', () => {
+  loadProducts();
 });
 </script>
 </body>

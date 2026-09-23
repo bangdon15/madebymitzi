@@ -137,6 +137,58 @@
 
       <div class="settings-grid">
         
+        <!-- Shop Bio & Creator Profile (Etsy Style) -->
+        <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
+          <div class="settings-card-title" style="color:var(--forest-deep);">
+            <i class="fas fa-feather-alt" style="color:var(--forest-moss);"></i>
+            <span>Shop Bio & Creator Profile (Etsy Style)</span>
+          </div>
+          <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:20px;">
+            Personalize your store with an artisan touch. Share your story, announcement banner, and artist profile directly with your customers.
+          </p>
+
+          <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;">
+            <div>
+              <label class="form-label">Creator Photo / Avatar</label>
+              <div class="qr-preview-box" onclick="document.getElementById('creator-avatar-file').click()" style="padding:16px;">
+                <input type="file" id="creator-avatar-file" accept="image/*" style="display:none;" onchange="handleCreatorAvatarUpload(event)" />
+                <img id="creator-avatar-preview" src="../images/madebymitzi.jpg" class="qr-current-img" style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--forest-moss);" alt="Mitzi" />
+                <div style="font-weight:700;font-size:0.82rem;color:var(--forest-moss);margin-top:8px;">
+                  <i class="fas fa-camera"></i> Change Creator Photo
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Creator Name</label>
+                <input type="text" id="bio-creator-name" class="form-input" placeholder="Mitzi" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Creator Title / Tagline</label>
+                <input type="text" id="bio-creator-title" class="form-input" placeholder="Founder, Illustrator & Party Stationery Artist" />
+              </div>
+            </div>
+
+            <div>
+              <div class="form-group">
+                <label class="form-label">Shop Announcement Banner (Top of Storefront)</label>
+                <input type="text" id="bio-announcement" class="form-input" placeholder="✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation." />
+                <div style="font-size:0.78rem;color:var(--gray-500);margin-top:4px;">Appears in the highlighted banner directly above or below the hero section.</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Creator Story & Bio</label>
+                <textarea id="bio-creator-story" class="form-input form-textarea" rows="5" placeholder="Tell customers about your story, design process, and creative passion..."></textarea>
+                <div style="font-size:0.78rem;color:var(--gray-500);margin-top:4px;">Displayed in the 'Meet the Creator' section on the homepage.</div>
+              </div>
+
+              <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:14px;" onclick="saveCreatorBioSettings()">
+                <i class="fas fa-save"></i> Save Creator Bio & Announcements
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- GCash Settings -->
         <div class="settings-card">
           <div class="settings-card-title">
@@ -522,9 +574,54 @@
 
     let gcashImageBase64 = null;
     let bankImageBase64 = null;
+    let creatorAvatarBase64 = null;
+
+    async function handleCreatorAvatarUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      creatorAvatarBase64 = await fileToBase64(file, 400, 0.85);
+      const img = document.getElementById('creator-avatar-preview');
+      if (img) img.src = creatorAvatarBase64;
+      showToast('Creator photo loaded! Click Save to apply.', 'info');
+    }
+    window.handleCreatorAvatarUpload = handleCreatorAvatarUpload;
+
+    function saveCreatorBioSettings() {
+      const name = document.getElementById('bio-creator-name').value.trim() || 'Mitzi';
+      const title = document.getElementById('bio-creator-title').value.trim() || 'Founder, Illustrator & Party Stationery Artist';
+      const announcement = document.getElementById('bio-announcement').value.trim();
+      const bio = document.getElementById('bio-creator-story').value.trim();
+
+      DB.saveBio({
+        name,
+        title,
+        avatar: creatorAvatarBase64 || '../images/madebymitzi.jpg',
+        bio,
+        announcement
+      });
+
+      showToast('Creator Bio & Announcements saved & synced! 🌿✨', 'success');
+    }
+    window.saveCreatorBioSettings = saveCreatorBioSettings;
 
     function loadCurrentSettings() {
       const settings = DB.getSettings();
+
+      // Creator Bio & Profile
+      const bio = DB.getBio ? DB.getBio() : {};
+      const bioNameInput = document.getElementById('bio-creator-name');
+      if (bioNameInput) {
+        bioNameInput.value = bio.name || 'Mitzi';
+        document.getElementById('bio-creator-title').value = bio.title || 'Founder, Illustrator & Party Stationery Artist';
+        document.getElementById('bio-announcement').value = bio.announcement || '';
+        document.getElementById('bio-creator-story').value = bio.bio || '';
+        if (bio.avatar) {
+          const avImg = document.getElementById('creator-avatar-preview');
+          if (avImg) avImg.src = bio.avatar;
+          creatorAvatarBase64 = bio.avatar;
+        }
+      }
+
       document.getElementById('gcash-name').value = settings.gcashName || '';
       document.getElementById('gcash-number').value = settings.gcashNumber || '';
       document.getElementById('bank-name').value = settings.bankName || '';

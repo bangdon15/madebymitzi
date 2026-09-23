@@ -94,12 +94,24 @@ const FirebaseService = {
         // 4. Real-time live Firestore listener for Products
         try {
           this.db.collection('mbm_products').onSnapshot(snapshot => {
-            if (!snapshot.empty && typeof window.DB !== 'undefined') {
+            if (typeof window.DB !== 'undefined') {
               const cloudProds = [];
               snapshot.forEach(doc => cloudProds.push(doc.data()));
               cloudProds.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-              window.DB.setProducts(cloudProds);
-              window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: cloudProds }));
+
+              // Reconcile with recently added local items (< 2 min) not yet in snapshot
+              const localProds = window.DB.getProducts() || [];
+              const now = Date.now();
+              const pendingLocal = localProds.filter(lp => {
+                const age = now - new Date(lp.createdAt || 0).getTime();
+                const existsInCloud = cloudProds.some(cp => cp.id === lp.id);
+                return !existsInCloud && age < 120000;
+              });
+
+              const merged = [...pendingLocal, ...cloudProds];
+              merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+              window.DB.setProducts(merged);
+              window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
             }
           }, err => console.warn('Products live listener notice:', err.message));
         } catch (e) {}
@@ -212,15 +224,167 @@ const FirebaseService = {
   },
 
   /**
+   * Remove undefined fields recursively before writing to Firestore
+   * Ensures numbers, arrays, and nested structures are strictly clean
+   */
+  sanitizeProduct(product) {
+    function cleanObj(obj) {
+      if (obj === null || typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) return obj.map(cleanObj).filter(x => x !== undefined);
+      const res = {};
+      for (const [k, v] of Object.entries(obj)) {
+        if (v !== undefined) {
+          res[k] = (typeof v === 'object' && v !== null) ? cleanObj(v) : v;
+        }
+      }
+      return res;
+    }
+    const clean = cleanObj(product);
+    if (clean.price !== undefined) {
+      clean.price = Number(clean.price) || 0;
+    }
+    if (!clean.status) {
+      clean.status = 'active';
+    }
+    return clean;
+  },
+
+  /**
    * Sync a single product to Firestore
    */
   async syncProduct(product) {
+    if (!this.isInitialized || !this.db) {
+      await this.init().catch(() => {});
+    }
+    if (!this.isInitialized || !this.db) {
+      return { success: false, error: 'Cloud database is currently offline' };
+    }
+    try {
+      const sanitized = this.sanitizeProduct(product);
+      await this.db.collection('mbm_products').doc(product.id).set(sanitized);
+      console.log('✅ Product synced to Firestore:', product.id);
+      return { success: true };
+    } catch (err) {
+      console.error('Error syncing single product to Firestore:', err);
+      return { success: false, error: err.message };
+    }
+  },
+
+  /**
+   * Upload printable PDF file to Firestore mbm_files
+   * Supports chunking for files up to 5MB
+   */
+  async uploadPdfFile(fileId, fileData) {
+    if (!this.isInitialized || !this.db) {
+      await this.init().catch(() => {});
+    }
+    if (!this.isInitialized || !this.db) {
+      try {
+        localStorage.setItem('mbm_file_' + fileId, JSON.stringify(fileData));
+        return { success: true, localOnly: true };
+      } catch (e) {
+        return { success: false, error: 'Storage full: ' + e.message };
+      }
+    }
+
+    try {
+      const { name, size, type, base64 } = fileData;
+      const CHUNK_SIZE = 700000;
+      const totalChunks = Math.ceil(base64.length / CHUNK_SIZE);
+
+      if (totalChunks <= 1) {
+        await this.db.collection('mbm_files').doc(fileId).set({
+          id: fileId,
+          name: name || 'printable.pdf',
+          size: size || base64.length,
+          type: type || 'application/pdf',
+          chunksCount: 1,
+          data: base64,
+          uploadedAt: new Date().toISOString()
+        });
+      } else {
+        await this.db.collection('mbm_files').doc(fileId).set({
+          id: fileId,
+          name: name || 'printable.pdf',
+          size: size || base64.length,
+          type: type || 'application/pdf',
+          chunksCount: totalChunks,
+          uploadedAt: new Date().toISOString()
+        });
+        for (let i = 0; i < totalChunks; i++) {
+          const chunkStr = base64.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+          await this.db.collection('mbm_files').doc(`${fileId}_chunk_${i}`).set({
+            fileId,
+            chunkIndex: i,
+            data: chunkStr
+          });
+        }
+      }
+
+      console.log(`✅ Uploaded PDF file ${fileId} (${totalChunks} chunk${totalChunks !== 1 ? 's' : ''}) to Firestore.`);
+      return { success: true };
+    } catch (err) {
+      console.error('Error uploading PDF file to Firestore:', err);
+      return { success: false, error: err.message };
+    }
+  },
+
+  /**
+   * Fetch printable PDF file from Firestore mbm_files
+   */
+  async getPdfFile(fileId) {
+    if (!this.isInitialized || !this.db) {
+      await this.init().catch(() => {});
+    }
+    if (!this.isInitialized || !this.db) {
+      try {
+        const local = localStorage.getItem('mbm_file_' + fileId);
+        return local ? JSON.parse(local) : null;
+      } catch { return null; }
+    }
+
+    try {
+      const doc = await this.db.collection('mbm_files').doc(fileId).get();
+      if (!doc.exists) return null;
+      const fileMeta = doc.data();
+
+      if (fileMeta.chunksCount <= 1 && fileMeta.data) {
+        return fileMeta;
+      }
+
+      let fullBase64 = '';
+      for (let i = 0; i < fileMeta.chunksCount; i++) {
+        const chunkDoc = await this.db.collection('mbm_files').doc(`${fileId}_chunk_${i}`).get();
+        if (chunkDoc.exists) {
+          fullBase64 += chunkDoc.data().data || '';
+        }
+      }
+      return { ...fileMeta, data: fullBase64 };
+    } catch (err) {
+      console.warn('Error fetching PDF file from Firestore:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Delete printable PDF file and chunks from Firestore
+   */
+  async deletePdfFile(fileId) {
     if (!this.isInitialized || !this.db) return false;
     try {
-      await this.db.collection('mbm_products').doc(product.id).set(product);
+      const doc = await this.db.collection('mbm_files').doc(fileId).get();
+      if (doc.exists) {
+        const meta = doc.data();
+        if (meta.chunksCount > 1) {
+          for (let i = 0; i < meta.chunksCount; i++) {
+            await this.db.collection('mbm_files').doc(`${fileId}_chunk_${i}`).delete().catch(() => {});
+          }
+        }
+        await this.db.collection('mbm_files').doc(fileId).delete();
+      }
       return true;
     } catch (err) {
-      console.warn('Error syncing single product to Firestore:', err);
+      console.warn('Error deleting PDF file:', err);
       return false;
     }
   },
@@ -380,8 +544,14 @@ const FirebaseService = {
   }
 };
 
-// Expose globally and attempt silent initialization
+// Expose globally and attempt instant initialization
 window.FirebaseService = FirebaseService;
-document.addEventListener('DOMContentLoaded', () => {
-  FirebaseService.init().catch(() => {});
-});
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      FirebaseService.init().catch(() => {});
+    });
+  } else {
+    FirebaseService.init().catch(() => {});
+  }
+}

@@ -254,13 +254,43 @@
           </div>
         </div>
 
+        <!-- Direct PDF File Uploader (New in Phase 4) -->
+        <div class="form-group" style="border: 2px dashed var(--cream-border); background: var(--cream-light); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 20px;">
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <i class="fas fa-file-pdf" style="color:#ef4444;font-size:1.1rem;"></i>
+            <strong>Direct Printable PDF File Upload (Recommended)</strong>
+          </label>
+          <p style="font-size:0.8rem;color:var(--gray-600);margin-bottom:12px;">
+            Upload the actual PDF file for automatic customer download after order confirmation.
+          </p>
+          <input type="file" id="prod-pdf-file" accept="application/pdf" style="display:none;" onchange="handleProductPdfUpload(event)" />
+          <div id="pdf-upload-idle" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('prod-pdf-file').click()">
+              <i class="fas fa-cloud-upload-alt"></i> Choose PDF File
+            </button>
+            <span id="pdf-upload-hint" style="font-size:0.82rem;color:var(--gray-500);">Accepts .pdf (up to 5MB)</span>
+          </div>
+          <div id="pdf-file-badge" style="display:none;background:white;border:1.5px solid var(--cream-border);padding:10px 14px;border-radius:var(--radius-md);align-items:center;justify-content:space-between;margin-top:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-file-pdf" style="color:#ef4444;font-size:1.4rem;"></i>
+              <div>
+                <div id="pdf-file-name" style="font-weight:700;font-size:0.88rem;color:var(--gray-800);">printable.pdf</div>
+                <div id="pdf-file-size" style="font-size:0.75rem;color:var(--gray-500);">Ready for instant customer download</div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:0.75rem;" onclick="removeProductPdf()">
+              <i class="fas fa-trash"></i> Remove
+            </button>
+          </div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div class="form-group">
             <label class="form-label">Canva Editable Link (Optional)</label>
             <input type="url" id="prod-canva" class="form-input" placeholder="https://canva.com/..." />
           </div>
           <div class="form-group">
-            <label class="form-label">Printable PDF Link (Optional)</label>
+            <label class="form-label">External PDF Link Fallback (Optional)</label>
             <input type="url" id="prod-pdf" class="form-input" placeholder="https://drive.google.com/..." />
           </div>
         </div>
@@ -449,6 +479,69 @@
     }
     window.removeProductVideo = removeProductVideo;
 
+    let prodPdfFile = null;
+
+    function handleProductPdfUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        showToast('Please select a valid .pdf file.', 'error');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('PDF file is larger than 5MB. Please compress it or use external link.', 'warning');
+        return;
+      }
+
+      showToast('Loading PDF file...', 'info');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        prodPdfFile = {
+          name: file.name,
+          size: file.size,
+          type: file.type || 'application/pdf',
+          base64: event.target.result,
+          isNew: true
+        };
+        renderPdfBadge();
+        showToast('PDF file attached! 📄 Ready to save.', 'success');
+      };
+      reader.onerror = () => {
+        showToast('Failed to read PDF file.', 'error');
+      };
+      reader.readAsDataURL(file);
+    }
+    window.handleProductPdfUpload = handleProductPdfUpload;
+
+    function renderPdfBadge() {
+      const idle = document.getElementById('pdf-upload-idle');
+      const badge = document.getElementById('pdf-file-badge');
+      const nameEl = document.getElementById('pdf-file-name');
+      const sizeEl = document.getElementById('pdf-file-size');
+
+      if (prodPdfFile) {
+        idle.style.display = 'none';
+        badge.style.display = 'flex';
+        nameEl.textContent = prodPdfFile.name || 'printable.pdf';
+        const kb = Math.round((prodPdfFile.size || 0) / 1024);
+        sizeEl.textContent = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB • Direct download` : `${kb} KB • Direct download`;
+      } else {
+        idle.style.display = 'flex';
+        badge.style.display = 'none';
+        const fi = document.getElementById('prod-pdf-file');
+        if (fi) fi.value = '';
+      }
+    }
+
+    function removeProductPdf() {
+      prodPdfFile = null;
+      renderPdfBadge();
+      showToast('PDF file attachment removed', 'info');
+    }
+    window.removeProductPdf = removeProductPdf;
+
     function openProductModal() {
       document.getElementById('product-form').reset();
       document.getElementById('prod-id').value = '';
@@ -456,6 +549,9 @@
       
       prodImages = [null, null, null];
       prodVideo = null;
+      prodPdfFile = null;
+      renderPdfBadge();
+
       for (let i = 0; i < 3; i++) {
         renderSlotPreview(i);
         const fi = document.getElementById(`prod-img-${i + 1}`);
@@ -506,6 +602,13 @@
       }
       renderVideoPreview();
 
+      if (p.pdfFile) {
+        prodPdfFile = { ...p.pdfFile, isNew: false };
+      } else {
+        prodPdfFile = null;
+      }
+      renderPdfBadge();
+
       document.getElementById('modal-title').textContent = 'Edit Product';
       document.getElementById('product-modal').classList.add('open');
     }
@@ -519,8 +622,8 @@
         message: 'Are you sure you want to permanently remove this product?',
         confirmText: 'Yes, Delete',
         cancelText: 'Cancel',
-        onConfirm: () => {
-          DB.deleteProduct(id);
+        onConfirm: async () => {
+          await DB.deleteProduct(id);
           renderProductsTable();
           showToast('Product deleted', 'info');
         }
@@ -573,23 +676,62 @@
         }
 
         const validImages = prodImages.filter(Boolean);
+        const targetId = id || ('prod_' + Date.now());
+
+        // Handle direct PDF upload to Firestore if a new file was attached
+        let pdfFileMeta = null;
+        if (prodPdfFile) {
+          if (prodPdfFile.isNew && prodPdfFile.base64) {
+            saveBtn.innerHTML = '<i class="fas fa-cloud-upload-alt fa-spin"></i> Uploading PDF...';
+            const fileId = targetId + '_pdf';
+            if (window.FirebaseService) {
+              const uploadRes = await window.FirebaseService.uploadPdfFile(fileId, prodPdfFile);
+              if (!uploadRes.success) {
+                console.warn('PDF upload error, continuing:', uploadRes.error);
+              }
+            }
+            pdfFileMeta = {
+              fileId,
+              name: prodPdfFile.name,
+              size: prodPdfFile.size,
+              type: prodPdfFile.type || 'application/pdf',
+              uploadedAt: new Date().toISOString()
+            };
+          } else {
+            pdfFileMeta = {
+              fileId: prodPdfFile.fileId || (targetId + '_pdf'),
+              name: prodPdfFile.name,
+              size: prodPdfFile.size,
+              type: prodPdfFile.type || 'application/pdf'
+            };
+          }
+        }
 
         const productData = {
+          id: targetId,
           name, category, price, description, canvaLink, pdfLink, featured,
           status: 'active',
           images: validImages.length ? validImages : [],
-          video: prodVideo || document.getElementById('prod-video-url').value.trim() || ''
+          video: prodVideo || document.getElementById('prod-video-url').value.trim() || '',
+          pdfFile: pdfFileMeta
         };
 
-        // Brief delay for visual loading feedback
-        await new Promise(res => setTimeout(res, 250));
+        saveBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Syncing to Cloud...';
 
         if (id) {
-          DB.updateProduct(id, productData);
-          showToast('Product updated successfully! ✅', 'success');
+          const res = await DB.updateProduct(id, productData);
+          if (res?.cloudResult?.success) {
+            showToast('Product updated & synced to Cloud Firestore! ✅', 'success');
+          } else {
+            showToast('Product updated locally! ✅', 'success');
+          }
         } else {
-          DB.addProduct(productData);
-          showToast('Product added successfully! 🎉', 'success');
+          const res = await DB.addProduct(productData);
+          if (res?.cloudResult?.success) {
+            showToast('Product added & synced to Cloud Firestore! 🎉', 'success');
+          } else {
+            showToast('Product added successfully! 🎉', 'success');
+          }
         }
 
         closeProductModal();

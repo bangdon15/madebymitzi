@@ -1,12 +1,12 @@
 # 🎨 MadeByMitzi — Digital Sticker & Invitation Shop
 
 <p align="center">
-  <img src="images/madebymitzi.jpg" width="110" height="110" style="border-radius: 50%; border: 4px solid #FFD700; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" alt="MadeByMitzi Logo" />
+  <img src="images/madebymitzi.jpg" width="110" height="110" style="border-radius: 50%; border: 4px solid #A8C7A0; box-shadow: 0 6px 18px rgba(107, 142, 90, 0.25);" alt="MadeByMitzi Logo" />
 </p>
 
 <p align="center">
   <b>Handcrafted Digital Sticker Packs & Editable Birthday Invitations</b><br>
-  <i>A creative, Shopee-inspired digital storefront powered by Google Cloud Firebase & Brevo.</i>
+  <i>A warm Studio Ghibli-inspired artisan digital storefront powered by Google Cloud Firebase, Brevo, and Vercel.</i>
 </p>
 
 <p align="center">
@@ -15,10 +15,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Phase%202%20Complete-brightgreen?style=flat-square&logo=checkmarx" alt="Phase 2 Complete" />
+  <img src="https://img.shields.io/badge/Status-Phase%204%20Complete-brightgreen?style=flat-square&logo=checkmarx" alt="Phase 4 Complete" />
+  <img src="https://img.shields.io/badge/Theme-Ghibli%20Artisan-6B8E5A?style=flat-square&logo=leaf" alt="Ghibli Artisan Theme" />
   <img src="https://img.shields.io/badge/Database-Firebase%20Firestore-orange?style=flat-square&logo=firebase" alt="Firebase Firestore" />
-  <img src="https://img.shields.io/badge/Email%20Engine-Brevo%20API-blue?style=flat-square&logo=sendinblue" alt="Brevo API" />
-  <img src="https://img.shields.io/badge/Roadmap-Phase%203%20Semi--Final-purple?style=flat-square" alt="Phase 3 Semi-Final" />
+  <img src="https://img.shields.io/badge/Delivery-Direct%20PDF%20Upload-E11D48?style=flat-square&logo=adobeacrobatreader" alt="Direct PDF Upload" />
+  <img src="https://img.shields.io/badge/Support-Free%20After--Sales%20Suite-0866FF?style=flat-square&logo=messenger" alt="After-Sales Chat" />
+  <img src="https://img.shields.io/badge/Hosting-Hostinger%20Production-673DE6?style=flat-square&logo=hostinger" alt="Hostinger Production" />
   <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank"><img src="https://img.shields.io/badge/Facebook-MadeByMitzi-1877F2?style=flat-square&logo=facebook&logoColor=white" alt="Facebook" /></a>
   <a href="https://www.etsy.com/shop/MadeBymitzidigital" target="_blank"><img src="https://img.shields.io/badge/Etsy-MadeBymitzidigital-F1641E?style=flat-square&logo=etsy&logoColor=white" alt="Etsy" /></a>
 </p>
@@ -60,17 +62,59 @@ In Phase 2, MadeByMitzi graduated from an isolated single-browser prototype into
 
 ---
 
+## 🌿 Phase 4 Architecture: Studio Ghibli Aesthetic, In-House PDF Delivery & After-Sales Suite
+
+In Phase 4, MadeByMitzi underwent a complete visual and architectural overhaul, transitioning into a warm, handcrafted artisan marketplace with robust in-house digital fulfillment and zero-cost customer support.
+
+### 🔑 Key Phase 4 Milestones Accomplished
+
+1. **Studio Ghibli-Inspired Artisan Palette & Dynamic Backdrop**:
+   - **Forest Moss (`#6B8E5A`)**: Core primary brand color for action buttons, badges, active states, and headings.
+   - **Totoro Sage (`#A8C7A0`)**: Soft pastel borders, cards, and accent highlights.
+   - **Rice Cream (`#FAF6EA` / `#F3E8C2`)**: Warm artisan paper backgrounds providing high visual comfort.
+   - **Lightweight Hero Overlay**: High-resolution 16:9 craft studio illustration paired with an 8-second semi-transparent flowing theme gradient overlay (`heroThemeGradientShift`). Text contrast is maintained across all screen sizes.
+
+2. **Direct In-House PDF File Upload System (Chunked Cloud Storage up to 5MB)**:
+   - **Zero External Link Dependencies**: Digital products no longer depend exclusively on Google Drive or external hosting links that can expire or be set to private.
+   - **Firestore Chunker Architecture (`mbm_files`)**: Automatically slices `.pdf` files into ~700KB Base64 chunks with ordered segment indices, bypassing Firestore's 1MB single-document limitation for files up to 5MB.
+   - **Instant Browser Download**: On verified purchase or receipt lookup, `downloadDirectPdf()` reconstructs the chunks on the client into an in-memory binary Blob, triggering an instant native download.
+   - **Admin Drag-and-Drop Uploader**: Seamless uploader in `/admin/products.html` with real-time file size reporting and 1-click removal.
+
+3. **Multi-Device Admin & Database Hardening**:
+   - **Recursive Sanitization**: `FirebaseService.sanitizeProduct()` recursively strips all `undefined` values (which Firestore rejects) and enforces numeric pricing.
+   - **Immediate Initialization**: `FirebaseService.init()` initializes instantly upon script execution without waiting for `DOMContentLoaded`, eliminating connection lag when switching between admin tabs.
+   - **True Multi-Device Synchronization**: Global `mbm_products_synced` listeners in `shop.html` and `admin/products.html` ensure products uploaded on a tablet, laptop, or smartphone appear on every other device in real time.
+
+4. **Etsy-Style Shop Bio & Verified Creator Profile**:
+   - **Full-Width Creator Panel**: Dedicated "Meet the Maker" section showcasing Mitzi's artisan story, verified maker badge, and value perks.
+   - **Admin Bio Management**: Configurable via `/admin/settings.html` with avatar upload, custom craft tagline, and story editor.
+   - **Dynamic Shop Announcement Bar**: Real-time broadcast bar at the top of the storefront synced via Firestore `mbm_settings`.
+
+5. **100% Free After-Sales Support Suite & Order Tracking Widget**:
+   - **Zero Subscription Costs**: Built-in floating support widget (`💬 Need Help?`) on every storefront page without recurring fees (Zendesk, Tawk.to, Intercom).
+   - **Instant Order Tracker**: Lookup orders by ID (e.g. `ORD-829104`) with real-time status stepper (`Pending` ➔ `Confirmed`), payment method summary, and 1-click receipt link.
+   - **Direct Facebook Messenger Link**: 1-click deep-link to `m.me/100094438778151` with pre-filled order context, plus fallback email support (`madebymitzi26@gmail.com`).
+
+6. **Full-Width Section Layout & Facebook Blue to Etsy Orange Animated Gradient**:
+   - **Generous Spacing**: Corrected section hierarchy and added ample breathing room below the "Shop & Leave a Review" button.
+   - **Expanded Edge-to-Edge Panels**: Creator showcase and CTA sections expand across the full container width (`100%`).
+   - **Brand Gradient Flow**: Luminous animated gradient smoothly transitioning between official **Facebook Blue (`#1877F2`)** through an indigo bridge (`#5B50E8`) to **Etsy Orange (`#F1641E`)**.
+
+---
+
 ## 🔄 Architecture & Data Flow
 
 ```mermaid
 flowchart TD
     subgraph ClientLayer ["Customer & Admin Clients"]
-        BuyerBrowser["Customer Browser (Mobile / Desktop)"]
-        AdminBrowser["Admin Browser (Any Device / No Master)"]
+        BuyerBrowser["Customer Browser<br/>(Mobile / Tablet / Desktop)"]
+        AdminBrowser["Admin Browser<br/>(Any Device / No Master Device)"]
+        ChatWidget["After-Sales Widget<br/>(Track Order & Chat)"]
     end
 
-    subgraph CloudDatabase ["Google Cloud Platform"]
-        Firestore[("Firebase Firestore DB<br/>• mbm_products<br/>• mbm_orders<br/>• mbm_settings<br/>• mbm_reviews")]
+    subgraph CloudDatabase ["Google Cloud Platform (Firebase)"]
+        FirestoreDB[("Firestore Database<br/>• mbm_products<br/>• mbm_orders<br/>• mbm_settings<br/>• mbm_reviews")]
+        ChunkedFiles[("Chunked File Store<br/>• mbm_files (PDF Chunks up to 5MB)")]
         Analytics["Google Analytics (G-D1824348H4)"]
     end
 
@@ -78,23 +122,35 @@ flowchart TD
         EmailAPI["/api/send-email<br/>(Serverless Node.js Relay)"]
     end
 
-    subgraph ThirdPartyServices ["Notification & Delivery Providers"]
+    subgraph ThirdPartyServices ["Notification & Messaging Gateways"]
         Brevo["Brevo API<br/>(Transactional Email Gateway)"]
+        Web3Forms["Web3Forms API<br/>(Admin Instant Dispatch)"]
+        FBMessenger["Facebook Messenger<br/>(Direct Maker Support)"]
         BuyerInbox["Buyer Inbox<br/>(Receipt & Download Links)"]
         AdminInbox["Admin Inbox<br/>(madebymitzi26@gmail.com)"]
     end
 
-    %% Flow connections
-    BuyerBrowser -- "1. Places Order & Uploads Receipt" --> Firestore
+    %% Customer Flow
+    BuyerBrowser -- "1. Places Order & Submits Proof" --> FirestoreDB
     BuyerBrowser -- "2. Triggers Notification" --> EmailAPI
-    EmailAPI -- "3. Dispatches via Brevo" --> Brevo
+    BuyerBrowser -. "3. Tracks Order Status" .-> FirestoreDB
+    ChatWidget -- "Direct Inquiries" --> FBMessenger
+
+    %% Direct Delivery Flow
+    BuyerBrowser -- "Downloads Direct PDF" --> ChunkedFiles
+    ChunkedFiles -. "Base64 Chunks ➔ In-Memory Blob" .-> BuyerBrowser
+
+    %% Email Notifications
+    EmailAPI -- "Dispatches via Brevo" --> Brevo
+    EmailAPI -- "Fallback Alert" --> Web3Forms
     Brevo --> BuyerInbox
     Brevo --> AdminInbox
 
-    Firestore -. "Real-Time onSnapshot Sync" .-> AdminBrowser
-    AdminBrowser -- "4. Verifies Payment & Approves" --> Firestore
-    AdminBrowser -- "5. Dispatches Delivery Email" --> EmailAPI
-    Firestore -. "Live Catalog Updates" .-> BuyerBrowser
+    %% Admin Flow
+    AdminBrowser -- "Uploads Product & PDF Chunks" --> ChunkedFiles
+    AdminBrowser -- "Updates Bio & Settings" --> FirestoreDB
+    FirestoreDB -. "Real-Time onSnapshot Sync" .-> AdminBrowser
+    FirestoreDB -. "Live Catalog Sync" .-> BuyerBrowser
     BuyerBrowser -. "Pageviews & Metrics" .-> Analytics
 ```
 
@@ -147,87 +203,102 @@ Security and data integrity were systematically addressed during Phase 2. Below 
 
 ## 📸 Visual Showcase & Screenshots Gallery
 
-### 1. Home Page — Pixel Art Hero & Dynamic Gradient
-A nostalgic pixel-art themed hero section with moving multi-stop gradients, floating feature cards, and real-time business metrics.
+### 1. Home Page — Studio Ghibli Artisan Hero & Dynamic Theme Gradient
+Features our new Ghibli-inspired craft studio illustration, flowing semi-transparent theme gradient, quick stats counters, and warm artisan palette.
 
 ![Home Page Desktop](screenshots/01_home_desktop.png)
 
 ### 2. Mobile-Optimized Responsive Experience
-Custom portrait mobile mode aligns the background illustration to the left while positioning the **Shopping Cart icon** directly beside the **Hamburger menu** on the top right.
+Portrait mobile mode aligns navigation controls, places the shopping cart icon beside the hamburger menu, and scales all typography for comfortable reading.
 
 <p align="center">
   <img src="screenshots/02_home_mobile.png" width="360" alt="Mobile View" />
 </p>
 
-### 3. Call-To-Action (CTA) Section
-Features an animated moving gradient (**White ➔ Blue ➔ Red ➔ Pink**) with official brand buttons for **Facebook** (`#1877F2`) and **Etsy** (`#F1641E`).
+### 3. Call-To-Action (CTA) Section — Facebook Blue to Etsy Orange Flow
+Luminous animated gradient transitioning smoothly from **Facebook Blue (`#1877F2`)** to **Etsy Orange (`#F1641E`)**, paired with custom brand action buttons.
 
 ![CTA Section](screenshots/03_cta_section.png)
 
-### 4. Product Catalog & Category Filtering
-Showcases three distinct product categories with instant client-side filtering, sorting, price range sliders, and live Firestore sync:
+### 4. Meet the Maker — Verified Creator Profile & Dynamic Shop Bio
+Full-width artisan profile panel introducing Mitzi, verified maker badge, handcrafted value perks, and direct Messenger action button.
+
+![Meet the Maker Profile](screenshots/13_maker_profile.png)
+
+### 5. Admin Direct PDF File Uploader — In-House Digital Fulfillment
+Interactive drag-and-drop PDF uploader slicing digital files into cloud chunks, enabling seamless in-house digital delivery without external link dependencies.
+
+![Admin PDF Direct Uploader](screenshots/14_pdf_direct_upload.png)
+
+### 6. Free After-Sales Customer Support & Instant Order Tracker
+Self-contained modal widget allowing buyers to track live orders in real time using their Order ID (`ORD-XXXXXX`) or message Mitzi directly on Facebook Messenger.
+
+![After-Sales Chat Widget](screenshots/15_after_sales_chat.png)
+
+### 7. Product Catalog & Category Filtering
+Showcases three distinct product categories with instant client-side filtering, sorting, price range sliders, and live Firestore synchronization:
 - 🎨 **Sticker Packs** (Physical/Printable waterproof sticker packs)
 - 💌 **Birthday Invitations** (Canva editable & printable templates)
 - ✂️ **Sticker (File only)** (Digital cut files, SVG, PNG, and GoodNotes files)
 
 ![Shop Catalog](screenshots/04_shop_catalog.png)
 
-### 5. Product Details & Star Ratings
+### 8. Product Details & Star Ratings
 Displays high-resolution previews, instant digital delivery badges, quantity selector, and verified customer testimonials with an interactive "Write a Review" form.
 
 ![Product Details](screenshots/05_product_detail.png)
 
-### 6. Shopping Cart & Local Checkout Flow
-Shopee-style cart with live subtotal calculation, coupon discounts (`MITZI10` / `WELCOME`), and a checkout flow for **GCash** and **Bank Transfer** with payment screenshot upload and reference number verification.
+### 9. Shopping Cart & Local Checkout Flow
+Shopee-style cart with live subtotal calculation, coupon discounts (`MITZI10` / `WELCOME`), and checkout support for **GCash** and **Bank Transfer** with payment screenshot upload.
 
 ![Shopping Cart](screenshots/06_checkout_gcash.png)
 
-### 7. Real-Time Admin Dashboard
+### 10. Real-Time Admin Dashboard
 Dedicated admin suite at `/admin` for tracking orders, reviewing verified earnings, inspecting customer receipts, adding/editing products, and updating payment QR codes.
 
 ![Admin Portal](screenshots/07_admin_dashboard.png)
 
-### 8. Order Management & Payment Verification
+### 11. Order Management & Payment Verification
 Centralized order inspection interface where the store owner reviews uploaded GCash receipts, verifies transaction numbers, and approves digital asset delivery with one click.
 
 ![Admin Orders](screenshots/08_admin_orders.png)
 
-### 9. Product Catalog & Inventory Management
-Live inventory management allowing the admin to add new sticker packs or invitation templates, manage pricing, toggle active status, and link Canva editable templates.
+### 12. Product Catalog & Inventory Management
+Live inventory management allowing the admin to add new sticker packs or invitation templates, manage pricing, toggle active status, and link direct PDF downloads.
 
 ![Admin Products](screenshots/09_admin_products.png)
 
-### 10. Admin Configuration & Brevo / Cloud Settings
+### 13. Admin Configuration & Cloud Settings
 Control center for updating GCash numbers, bank accounts, Brevo automated email dispatch keys, and Google Cloud Firestore database synchronization.
 
 ![Admin Settings](screenshots/10_admin_settings.png)
 
-### 11. Customer Official Digital Receipt & Status Tracker
-Interactive branded receipt page featuring a live verification stepper (`Pending` ➔ `Confirmed`), reference number tracking, and instant buttons to access Canva templates and downloadable PDFs.
+### 14. Customer Official Digital Receipt & Status Tracker
+Interactive branded receipt page featuring a live verification stepper (`Pending` ➔ `Confirmed`), reference number tracking, and instant buttons to download direct PDFs and Canva templates.
 
 ![Customer Digital Receipt](screenshots/11_customer_receipt.png)
 
-### 12. Secure Admin Login Portal with Google Preset
+### 15. Secure Admin Login Portal with Google Preset
 Multi-tiered authentication portal featuring encrypted credentials verification, brute-force rate-limiting, and 1-click **Sign In with Google (Mitzi Preset)** for authorized store owner devices.
 
 ![Admin Login Portal](screenshots/12_admin_login.png)
 
 ---
 
-## 🔮 Phase 3 Roadmap: Semi-Final Testing & Launch Preparation
+## 🔮 Phase 5 Roadmap: Public Growth & Launch Operations
 
-With Phase 2 successfully completed, the project now enters **Phase 3 (Semi-Final Test)**:
+With Phase 4 successfully completed and live on production:
 
-- [ ] **1. Custom Domain Name Hosting**:
-  - Connect a custom branded domain (e.g., `madebymitzi.com` / `madebymitzi.store`) via Vercel DNS.
-  - Configure automated SSL certificates and HTTPS enforcement.
-- [ ] **2. Product Catalog Modifications & Customer Custom Requests**:
-  - Finalize all high-res product photos, Canva template master links, and downloadable PDF assets.
-  - Implement custom invitation requests form (for personalized customer names, dates, and event themes).
-- [ ] **3. Quality Assurance (QA) Review & Edge Case Testing**:
-  - Review end-to-end checkout test orders across various mobile devices and browsers.
-  - Validate email deliverability across Gmail, Yahoo, Outlook, and Apple Mail inboxes.
-  - Audit database performance and real-time synchronization under high-frequency updates.
+- [x] **1. Ghibli Artisan Theme & UI Polish** (Complete)
+- [x] **2. Direct In-House PDF Cloud Delivery** (Complete)
+- [x] **3. Zero-Cost After-Sales Chat & Order Tracking** (Complete)
+- [x] **4. Full-Width Section Refinements & Brand Gradients** (Complete)
+- [ ] **5. Product Catalog Expansion**:
+  - Add remaining seasonal sticker packs (Christmas, Graduation, Halloween).
+  - Add customized party printable packages.
+- [ ] **6. Marketing & Social Integration**:
+  - Link Instagram / TikTok video showcases directly to product pages.
+  - Setup Facebook Pixel conversion tracking for ad campaigns.
 
 ---
 

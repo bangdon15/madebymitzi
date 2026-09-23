@@ -17,12 +17,11 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    /* ── Hero Pixel Background ── */
+    /* ── Hero Artisan Layout ── */
     .hero {
       gap: 40px;
       position: relative;
       overflow: hidden;
-      background: none !important;
     }
 
     .hero-bg {
@@ -31,52 +30,7 @@
       background-image: url('images/background.jpg');
       background-size: cover;
       background-position: center bottom;
-      transform: scale(1.08);
-      transition: transform 0.1s linear;
-      will-change: transform;
       z-index: 0;
-    }
-
-    /* Animated green gradient overlay */
-    .hero-bg::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg,
-          rgba(0, 80, 0, 0.72) 0%,
-          rgba(0, 168, 107, 0.65) 25%,
-          rgba(0, 200, 83, 0.55) 50%,
-          rgba(15, 82, 186, 0.60) 75%,
-          rgba(255, 215, 0, 0.40) 100%);
-      background-size: 400% 400%;
-      animation: gradientShift 6s ease infinite;
-    }
-
-    @keyframes gradientShift {
-      0% {
-        background-position: 0% 50%;
-      }
-
-      50% {
-        background-position: 100% 50%;
-      }
-
-      100% {
-        background-position: 0% 50%;
-      }
-    }
-
-    /* Pixel scanline effect for fun */
-    .hero-bg::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(0deg,
-          transparent,
-          transparent 3px,
-          rgba(0, 0, 0, 0.06) 3px,
-          rgba(0, 0, 0, 0.06) 4px);
-      z-index: 1;
       pointer-events: none;
     }
 
@@ -182,6 +136,8 @@
     /* Reviews section */
     .reviews-section {
       background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+      padding-top: clamp(48px, 8vw, 80px);
+      padding-bottom: clamp(64px, 10vw, 104px);
     }
 
     .reviews-section .section-title {
@@ -270,19 +226,21 @@
       font-size: 0.85rem;
     }
 
-    /* CTA section */
+    /* CTA section - Facebook Blue to Etsy Orange */
     .cta-section {
       background: linear-gradient(135deg,
-          #FFFFFF 0%,
-          #1E40AF 28%,
-          #DC2626 62%,
-          #EC4899 100%);
-      background-size: 300% 300%;
-      animation: ctaGradientShift 8s ease infinite;
+          #1877F2 0%,
+          #0866FF 24%,
+          #5B50E8 48%,
+          #EA580C 76%,
+          #F1641E 100%);
+      background-size: 260% 260%;
+      animation: ctaGradientShift 9s ease infinite;
       text-align: center;
-      padding: clamp(48px, 8vw, 96px) clamp(16px, 5vw, 80px);
+      padding: clamp(60px, 8vw, 100px) clamp(16px, 5vw, 80px);
       position: relative;
       overflow: hidden;
+      width: 100%;
     }
 
     @keyframes ctaGradientShift {
@@ -406,23 +364,6 @@
     }
 
     @media(max-width:768px) {
-      /* Mobile mode: show left-most side of background image */
-      .hero-bg {
-        background-image: url('images/background.jpg') !important;
-        background-size: cover !important;
-        background-position: left bottom !important;
-        transform: none !important;
-      }
-
-      .hero-bg::before {
-        display: none !important;
-      }
-
-      .hero-bg::after {
-        display: block !important;
-        opacity: 0.72;
-      }
-
       .features-strip {
         gap: 16px;
       }
@@ -475,6 +416,14 @@
     <a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
   </nav>
 
+  <!-- ════════════════════ ANNOUNCEMENT BAR ════════════════════ -->
+  <div id="shop-announcement-bar" class="announcement-bar" style="display:none;">
+    <div class="announcement-content">
+      <span class="announcement-icon">🌿</span>
+      <span id="announcement-text">Welcome to MadeByMitzi! Enjoy handcrafted digital designs.</span>
+    </div>
+  </div>
+
   <!-- ════════════════════ HERO ════════════════════ -->
   <section class="hero" id="hero">
     <div class="hero-bg" id="hero-bg"></div>
@@ -482,7 +431,7 @@
       <div class="hero-badge">
         <span>✨</span> New designs every week!
       </div>
-      <h1>Designs That<br /><span>Tell Your Story</span> 🎉</h1>
+      <h1>Designs That<br /><span>Tell Your Story</span></h1>
       <p>Premium sticker packs & birthday invitation designs — made with love by Mitzi. Customizable, printable, and
         delivered digitally!</p>
       <div class="hero-actions">
@@ -494,16 +443,16 @@
         </a>
       </div>
       <div style="display:flex;gap:24px;margin-top:32px;flex-wrap:wrap;">
-        <div style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
-          <span style="color:var(--yellow);font-weight:800;font-size:1.1rem;"
+        <div style="color:rgba(255,255,255,0.9);font-size:0.85rem;text-shadow:0 1px 4px rgba(0,0,0,0.3);">
+          <span style="color:var(--rice-cream);font-weight:800;font-size:1.15rem;text-shadow:0 1px 6px rgba(0,0,0,0.3);"
             id="hero-products-count">6</span><br />Products
         </div>
-        <div style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
-          <span style="color:var(--yellow);font-weight:800;font-size:1.1rem;"
+        <div style="color:rgba(255,255,255,0.9);font-size:0.85rem;text-shadow:0 1px 4px rgba(0,0,0,0.3);">
+          <span style="color:var(--rice-cream);font-weight:800;font-size:1.15rem;text-shadow:0 1px 6px rgba(0,0,0,0.3);"
             id="hero-orders-count">400+</span><br />Happy Customers
         </div>
-        <div style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
-          <span style="color:var(--yellow);font-weight:800;font-size:1.1rem;">⭐ 5.0</span><br />Rating
+        <div style="color:rgba(255,255,255,0.9);font-size:0.85rem;text-shadow:0 1px 4px rgba(0,0,0,0.3);">
+          <span style="color:var(--rice-cream);font-weight:800;font-size:1.15rem;text-shadow:0 1px 6px rgba(0,0,0,0.3);">⭐ 5.0</span><br />Rating
         </div>
       </div>
     </div>
@@ -698,10 +647,39 @@
         </div>
       </div>
       <div class="reviews-grid" id="reviews-grid"></div>
-      <div style="text-align:center;margin-top:32px;" class="reveal">
+      <div style="text-align:center;margin-top:40px;margin-bottom:28px;" class="reveal">
         <a href="shop.html" class="btn btn-primary btn-lg">
           <i class="fas fa-star"></i> Shop & Leave a Review
         </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════ MEET THE CREATOR ════════════════════ -->
+  <section class="creator-section reveal" id="about-creator">
+    <div class="container">
+      <div class="creator-card">
+        <div class="creator-avatar-wrap">
+          <img src="images/madebymitzi.jpg" alt="Mitzi" id="creator-avatar" class="creator-avatar" onerror="this.src='images/madebymitzi.jpg'" />
+          <div class="creator-badge"><i class="fas fa-check-circle"></i> Verified Maker</div>
+        </div>
+        <div class="creator-info">
+          <div class="creator-tag"><i class="fas fa-heart"></i> Meet the Maker</div>
+          <h2 class="creator-name" id="creator-name">Mitzi</h2>
+          <div class="creator-title" id="creator-title">Digital Artist & Invitation Designer</div>
+          <p class="creator-bio" id="creator-bio">
+            Hi! I'm Mitzi, the creator behind MadeByMitzi. I handcraft joyful sticker packs, personalized birthday invitations, and digital celebration assets. Every design is crafted with love and attention to detail to help make your milestones magical!
+          </p>
+          <div class="creator-perks">
+            <span class="creator-perk"><i class="fas fa-magic"></i> 100% Original Designs</span>
+            <span class="creator-perk"><i class="fas fa-bolt"></i> Instant Digital Delivery</span>
+            <span class="creator-perk"><i class="fas fa-comment-dots"></i> Free After-Sales Help</span>
+          </div>
+          <div class="creator-actions">
+            <a href="shop.html" class="btn btn-primary"><i class="fas fa-store"></i> Browse Collection</a>
+            <button type="button" onclick="window.MbmChat && window.MbmChat.open('chat')" class="btn btn-secondary"><i class="fab fa-facebook-messenger"></i> Message Mitzi</button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -783,6 +761,7 @@
   <script src="js/firebase-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/after-sales-chat.js"></script>
   <script>
     function renderHomepageProducts() {
       const featuredScroll = document.getElementById('featured-scroll');
@@ -819,9 +798,41 @@
       });
     }
 
+    function renderCreatorBio() {
+      const bio = DB.getBio();
+      if (!bio) return;
+      const nameEl = document.getElementById('creator-name');
+      const titleEl = document.getElementById('creator-title');
+      const bioEl = document.getElementById('creator-bio');
+      const avatarEl = document.getElementById('creator-avatar');
+
+      if (nameEl && bio.name) nameEl.textContent = bio.name;
+      if (titleEl && bio.tagline) titleEl.textContent = bio.tagline;
+      if (bioEl && bio.bio) bioEl.textContent = bio.bio;
+      if (avatarEl && bio.avatar) avatarEl.src = bio.avatar;
+    }
+
+    function renderAnnouncement() {
+      const settings = DB.getSettings();
+      const bar = document.getElementById('shop-announcement-bar');
+      const textEl = document.getElementById('announcement-text');
+      if (!bar) return;
+
+      if (settings && settings.announcementText && settings.announcementText.trim()) {
+        if (textEl) textEl.textContent = settings.announcementText.trim();
+        bar.style.display = 'block';
+      } else {
+        bar.style.display = 'none';
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       // Featured products showcase
       renderHomepageProducts();
+
+      // Creator bio & announcement
+      renderCreatorBio();
+      renderAnnouncement();
 
       // Reviews
       const reviewsGrid = document.getElementById('reviews-grid');
@@ -853,6 +864,11 @@
       renderHomepageProducts();
       initReveal();
     });
+
+    window.addEventListener('mbm_settings_synced', () => {
+      renderCreatorBio();
+      renderAnnouncement();
+    });
   </script>
 
   <style>
@@ -862,42 +878,6 @@
       box-shadow: var(--shadow-lg);
     }
   </style>
-
-  <script>
-    // Mouse parallax for hero background
-    (function () {
-      const heroBg = document.getElementById('hero-bg');
-      if (!heroBg) return;
-      let tX = 0, tY = 0, cX = 0, cY = 0;
-      document.addEventListener('mousemove', e => {
-        const hw = window.innerWidth / 2;
-        const hh = window.innerHeight / 2;
-        tX = (e.clientX - hw) / hw * -14;
-        tY = (e.clientY - hh) / hh * -8;
-      });
-      function animate() {
-        if (window.innerWidth <= 768) {
-          heroBg.style.transform = '';
-          return;
-        }
-        cX += (tX - cX) * 0.07;
-        cY += (tY - cY) * 0.07;
-        heroBg.style.transform = `scale(1.12) translate(${cX}px, ${cY}px)`;
-        requestAnimationFrame(animate);
-      }
-      animate();
-      // Touch parallax for mobile (only tablets/larger touch devices)
-      if (window.innerWidth > 768) {
-        document.addEventListener('touchmove', e => {
-          const t = e.touches[0];
-          const hw = window.innerWidth / 2;
-          const hh = window.innerHeight / 2;
-          tX = (t.clientX - hw) / hw * -10;
-          tY = (t.clientY - hh) / hh * -6;
-        }, { passive: true });
-      }
-    })();
-  </script>
 </body>
 
 </html>

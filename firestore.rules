@@ -58,6 +58,16 @@ service cloud.firestore {
     match /mbm_notifications/{docId} {
       allow read, write: if true;
     }
+
+    // 7. Store Settings, Creator Profile & Announcements
+    match /mbm_settings/{docId} {
+      allow read, write: if true;
+    }
+
+    // 8. Direct Printable PDF Uploads & Digital Delivery Files
+    match /mbm_files/{fileId} {
+      allow read, write: if true;
+    }
   }
 }
 
