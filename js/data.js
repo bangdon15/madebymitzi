@@ -123,37 +123,55 @@ const DB = {
   getProduct(id) {
     return this.getProducts().find(p => p.id === id) || null;
   },
-  addProduct(product) {
+  async addProduct(product) {
     const products = this.getProducts();
-    product.id = 'prod_' + Date.now();
-    product.createdAt = new Date().toISOString();
-    product.sales = 0;
+    if (!product.id) {
+      product.id = 'prod_' + Date.now();
+    }
+    product.createdAt = product.createdAt || new Date().toISOString();
+    product.sales = product.sales || 0;
     products.unshift(product);
     this.setProducts(products);
-    // Phase 2: Cloud Database sync
-    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
-      window.FirebaseService.syncProduct?.(product)?.catch?.(e => console.warn('Cloud sync error:', e));
+
+    let cloudResult = { success: true, localOnly: true };
+    if (typeof window !== 'undefined' && window.FirebaseService) {
+      try {
+        cloudResult = await window.FirebaseService.syncProduct(product);
+      } catch (e) {
+        console.warn('Cloud sync error:', e);
+        cloudResult = { success: false, error: e.message };
+      }
     }
-    return product;
+    return { product, cloudResult };
   },
-  updateProduct(id, data) {
+  async updateProduct(id, data) {
     const products = this.getProducts();
     const idx = products.findIndex(p => p.id === id);
     if (idx === -1) return null;
     products[idx] = { ...products[idx], ...data, updatedAt: new Date().toISOString() };
     this.setProducts(products);
-    // Phase 2: Cloud Database sync
-    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
-      window.FirebaseService.syncProduct?.(products[idx])?.catch?.(e => console.warn('Cloud sync error:', e));
+
+    let cloudResult = { success: true, localOnly: true };
+    if (typeof window !== 'undefined' && window.FirebaseService) {
+      try {
+        cloudResult = await window.FirebaseService.syncProduct(products[idx]);
+      } catch (e) {
+        console.warn('Cloud sync error:', e);
+        cloudResult = { success: false, error: e.message };
+      }
     }
-    return products[idx];
+    return { product: products[idx], cloudResult };
   },
-  deleteProduct(id) {
+  async deleteProduct(id) {
     const products = this.getProducts().filter(p => p.id !== id);
     this.setProducts(products);
-    // Phase 2: Cloud Database sync
-    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
-      window.FirebaseService.deleteProductFromCloud?.(id)?.catch?.(e => console.warn('Cloud sync error:', e));
+    if (typeof window !== 'undefined' && window.FirebaseService) {
+      try {
+        await window.FirebaseService.deleteProductFromCloud?.(id);
+        await window.FirebaseService.deletePdfFile?.(id + '_pdf');
+      } catch (e) {
+        console.warn('Cloud sync error:', e);
+      }
     }
   },
 
@@ -392,6 +410,12 @@ const DB = {
       brevoApiKey: '',
       brevoSenderEmail: 'brepublic15@gmail.com',
       resendApiKey: '',
+      // Etsy-Style Shop Bio & Creator Profile
+      creatorName: 'Mitzi',
+      creatorTitle: 'Founder, Illustrator & Party Stationery Artist',
+      creatorAvatar: 'images/madebymitzi.jpg',
+      creatorBio: 'Welcome to MadeByMitzi! 🌿 I specialize in creating aesthetic birthday invitation templates, printable party stationery, and waterproof sticker packs crafted with love. Every design is carefully hand-drawn and curated to make your celebrations personal, magical, and unforgettable.',
+      shopAnnouncement: '✨ Welcome to our artisan storefront! Instant digital downloads & Canva template links delivered with every order.',
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};
     // Migration: ensure if stored has outdated placeholder email, upgrade to active madebymitzi26@gmail.com
@@ -412,6 +436,29 @@ const DB = {
     if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.syncSettings === 'function') {
       window.FirebaseService.syncSettings(updated).catch(e => console.warn('Settings cloud sync:', e));
     }
+  },
+
+  getBio() {
+    const s = this.getSettings();
+    return {
+      name: s.creatorName || 'Mitzi',
+      title: s.creatorTitle || 'Founder, Illustrator & Designer',
+      avatar: s.creatorAvatar || 'images/madebymitzi.jpg',
+      bio: s.creatorBio || '',
+      announcement: s.shopAnnouncement || '',
+      facebook: s.shopFacebook || '',
+      etsy: s.shopEtsy || ''
+    };
+  },
+
+  saveBio(data) {
+    this.saveSettings({
+      creatorName: data.name,
+      creatorTitle: data.title,
+      creatorAvatar: data.avatar,
+      creatorBio: data.bio,
+      shopAnnouncement: data.announcement
+    });
   },
 
   // Generate Email Draft for Customer & Notification
