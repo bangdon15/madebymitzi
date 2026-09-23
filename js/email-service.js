@@ -9,7 +9,7 @@
  */
 
 const EmailService = {
-  
+
   /**
    * Returns current origin/base URL for confirmation and receipt links
    */
@@ -39,7 +39,7 @@ const EmailService = {
       const prod = (typeof DB !== 'undefined') ? DB.getProduct(item.productId) : null;
       const canvaLink = prod?.canvaLink || item.canvaLink || '';
       const pdfLink = prod?.pdfLink || item.pdfLink || '';
-      
+
       let deliveryLinks = '';
       if (isConfirmed) {
         deliveryLinks = `
@@ -187,7 +187,7 @@ const EmailService = {
             <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: left; font-size: 14px; color: #92400E;">
               <strong style="font-size: 15px;">⏳ What Happens Next:</strong>
               <p style="margin: 8px 0 0; line-height: 1.5;">
-                Designer Mitzi Santos is currently verifying your ${(order.paymentMethod || 'GCash').toUpperCase()} payment. As soon as verified, you will receive a second email releasing your <strong>editable Canva template links</strong> and <strong>high-resolution printable PDF links</strong>!
+                Designer Mitzi is currently verifying your ${(order.paymentMethod || 'GCash').toUpperCase()} payment. As soon as verified, you will receive a second email releasing your <strong>editable Canva template links</strong> and <strong>high-resolution printable PDF links</strong>!
               </p>
             </div>
 
@@ -202,7 +202,7 @@ const EmailService = {
 
           <!-- Note from Mitzi -->
           <div style="margin-top: 24px; background: #ffffff; border-radius: 16px; padding: 20px; text-align: center; font-size: 13px; color: #6B7280; border: 1px solid #E5E7EB;">
-            <p style="margin: 0 0 6px; font-weight: bold; color: #1F2937;">💌 A Note from Mitzi Santos:</p>
+            <p style="margin: 0 0 6px; font-weight: bold; color: #1F2937;">💌 A Note from Mitzi:</p>
             <p style="margin: 0; font-style: italic;">"Thank you for supporting MadeByMitzi! If you need any assistance, reply directly to this email or chat with us on Facebook."</p>
             <div style="margin-top: 12px; font-size: 12px;">
               Chat with us: <a href="${settings.shopFacebook || 'https://www.facebook.com/profile.php?id=100094438778151'}" target="_blank" style="color:#0F52BA;font-weight:bold;">Facebook Messenger</a>
@@ -311,7 +311,7 @@ const EmailService = {
 
           <!-- Note from Mitzi -->
           <div style="margin-top: 24px; background: #ffffff; border-radius: 16px; padding: 20px; text-align: center; font-size: 13px; color: #6B7280; border: 1px solid #E5E7EB;">
-            <p style="margin: 0 0 6px; font-weight: bold; color: #1F2937;">💌 A Note from Mitzi Santos:</p>
+            <p style="margin: 0 0 6px; font-weight: bold; color: #1F2937;">💌 A Note from Mitzi:</p>
             <p style="margin: 0; font-style: italic;">"${settings.emailDeliveryNote || 'Enjoy your designs! Tag us on Facebook or leave us a review.'}"</p>
             <div style="margin-top: 12px; font-size: 12px;">
               Need help? Reply to this email or chat with us on 
@@ -551,7 +551,7 @@ Hi ${custName},
 
 Thank you so much for ordering with MadeByMitzi! We have received your order details and payment reference (${order.refNumber || 'N/A'}).
 
-Designer Mitzi Santos is currently verifying your ${(order.paymentMethod || 'GCash').toUpperCase()} payment. As soon as verified, your Canva editable template links and high-resolution PDF download links will be released!
+Designer Mitzi is currently verifying your ${(order.paymentMethod || 'GCash').toUpperCase()} payment. As soon as verified, your Canva editable template links and high-resolution PDF download links will be released!
 
 📦 ORDER SUMMARY:
 Order Number: ${order.id}
@@ -566,7 +566,7 @@ Reference / Ref #: ${order.refNumber || 'N/A'}
 ${receiptUrl}
 (You can open this link anytime for live payment verification and file download status)
 
-💌 A Note from Mitzi Santos:
+💌 A Note from Mitzi:
 "Thank you so much for supporting MadeByMitzi! If you have any questions or need rush assistance, please reply directly to this email or chat with us on Facebook."
 
 Facebook Page:
@@ -623,7 +623,7 @@ ${itemsSummary}
 ${receiptUrl}
 (Click the link above to view, download, or print your official PDF receipt anytime)
 
-💌 A Note from Mitzi Santos:
+💌 A Note from Mitzi:
 "${settings.emailDeliveryNote || 'Enjoy your designs! Tag us on Facebook or leave us a review.'}"
 
 Need help editing or printing?
