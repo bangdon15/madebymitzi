@@ -105,11 +105,13 @@ const FirebaseService = {
           }
         }).catch(() => {});
 
-        // 3. Initial settings sync
+        // 3. Initial settings sync (Dispatches live UI update on initial fetch)
         this.fetchSettings().then(cloudSettings => {
           if (cloudSettings && typeof window.DB !== 'undefined') {
             const current = window.DB.getSettings();
-            window.DB.set(window.DB.KEYS.SETTINGS, { ...current, ...cloudSettings });
+            const merged = { ...current, ...cloudSettings };
+            window.DB.set(window.DB.KEYS.SETTINGS, merged);
+            window.dispatchEvent(new CustomEvent('mbm_settings_synced', { detail: merged }));
           }
         }).catch(() => {});
 
@@ -164,8 +166,9 @@ const FirebaseService = {
             this.db.collection('mbm_settings').doc('main_settings').onSnapshot(doc => {
               if (doc.exists && typeof window.DB !== 'undefined') {
                 const current = window.DB.getSettings();
-                window.DB.set(window.DB.KEYS.SETTINGS, { ...current, ...doc.data() });
-                window.dispatchEvent(new CustomEvent('mbm_settings_synced', { detail: doc.data() }));
+                const merged = { ...current, ...doc.data() };
+                window.DB.set(window.DB.KEYS.SETTINGS, merged);
+                window.dispatchEvent(new CustomEvent('mbm_settings_synced', { detail: merged }));
               }
             }, err => console.warn('Settings live listener notice:', err.message));
           } catch (e) {}
@@ -712,35 +715,79 @@ const FirebaseService = {
   },
 
   /**
-   * Sync store settings to Firestore mbm_settings collection
+   * Direct REST fallback: Sync settings via HTTP PATCH
    */
-  async syncSettings(settingsData) {
-    if (!this.isInitialized || !this.db) return false;
+  async syncSettingsRest(settingsData) {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
+    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_settings/main_settings?key=${config.apiKey}`;
     try {
-      await this.db.collection('mbm_settings').doc('main_settings').set(settingsData, { merge: true });
-      console.log('✅ Store settings synced to Cloud Firestore.');
+      const resp = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: this.toFirestoreFields(settingsData) })
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) {
+        throw new Error(data.error?.message || `HTTP ${resp.status}`);
+      }
+      console.log('✅ Store settings synced via Firestore REST API.');
       return true;
-    } catch (err) {
-      console.warn('Error syncing settings to Firestore:', err);
+    } catch (e) {
+      console.warn('REST API syncSettings error:', e);
       return false;
     }
   },
 
   /**
-   * Fetch store settings from Firestore mbm_settings collection
+   * Direct REST fallback: Fetch settings via HTTP GET
    */
-  async fetchSettings() {
-    if (!this.isInitialized || !this.db) return null;
+  async fetchSettingsRest() {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return null;
+    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_settings/main_settings?key=${config.apiKey}`;
     try {
-      const doc = await this.db.collection('mbm_settings').doc('main_settings').get();
-      if (doc.exists) {
-        return doc.data();
-      }
-      return null;
-    } catch (err) {
-      console.warn('Error fetching settings from Firestore:', err);
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (!resp.ok || !data.fields) return null;
+      return this.fromFirestoreFields(data.fields);
+    } catch (e) {
+      console.warn('REST API fetchSettings error:', e);
       return null;
     }
+  },
+
+  /**
+   * Sync store settings to Firestore mbm_settings collection (Dual SDK + REST fallback)
+   */
+  async syncSettings(settingsData) {
+    if (this.db) {
+      try {
+        await this.db.collection('mbm_settings').doc('main_settings').set(settingsData, { merge: true });
+        console.log('✅ Store settings synced to Cloud Firestore SDK.');
+        return true;
+      } catch (err) {
+        console.warn('Firestore SDK syncSettings error, trying REST API fallback:', err.message);
+      }
+    }
+    return await this.syncSettingsRest(settingsData);
+  },
+
+  /**
+   * Fetch store settings from Firestore mbm_settings collection (Dual SDK + REST fallback)
+   */
+  async fetchSettings() {
+    if (this.db) {
+      try {
+        const doc = await this.db.collection('mbm_settings').doc('main_settings').get();
+        if (doc.exists) {
+          return doc.data();
+        }
+      } catch (err) {
+        console.warn('Firestore SDK fetchSettings error, trying REST API fallback:', err.message);
+      }
+    }
+    return await this.fetchSettingsRest();
   }
 };
 
