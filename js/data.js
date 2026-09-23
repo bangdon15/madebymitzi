@@ -6,12 +6,12 @@ const DB = {
   // ── Keys ──────────────────────────────────────────
   KEYS: {
     PRODUCTS: 'mbm_products',
-    ORDERS:   'mbm_orders',
-    REVIEWS:  'mbm_reviews',
-    CART:     'mbm_cart',
-    SESSION:  'mbm_admin_session',
+    ORDERS: 'mbm_orders',
+    REVIEWS: 'mbm_reviews',
+    CART: 'mbm_cart',
+    SESSION: 'mbm_admin_session',
     SETTINGS: 'mbm_settings',
-    AUTH:     'mbm_admin_auth',
+    AUTH: 'mbm_admin_auth',
   },
 
   // ── Admin Security (Salted SHA-256 Hashing) ─────────
@@ -53,7 +53,7 @@ const DB = {
   async updateAdminCredentials(currentPassword, newUsername, newPassword, newEmail) {
     const auth = this.getAdminAuth();
     const currentHash = await this.hashPassword(currentPassword);
-    
+
     // Check current password (hash or legacy fallback)
     if (currentHash !== auth.passwordHash && currentPassword !== 'superUser112922') {
       return { success: false, message: 'Current password is incorrect.' };
@@ -135,7 +135,7 @@ const DB = {
     try {
       const deleted = JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]');
       localStorage.setItem('mbm_deleted_products', JSON.stringify([...new Set([...deleted, ...ids])]));
-    } catch (e) {}
+    } catch (e) { }
 
     this.setProducts([]);
     if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.clearAllProductsFromCloud === 'function') {
@@ -165,7 +165,7 @@ const DB = {
     try {
       const deleted = JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]');
       localStorage.setItem('mbm_deleted_products', JSON.stringify(deleted.filter(id => id !== product.id)));
-    } catch (e) {}
+    } catch (e) { }
 
     let cloudResult = { success: true, localOnly: true };
     if (typeof window !== 'undefined' && window.FirebaseService) {
@@ -201,7 +201,7 @@ const DB = {
       const deleted = JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]');
       deleted.push(id);
       localStorage.setItem('mbm_deleted_products', JSON.stringify([...new Set(deleted)]));
-    } catch (e) {}
+    } catch (e) { }
 
     const products = this.getProducts().filter(p => p.id !== id);
     this.setProducts(products);
@@ -557,7 +557,7 @@ ${itemsText || 'Digital design links ready'}
 📄 VIEW & DOWNLOAD OFFICIAL PRINTABLE RECEIPT / PDF:
 ${receiptUrl}
 
-💌 A Note from Mitzi Santos:
+💌 A Note from Mitzi:
 "${settings.emailDeliveryNote || 'Enjoy your designs! Tag us on Facebook or leave us a review.'}"
 
 Need help editing or printing?
@@ -652,7 +652,7 @@ Mitzi Santos — MadeByMitzi ✨`;
     let attempts = { count: 0, lockUntil: 0 };
     try {
       attempts = JSON.parse(sessionStorage.getItem(attemptsKey) || '{"count":0,"lockUntil":0}');
-    } catch {}
+    } catch { }
 
     if (attempts.lockUntil && Date.now() < attempts.lockUntil) {
       const waitSec = Math.ceil((attempts.lockUntil - Date.now()) / 1000);
@@ -678,7 +678,7 @@ Mitzi Santos — MadeByMitzi ✨`;
 
     const auth = this.getAdminAuth();
     const inputHash = await this.hashPassword(password);
-    
+
     // Check credentials against salted hash or legacy default
     const validUser = (username === auth.username || (auth.email && username === auth.email) || username === 'madebymitzi26@gmail.com');
     const validPass = (inputHash === auth.passwordHash || (password === 'superUser112922' && (username === auth.username || username === 'madebymitzi26@gmail.com')));

@@ -1,9 +1,11 @@
 /* ===================================================
    MadeByMitzi — Global Design System
-   Phase 4 Artisan Palette:
-   • Forest Moss: #6B8E5A
-   • Totoro Sage: #A8C7A0
-   • Rice Cream:  #F3E8C2
+   Official Artisan Palette:
+   • Dark green:     #0A3323
+   • Moss green:     #839958
+   • Beige:          #F7F4D5
+   • Rosy brown:     #D3968C
+   • Midnight green: #105666
 =================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800&display=swap');
@@ -11,40 +13,46 @@
 /* ── CSS Variables ── */
 :root {
   /* Official Brand Palette from owner */
-  --forest-moss:   #6B8E5A;
-  --forest-dark:   #4D6940;
-  --forest-deep:   #24331E;
-  --forest-light:  #87A876;
-
-  --totoro-sage:   #A8C7A0;
-  --sage-light:    #D6E6D2;
-  --sage-subtle:   #F0F6EE;
-
-  --rice-cream:    #F3E8C2;
-  --cream-light:   #FAF6EA;
-  --cream-border:  #E6D8AD;
+  --dark-green:     #0A3323;
+  --moss-green:     #839958;
+  --beige:          #F7F4D5;
+  --rosy-brown:     #D3968C;
+  --midnight-green: #105666;
 
   /* Aliased functional tokens for seamless sitewide harmony */
-  --blue:        #6B8E5A; /* Forest Moss primary */
-  --blue-dark:   #4D6940;
-  --blue-light:  #87A876;
-  --green:       #5C804C; /* Forest Moss accent */
-  --green-dark:  #426135;
-  --green-light: #A8C7A0; /* Totoro Sage */
-  --yellow:      #F3E8C2; /* Rice Cream accent */
-  --yellow-dark: #E4D3A1;
-  --yellow-light:#FAF6EA;
-  --teal:        #24331E;
-  --azure:       #EBF3E8; /* Soft Sage Tint */
+  --forest-moss:   #839958; /* Moss green */
+  --forest-dark:   #0A3323; /* Dark green */
+  --forest-deep:   #0A3323; /* Dark green */
+  --forest-light:  #9ab570;
+
+  --totoro-sage:   #839958;
+  --sage-light:    #e4edd6;
+  --sage-subtle:   #F7F4D5;
+
+  --rice-cream:    #F7F4D5; /* Beige */
+  --cream-light:   #FAF8E2;
+  --cream-border:  #E8E3BC;
+
+  --blue:        #105666; /* Midnight green */
+  --blue-dark:   #0A3323; /* Dark green */
+  --blue-light:  #18788f;
+  --green:       #839958; /* Moss green */
+  --green-dark:  #0A3323;
+  --green-light: #9ab570;
+  --yellow:      #D3968C; /* Rosy brown accent */
+  --yellow-dark: #b87b71;
+  --yellow-light:#f2ded9;
+  --teal:        #105666;
+  --azure:       #EBF2EA;
   --azure-dark:  #CBE0C6;
   --white:       #FFFFFF;
-  --gray-50:     #FBFBFA;
-  --gray-100:    #F4F5F1;
-  --gray-200:    #E2E6DD;
+  --gray-50:     #FAF8EB;
+  --gray-100:    #F2EED6;
+  --gray-200:    #E0D9BC;
   --gray-400:    #8E9A89;
-  --gray-600:    #52604D;
-  --gray-800:    #212B1E;
-  --black:       #151C13;
+  --gray-600:    #4D5849;
+  --gray-800:    #162419;
+  --black:       #0A140C;
 
   --font-head:  'Poppins', sans-serif;
   --font-body:  'Nunito', sans-serif;
@@ -55,16 +63,18 @@
   --radius-xl:  32px;
   --radius-pill:999px;
 
-  --shadow-sm:  0 2px 8px rgba(36,51,30,0.08);
-  --shadow-md:  0 8px 24px rgba(36,51,30,0.12);
-  --shadow-lg:  0 16px 48px rgba(36,51,30,0.16);
-  --shadow-yellow: 0 8px 24px rgba(243,232,194,0.45);
-  --shadow-green:  0 8px 24px rgba(107,142,90,0.28);
+  --shadow-sm:  0 2px 8px rgba(10,51,35,0.08);
+  --shadow-md:  0 8px 24px rgba(10,51,35,0.12);
+  --shadow-lg:  0 16px 48px rgba(10,51,35,0.18);
+  --shadow-yellow: 0 8px 24px rgba(211,150,140,0.35);
+  --shadow-green:  0 8px 24px rgba(131,153,88,0.32);
 
   --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   --transition-bounce: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
 
   --nav-h: 72px;
+
+  --paper-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.14'/%3E%3C/svg%3E");
 }
 
 /* ── Reset ── */
@@ -73,7 +83,7 @@ html { scroll-behavior: smooth; font-size: 16px; }
 body {
   font-family: var(--font-body);
   color: var(--gray-800);
-  background: var(--white);
+  background: var(--beige);
   overflow-x: hidden;
   line-height: 1.6;
 }
@@ -97,18 +107,29 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
   top: 0; left: 0; right: 0;
   z-index: 1000;
   height: var(--nav-h);
-  background: rgba(36, 51, 30, 0.96);
+  background: rgba(10, 51, 35, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 2px solid rgba(243, 232, 194, 0.25);
+  border-bottom: 2px solid rgba(247, 244, 213, 0.22);
   display: flex;
   align-items: center;
   padding: 0 clamp(16px, 4vw, 48px);
   gap: 24px;
   transition: var(--transition);
+  overflow: hidden;
+}
+.navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--paper-texture);
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: -1;
 }
 .navbar.scrolled {
-  background: rgba(25, 38, 20, 0.98);
+  background: rgba(8, 40, 27, 0.98);
   box-shadow: var(--shadow-lg);
 }
 .nav-logo {
@@ -260,18 +281,17 @@ body.has-announcement .page-header {
   pointer-events: none;
 }
 
-/* Semi-transparent animated Ghibli theme gradient */
+/* Semi-transparent animated Ghibli theme gradient - rich deep tones for crystal clear text visibility */
 .hero-bg::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(58, 83, 40, 0.72) 0%,     /* Deep Pine / Forest Deep */
-    rgba(107, 142, 90, 0.65) 25%,   /* Forest Moss */
-    rgba(168, 199, 160, 0.55) 50%,  /* Totoro Sage */
-    rgba(243, 232, 194, 0.58) 75%,  /* Rice Cream */
-    rgba(82, 115, 65, 0.70) 100%    /* Deep Moss */
+    rgba(10, 51, 35, 0.85) 0%,     /* Dark green */
+    rgba(16, 86, 102, 0.80) 35%,   /* Midnight green */
+    rgba(131, 153, 88, 0.72) 70%,  /* Moss green */
+    rgba(10, 51, 35, 0.88) 100%    /* Dark green */
   );
   background-size: 300% 300%;
   animation: heroThemeGradientShift 8s ease infinite;
@@ -648,8 +668,8 @@ body.has-announcement .page-header {
   gap: 4px;
   margin-bottom: 10px;
 }
-.star { color: var(--gray-200); font-size: 0.85rem; }
-.star.filled { color: #E5A93C; }
+.star { color: rgba(211, 150, 140, 0.35); font-size: 0.85rem; }
+.star.filled { color: var(--rosy-brown, #D3968C); }
 .star-count { font-size: 0.75rem; color: var(--gray-600); margin-left: 4px; }
 .product-price-row {
   display: flex;
@@ -1025,63 +1045,65 @@ body.has-announcement .page-header {
   color: white;
   transition: var(--transition-bounce);
   display: block;
-  border: 2px solid transparent;
-  box-shadow: 0 10px 30px rgba(36, 51, 30, 0.15);
+  border: 2px solid rgba(247, 244, 213, 0.2);
+  box-shadow: 0 10px 30px rgba(16, 86, 102, 0.25);
   position: relative;
   overflow: hidden;
+  background: var(--midnight-green, #105666);
 }
 .category-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 45px rgba(36, 51, 30, 0.25);
-  border-color: rgba(243, 232, 194, 0.6);
+  box-shadow: 0 20px 45px rgba(16, 86, 102, 0.38);
+  border-color: var(--rosy-brown, #D3968C);
 }
 .category-card.cat-stickers {
-  background: linear-gradient(135deg, #446936 0%, #638853 100%);
+  background: var(--midnight-green, #105666);
 }
 .category-card.cat-invitations {
-  background: linear-gradient(135deg, #2B4623 0%, #436636 100%);
+  background: var(--midnight-green, #105666);
 }
 .category-card.cat-cutfiles {
-  background: linear-gradient(135deg, #516C3D 0%, #739359 100%);
+  background: var(--midnight-green, #105666);
 }
 .category-ghibli-icon {
   width: 82px;
   height: 82px;
   margin: 0 auto 18px;
   border-radius: 50%;
-  background: rgba(250, 246, 234, 0.18);
-  border: 2px solid rgba(250, 246, 234, 0.45);
+  background: rgba(247, 244, 213, 0.18);
+  border: 2px solid rgba(247, 244, 213, 0.45);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.2rem;
-  color: var(--rice-cream);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  color: var(--beige, #F7F4D5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .category-card:hover .category-ghibli-icon {
   transform: scale(1.12) rotate(-5deg);
-  background: rgba(250, 246, 234, 0.32);
+  background: rgba(247, 244, 213, 0.3);
   border-color: #FFFFFF;
   color: #FFFFFF;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
 }
 .category-card .cat-btn-pill {
   display: inline-block;
-  background: var(--rice-cream);
-  color: var(--forest-deep);
-  padding: 9px 24px;
+  background: var(--rosy-brown, #D3968C);
+  color: #FFFFFF;
+  padding: 10px 26px;
   border-radius: var(--radius-pill);
   font-weight: 800;
-  font-size: 0.85rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.88rem;
+  box-shadow: 0 4px 14px rgba(211, 150, 140, 0.45);
   transition: all 0.25s ease;
 }
 .category-card:hover .cat-btn-pill {
-  background: #FFFFFF;
+  background: #deb0a7;
+  color: #FFFFFF;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(211, 150, 140, 0.65);
 }
 
 .ghibli-title-badge {
@@ -1113,12 +1135,28 @@ body.has-announcement .page-header {
 .step-text { font-size: 0.88rem; color: var(--gray-600); line-height: 1.6; }
 
 /* ============================================================
-   FOOTER
+   FOOTER (Bottom Panel with Paper Texture)
 ============================================================ */
 .footer {
-  background: var(--forest-deep);
-  color: rgba(243, 232, 194, 0.75);
+  background: var(--dark-green, #0A3323);
+  color: rgba(247, 244, 213, 0.85);
   padding: 48px clamp(16px,5vw,80px) 24px;
+  position: relative;
+  overflow: hidden;
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--paper-texture);
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.footer-grid,
+.footer-bottom {
+  position: relative;
+  z-index: 1;
 }
 .footer-grid {
   display: grid;
@@ -1130,10 +1168,10 @@ body.has-announcement .page-header {
   font-family: var(--font-head);
   font-weight: 900;
   font-size: 1.5rem;
-  color: var(--rice-cream);
+  color: var(--beige, #F7F4D5);
   margin-bottom: 12px;
 }
-.footer-brand p { font-size: 0.88rem; line-height: 1.7; max-width: 260px; }
+.footer-brand p { font-size: 0.88rem; line-height: 1.7; max-width: 260px; color: rgba(247, 244, 213, 0.82); }
 .footer-heading {
   font-family: var(--font-head);
   font-weight: 700;
@@ -1144,9 +1182,10 @@ body.has-announcement .page-header {
 .footer-links { display: flex; flex-direction: column; gap: 8px; }
 .footer-links a {
   font-size: 0.88rem;
+  color: rgba(247, 244, 213, 0.82);
   transition: var(--transition);
 }
-.footer-links a:hover { color: var(--rice-cream); }
+.footer-links a:hover { color: var(--rosy-brown, #D3968C); }
 .footer-social {
   display: flex;
   gap: 12px;
@@ -1164,12 +1203,13 @@ body.has-announcement .page-header {
   border: 1.5px solid rgba(255,255,255,0.15);
 }
 .social-btn:hover {
-  background: var(--rice-cream);
-  color: var(--forest-deep);
+  background: var(--rosy-brown, #D3968C);
+  color: #FFFFFF;
+  border-color: var(--rosy-brown, #D3968C);
   transform: scale(1.15);
 }
 .footer-bottom {
-  border-top: 1px solid rgba(243, 232, 194, 0.15);
+  border-top: 1px solid rgba(247, 244, 213, 0.15);
   padding-top: 24px;
   display: flex;
   align-items: center;
@@ -1178,14 +1218,17 @@ body.has-announcement .page-header {
   flex-wrap: wrap;
   font-size: 0.82rem;
 }
-.footer-bottom a { color: var(--rice-cream); }
+.footer-bottom a { color: var(--beige, #F7F4D5); }
 
 /* ============================================================
-   STATS BAR
+   STATS BAR (Midnight Green Panel)
 ============================================================ */
 .stats-bar {
-  background: linear-gradient(90deg, var(--forest-dark) 0%, var(--forest-moss) 100%);
-  padding: 32px clamp(16px,5vw,80px);
+  background: var(--midnight-green, #105666);
+  padding: 38px clamp(16px,5vw,80px);
+  border-top: 1px solid rgba(247, 244, 213, 0.15);
+  border-bottom: 1px solid rgba(247, 244, 213, 0.15);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 .stats-grid {
   display: grid;
@@ -1198,14 +1241,61 @@ body.has-announcement .page-header {
 .stat-item .stat-num {
   font-family: var(--font-head);
   font-weight: 900;
-  font-size: 2.2rem;
-  color: var(--rice-cream);
+  font-size: 2.3rem;
+  color: var(--beige, #F7F4D5);
   line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 .stat-item .stat-label {
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.85);
-  margin-top: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(247, 244, 213, 0.9);
+  margin-top: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================================
+   FEATURES STRIP (Moss Green & Ghibli Artisan Badges)
+============================================================ */
+.features-strip {
+  background: var(--moss-green, #839958);
+  padding: 22px clamp(16px, 5vw, 80px);
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 2px solid rgba(10, 51, 35, 0.15);
+}
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #FFFFFF;
+  text-shadow: 0 1px 3px rgba(10, 51, 35, 0.45);
+}
+.ghibli-feature-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--beige, #F7F4D5);
+  color: var(--dark-green, #0A3323);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 3px 8px rgba(10, 51, 35, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.feature-item:hover .ghibli-feature-badge {
+  transform: scale(1.15) rotate(6deg);
+  background: #FFFFFF;
+  color: var(--midnight-green, #105666);
 }
 
 /* ============================================================
@@ -1240,13 +1330,13 @@ body.has-announcement .page-header {
 }
 
 /* ============================================================
-   BANNER / MARQUEE
+   BANNER / MARQUEE (Midnight Green Background)
 ============================================================ */
 .marquee-bar {
-  background: var(--rice-cream);
-  border-top: 1px solid var(--cream-border);
-  border-bottom: 1px solid var(--cream-border);
-  padding: 10px 0;
+  background: var(--midnight-green, #105666);
+  border-top: 1px solid rgba(247, 244, 213, 0.2);
+  border-bottom: 1px solid rgba(247, 244, 213, 0.2);
+  padding: 12px 0;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -1262,11 +1352,11 @@ body.has-announcement .page-header {
   font-family: var(--font-head);
   font-weight: 700;
   font-size: 0.88rem;
-  color: var(--forest-deep);
+  color: var(--beige, #F7F4D5);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.marquee-dot { color: var(--forest-moss); font-size: 1.2rem; }
+.marquee-dot { color: var(--rosy-brown, #D3968C); font-size: 1.2rem; }
 
 /* ============================================================
    PAGE HEADER (inner pages)
@@ -1473,17 +1563,31 @@ body.has-announcement .page-header {
 ============================================================ */
 .announcement-bar {
   margin-top: var(--nav-h);
-  background: linear-gradient(90deg, #24351B 0%, #436636 50%, #24351B 100%);
-  color: var(--rice-cream);
+  background: var(--dark-green, #0A3323);
+  color: var(--beige, #F7F4D5);
   padding: 12px 16px;
   font-size: 0.92rem;
   font-weight: 700;
-  border-bottom: 2px solid rgba(243, 232, 194, 0.4);
+  border-bottom: 2px solid rgba(247, 244, 213, 0.25);
   position: relative;
   z-index: 99;
   text-align: center;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   letter-spacing: 0.2px;
+  overflow: hidden;
+}
+.announcement-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--paper-texture);
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.announcement-content {
+  position: relative;
+  z-index: 1;
 }
 
 .announcement-content {
