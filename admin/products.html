@@ -856,13 +856,14 @@
         icon: '🗑️',
         iconClass: 'danger',
         title: 'Clear All Products?',
-        message: 'Are you sure you want to delete all products? This removes all test items so you can start completely fresh with zero test products.',
+        message: 'Are you sure you want to delete all products from both this device and Cloud Firestore? This will permanently remove all test products so you can start completely fresh.',
         confirmText: 'Yes, Clear All',
         cancelText: 'Cancel',
-        onConfirm: () => {
-          DB.clearAllProducts();
+        onConfirm: async () => {
+          showToast('Clearing all products from store & cloud...', 'info');
+          await DB.clearAllProducts();
           renderProductsTable();
-          showToast('All products cleared! Your store is now completely fresh. ✨', 'info');
+          showToast('All products cleared from store & cloud! ✨', 'success');
         }
       });
     }

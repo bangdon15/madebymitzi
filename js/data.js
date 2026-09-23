@@ -115,8 +115,22 @@ const DB = {
   },
   setProducts(arr) { return this.set(this.KEYS.PRODUCTS, arr); },
 
-  clearAllProducts() {
+  async clearAllProducts() {
+    const products = this.getProducts();
+    const ids = products.map(p => p.id);
+    try {
+      const deleted = JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]');
+      localStorage.setItem('mbm_deleted_products', JSON.stringify([...new Set([...deleted, ...ids])]));
+    } catch (e) {}
+
     this.setProducts([]);
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.clearAllProductsFromCloud === 'function') {
+      try {
+        await window.FirebaseService.clearAllProductsFromCloud();
+      } catch (e) {
+        console.warn('Cloud clear products error:', e);
+      }
+    }
     return [];
   },
 
@@ -132,6 +146,12 @@ const DB = {
     product.sales = product.sales || 0;
     products.unshift(product);
     this.setProducts(products);
+
+    // Remove from deleted tracking if re-added
+    try {
+      const deleted = JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]');
+      localStorage.setItem('mbm_deleted_products', JSON.stringify(deleted.filter(id => id !== product.id)));
+    } catch (e) {}
 
     let cloudResult = { success: true, localOnly: true };
     if (typeof window !== 'undefined' && window.FirebaseService) {
@@ -163,6 +183,12 @@ const DB = {
     return { product: products[idx], cloudResult };
   },
   async deleteProduct(id) {
+    try {
+      const deleted = JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]');
+      deleted.push(id);
+      localStorage.setItem('mbm_deleted_products', JSON.stringify([...new Set(deleted)]));
+    } catch (e) {}
+
     const products = this.getProducts().filter(p => p.id !== id);
     this.setProducts(products);
     if (typeof window !== 'undefined' && window.FirebaseService) {

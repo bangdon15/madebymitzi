@@ -67,14 +67,21 @@ const FirebaseService = {
       }
 
       if (this.isInitialized || true) {
-        // 1. Initial product sync with non-destructive local reconciliation
+        // 1. Initial product sync with non-destructive local reconciliation & deletion awareness
         this.fetchProducts().then(cloudProds => {
-          if (typeof window.DB !== 'undefined' && cloudProds && cloudProds.length) {
+          if (typeof window.DB !== 'undefined' && Array.isArray(cloudProds)) {
             const localProds = window.DB.getProducts() || [];
             const cloudIds = new Set(cloudProds.map(p => p.id));
-            const pendingLocal = localProds.filter(lp => !cloudIds.has(lp.id));
+            const deletedIds = new Set(JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]'));
+            const now = Date.now();
 
-            // If any product exists locally but not in cloud, automatically push to cloud!
+            // Only push to cloud if NOT deleted and created recently (< 10 min)
+            const pendingLocal = localProds.filter(lp => {
+              if (deletedIds.has(lp.id)) return false;
+              const isRecent = lp.createdAt && (now - new Date(lp.createdAt).getTime() < 600000);
+              return !cloudIds.has(lp.id) && isRecent;
+            });
+
             if (pendingLocal.length) {
               console.log('🔄 Found ' + pendingLocal.length + ' pending local products. Syncing to Firestore...');
               pendingLocal.forEach(p => {
@@ -82,7 +89,8 @@ const FirebaseService = {
               });
             }
 
-            const merged = [...pendingLocal, ...cloudProds];
+            const cleanedCloudProds = cloudProds.filter(cp => !deletedIds.has(cp.id));
+            const merged = [...pendingLocal, ...cleanedCloudProds];
             merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
             window.DB.setProducts(merged);
             window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
@@ -116,9 +124,17 @@ const FirebaseService = {
 
                 const localProds = window.DB.getProducts() || [];
                 const cloudIds = new Set(cloudProds.map(p => p.id));
-                const pendingLocal = localProds.filter(lp => !cloudIds.has(lp.id));
+                const deletedIds = new Set(JSON.parse(localStorage.getItem('mbm_deleted_products') || '[]'));
+                const now = Date.now();
 
-                const merged = [...pendingLocal, ...cloudProds];
+                const pendingLocal = localProds.filter(lp => {
+                  if (deletedIds.has(lp.id)) return false;
+                  const isRecent = lp.createdAt && (now - new Date(lp.createdAt).getTime() < 600000);
+                  return !cloudIds.has(lp.id) && isRecent;
+                });
+
+                const cleanedCloudProds = cloudProds.filter(cp => !deletedIds.has(cp.id));
+                const merged = [...pendingLocal, ...cleanedCloudProds];
                 merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
                 window.DB.setProducts(merged);
                 window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
@@ -600,18 +616,42 @@ const FirebaseService = {
   },
 
   /**
-   * Delete all products from Firestore
+   * Delete all products from Firestore (SDK + REST fallback)
    */
   async clearAllProductsFromCloud() {
-    if (!this.isInitialized || !this.db) return false;
+    // 1. Try SDK if available
+    if (this.db) {
+      try {
+        const snapshot = await this.db.collection('mbm_products').get();
+        if (!snapshot.empty) {
+          const batch = this.db.batch();
+          snapshot.forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
+        }
+        console.log('✅ Cleared all products from Firestore SDK');
+        return true;
+      } catch (err) {
+        console.warn('SDK clearAllProducts error, trying REST:', err.message);
+      }
+    }
+
+    // 2. Direct REST fallback
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
     try {
-      const snapshot = await this.db.collection('mbm_products').get();
-      const batch = this.db.batch();
-      snapshot.forEach(doc => batch.delete(doc.ref));
-      await batch.commit();
+      const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_products?key=${config.apiKey}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (data.documents && data.documents.length) {
+        for (const doc of data.documents) {
+          const docId = doc.name.split('/').pop();
+          await this.deleteProductRest(docId);
+        }
+      }
+      console.log('✅ Cleared all products via Firestore REST API');
       return true;
-    } catch (err) {
-      console.warn('Error clearing products from Firestore:', err);
+    } catch (e) {
+      console.error('REST clearAllProducts error:', e);
       return false;
     }
   },
