@@ -86,6 +86,14 @@
   <a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
 </nav>
 
+<!-- ANNOUNCEMENT BAR -->
+<div id="shop-announcement-bar" class="announcement-bar">
+  <div class="announcement-content">
+    <span class="announcement-icon">🌿</span>
+    <span id="announcement-text">✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.</span>
+  </div>
+</div>
+
 <!-- PAGE HEADER -->
 <div class="page-header">
   <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Shop</span></div>
@@ -190,7 +198,10 @@
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-brand">
-      <div class="logo">🎨 MadeByMitzi</div>
+      <div class="logo" style="display:flex;align-items:center;gap:10px;">
+        <img src="images/madebymitzi.jpg" alt="Mitzi" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--totoro-sage);flex-shrink:0;" />
+        <span>MadeByMitzi</span>
+      </div>
       <p>Premium sticker designs and birthday invitation designs made with love.</p>
       <div class="footer-social">
         <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank" class="social-btn"><i class="fab fa-facebook-f"></i></a>
@@ -382,10 +393,32 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => {
     filterToggle.style.display = window.innerWidth <= 900 ? 'inline-flex' : 'none';
   });
+
+  renderAnnouncement();
 });
+
+function renderAnnouncement() {
+  const settings = DB.getSettings();
+  const bio = DB.getBio ? DB.getBio() : {};
+  const bar = document.getElementById('shop-announcement-bar');
+  const textEl = document.getElementById('announcement-text');
+  if (!bar) return;
+
+  const announcement = (settings.shopAnnouncement || settings.announcementText || bio.announcement || '').trim();
+  if (announcement) {
+    if (textEl) textEl.textContent = announcement;
+    bar.style.display = 'block';
+  } else {
+    bar.style.display = 'none';
+  }
+}
 
 window.addEventListener('mbm_products_synced', () => {
   loadProducts();
+});
+
+window.addEventListener('mbm_settings_synced', () => {
+  renderAnnouncement();
 });
 </script>
 </body>
