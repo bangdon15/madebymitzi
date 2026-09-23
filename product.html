@@ -473,15 +473,6 @@
             Product description will appear here.
           </p>
 
-          <div class="qty-select-row">
-            <span style="font-weight:700;color:var(--gray-700);font-size:0.92rem;">Quantity:</span>
-            <div class="cart-qty-ctrl">
-              <button class="cart-qty-btn" id="btn-qty-minus" onclick="adjustProductQty(-1)">−</button>
-              <span class="cart-qty-val" id="qty-input">1</span>
-              <button class="cart-qty-btn" id="btn-qty-plus" onclick="adjustProductQty(1)">+</button>
-            </div>
-          </div>
-
           <div class="p-action-btns">
             <button class="btn btn-primary btn-lg" onclick="handleDetailPageAddToCart()">
               <i class="fas fa-cart-plus"></i> Add to Cart
@@ -623,40 +614,15 @@
   <script src="js/main.js"></script>
   <script src="js/after-sales-chat.js"></script>
   <script>
-    let currentProduct = null;
-    let selectedQty = 1;
-    let selectedRating = 5;
-
-    function adjustProductQty(delta) {
-      selectedQty = Math.max(1, selectedQty + delta);
-      document.getElementById('qty-input').textContent = selectedQty;
-    }
-    window.adjustProductQty = adjustProductQty;
-
-    function setRating(r) {
-      selectedRating = r;
-      const btns = document.querySelectorAll('.star-select-btn');
-      btns.forEach((btn, idx) => {
-        btn.classList.toggle('active', idx < r);
-      });
-    }
-    window.setRating = setRating;
-
-    function toggleReviewForm() {
-      const form = document.getElementById('leave-review-card');
-      form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    }
-    window.toggleReviewForm = toggleReviewForm;
-
     function handleDetailPageAddToCart() {
       if (!currentProduct) return;
-      handleAddToCart(currentProduct.id, selectedQty);
+      handleAddToCart(currentProduct.id, 1);
     }
     window.handleDetailPageAddToCart = handleDetailPageAddToCart;
 
     function handleDetailPageBuyNow() {
       if (!currentProduct) return;
-      DB.addToCart(currentProduct.id, selectedQty);
+      DB.addToCart(currentProduct.id, 1);
       updateCartBadge();
       window.location.href = 'checkout.html';
     }

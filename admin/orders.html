@@ -73,9 +73,27 @@
       border-color: var(--blue);
     }
 
-    @media (max-width: 900px) {
-      .admin-sidebar { display: none; }
-      .admin-main { margin-left: 0; padding: 20px 16px; }
+    @media (max-width: 1080px) {
+      .admin-tablet-menu-btn { display: inline-flex !important; }
+      .admin-sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        top: var(--nav-h);
+        left: 0;
+        bottom: 0;
+        z-index: 200;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.28);
+      }
+      .admin-sidebar.open {
+        transform: translateX(0);
+      }
+      .admin-main {
+        margin-left: 0 !important;
+        padding: 20px 16px !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
     }
   </style>
 </head>
@@ -90,7 +108,10 @@
         style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;" />
       MadeByMitzi <span style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
     </a>
-    <div class="nav-links">
+    <div class="nav-links" style="display:flex;align-items:center;gap:10px;">
+      <button type="button" class="btn btn-secondary btn-sm admin-tablet-menu-btn" onclick="document.querySelector('.admin-sidebar')?.classList.toggle('open')" style="display:none;padding:7px 12px;font-size:0.82rem;" title="Toggle Sidebar Navigation">
+        <i class="fas fa-bars"></i> Menu
+      </button>
       <a href="../index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Live Site</a>
     </div>
   </nav>
@@ -146,8 +167,8 @@
       </div>
 
       <div class="admin-table-box">
-        <div style="overflow-x:auto;">
-          <table class="custom-table" style="width:100%;">
+        <div class="admin-table-scroll-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;">
+          <table class="custom-table admin-table" style="width:100%;min-width:820px;">
             <thead>
               <tr>
                 <th>Order ID</th>

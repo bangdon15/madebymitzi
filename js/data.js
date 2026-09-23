@@ -95,7 +95,21 @@ const DB = {
       return true;
     } catch (err) {
       console.warn('Storage set error:', err);
-      // If QuotaExceededError, warn the user
+      // If QuotaExceededError on Android tablet, clean temporary caches and retry
+      if (err.name === 'QuotaExceededError' || err.code === 22) {
+        try {
+          sessionStorage.clear();
+          // Prune non-critical keys
+          const nonCritical = ['mbm_cart', 'mbm_last_viewed', 'mbm_active_discount'];
+          nonCritical.forEach(k => {
+            if (k !== key) localStorage.removeItem(k);
+          });
+          localStorage.setItem(key, JSON.stringify(val));
+          return true;
+        } catch (retryErr) {
+          console.error('Storage retry failed:', retryErr);
+        }
+      }
       if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
         window.showToast('Storage quota alert: Please use smaller images.', 'warning');
       }
@@ -381,21 +395,32 @@ const DB = {
     const key = productId + (variant ? '_' + variant : '');
     const existing = cart.find(c => c.key === key);
     if (existing) {
-      existing.qty += qty;
+      existing.qty = 1; // Strict digital rule: 1 download per item
+      this.setCart(cart);
+      return { cart, alreadyExists: true };
     } else {
       const product = this.getProduct(productId);
-      if (!product) return;
-      cart.push({ key, productId, qty, variant,
-        name: product.name, price: product.price,
-        image: product.images?.[0] || '' });
+      if (!product) return { cart, alreadyExists: false };
+      cart.push({
+        key,
+        productId,
+        qty: 1, // Digital items are always 1
+        variant,
+        name: product.name,
+        price: product.price,
+        image: (product.images && product.images[0]) || product.image || ''
+      });
+      this.setCart(cart);
+      return { cart, alreadyExists: false };
     }
-    this.setCart(cart);
-    return cart;
   },
   updateCartQty(key, qty) {
     const cart = this.getCart();
     const item = cart.find(c => c.key === key);
-    if (item) { item.qty = qty; if (qty <= 0) return this.removeFromCart(key); }
+    if (item) {
+      if (qty <= 0) return this.removeFromCart(key);
+      item.qty = 1; // Digital goods strictly locked to 1
+    }
     this.setCart(cart);
     return cart;
   },
@@ -404,10 +429,10 @@ const DB = {
   },
   clearCart() { this.set(this.KEYS.CART, []); },
   cartTotal() {
-    return this.getCart().reduce((s, c) => s + c.price * c.qty, 0);
+    return this.getCart().reduce((s, c) => s + (Number(c.price) || 0), 0);
   },
   cartCount() {
-    return this.getCart().reduce((s, c) => s + c.qty, 0);
+    return this.getCart().length; // Exactly 1 per distinct digital product
   },
 
   // ── SETTINGS (payments, emails, etc.) ────────────
@@ -442,6 +467,7 @@ const DB = {
       creatorAvatar: 'images/madebymitzi.jpg',
       creatorBio: 'Welcome to MadeByMitzi! 🌿 I specialize in creating aesthetic birthday invitation templates, printable party stationery, and waterproof sticker packs crafted with love. Every design is carefully hand-drawn and curated to make your celebrations personal, magical, and unforgettable.',
       shopAnnouncement: '✨ Welcome to our artisan storefront! Instant digital downloads & Canva template links delivered with every order.',
+      heroBackground: 'images/ghibli-bg-1.jpg',
     };
     const stored = this.get(this.KEYS.SETTINGS) || {};
     // Migration: ensure if stored has outdated placeholder email, upgrade to active madebymitzi26@gmail.com

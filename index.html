@@ -226,43 +226,85 @@
       font-size: 0.85rem;
     }
 
-    /* CTA section - Facebook Blue to Etsy Orange */
+    /* CTA section - Studio Ghibli Color Palette & Seamless Background Crossfade */
     .cta-section {
-      background: linear-gradient(135deg,
-          #1877F2 0%,
-          #0866FF 24%,
-          #5B50E8 48%,
-          #EA580C 76%,
-          #F1641E 100%);
-      background-size: 260% 260%;
-      animation: ctaGradientShift 9s ease infinite;
       text-align: center;
-      padding: clamp(60px, 8vw, 100px) clamp(16px, 5vw, 80px);
+      padding: clamp(70px, 9vw, 110px) clamp(16px, 5vw, 80px);
       position: relative;
       overflow: hidden;
       width: 100%;
+      background: var(--forest-deep);
     }
 
-    @keyframes ctaGradientShift {
+    .cta-bg-slideshow {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .cta-bg-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center center;
+      opacity: 0;
+      animation: ghibliCrossfade 24s infinite ease-in-out;
+      will-change: opacity, transform;
+    }
+
+    .cta-slide-1 { animation-delay: 0s; }
+    .cta-slide-2 { animation-delay: 6s; }
+    .cta-slide-3 { animation-delay: 12s; }
+    .cta-slide-4 { animation-delay: 18s; }
+
+    @keyframes ghibliCrossfade {
       0% {
-        background-position: 0% 50%;
+        opacity: 0;
+        transform: scale(1.05);
       }
-
-      50% {
-        background-position: 100% 50%;
+      8% {
+        opacity: 1;
       }
-
+      25% {
+        opacity: 1;
+      }
+      33% {
+        opacity: 0;
+        transform: scale(1);
+      }
       100% {
-        background-position: 0% 50%;
+        opacity: 0;
+        transform: scale(1.05);
       }
+    }
+
+    /* Studio Ghibli Theme Palette Gradient Overlay (matches shop & main hero) */
+    .cta-overlay-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(43, 70, 35, 0.82) 0%,     /* Deep Forest */
+        rgba(67, 102, 54, 0.74) 25%,   /* Forest Deep */
+        rgba(107, 142, 90, 0.68) 50%,  /* Forest Moss */
+        rgba(168, 199, 160, 0.62) 75%, /* Totoro Sage */
+        rgba(58, 83, 40, 0.80) 100%    /* Deep Moss */
+      );
+      background-size: 280% 280%;
+      animation: heroThemeGradientShift 9s ease infinite;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .cta-section::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 120%, rgba(255, 255, 255, 0.25), transparent 70%);
+      background: radial-gradient(circle at 50% 120%, rgba(243, 232, 194, 0.35), transparent 70%);
       pointer-events: none;
+      z-index: 1;
     }
 
     .cta-section h2 {
@@ -459,19 +501,19 @@
     <div class="hero-visual">
       <div class="hero-float-cards">
         <div class="hero-float-card">
-          <div class="card-emoji">🎨</div>
+          <div class="ghibli-card-icon"><i class="fas fa-palette"></i></div>
           <div class="card-label">Sticker Packs</div>
         </div>
         <div class="hero-float-card">
-          <div class="card-emoji">💌</div>
+          <div class="ghibli-card-icon"><i class="fas fa-envelope-open-text"></i></div>
           <div class="card-label">Invitations</div>
         </div>
         <div class="hero-float-card">
-          <div class="card-emoji">✏️</div>
+          <div class="ghibli-card-icon"><i class="fas fa-pen-nib"></i></div>
           <div class="card-label">Editable</div>
         </div>
         <div class="hero-float-card">
-          <div class="card-emoji">📱</div>
+          <div class="ghibli-card-icon"><i class="fas fa-print"></i></div>
           <div class="card-label">Digital + Print</div>
         </div>
       </div>
@@ -557,28 +599,28 @@
       <div class="steps-grid">
         <div class="step-card reveal">
           <div class="step-num">1</div>
-          <div class="step-icon">🛍️</div>
+          <div class="step-icon"><i class="fas fa-basket-shopping"></i></div>
           <div class="step-title">Browse & Choose</div>
           <div class="step-text">Explore our beautiful collection of sticker packs and birthday invitations. Find the
             perfect design for your occasion!</div>
         </div>
         <div class="step-card reveal reveal-delay-1">
           <div class="step-num">2</div>
-          <div class="step-icon">💳</div>
+          <div class="step-icon"><i class="fas fa-credit-card"></i></div>
           <div class="step-title">Pay via GCash or Bank</div>
           <div class="step-text">Send payment through GCash or bank transfer. Upload your proof of payment — it's quick
             and secure!</div>
         </div>
         <div class="step-card reveal reveal-delay-2">
           <div class="step-num">3</div>
-          <div class="step-icon">✅</div>
+          <div class="step-icon"><i class="fas fa-shield-heart"></i></div>
           <div class="step-title">We Verify Payment</div>
           <div class="step-text">Our team verifies your payment quickly. You'll receive a confirmation once everything's
             good to go!</div>
         </div>
         <div class="step-card reveal reveal-delay-3">
           <div class="step-num">4</div>
-          <div class="step-icon">📩</div>
+          <div class="step-icon"><i class="fas fa-gift"></i></div>
           <div class="step-title">Receive Your Design</div>
           <div class="step-text">Get your design file delivered digitally! Download, print, or use your Canva template
             right away.</div>
@@ -595,29 +637,23 @@
         <h2 class="section-title">Shop by <span>Category</span></h2>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;" class="reveal">
-        <a href="shop.html?cat=Stickers" class="category-card"
-          style="background:linear-gradient(135deg,#0F52BA,#3A6FD8);border-radius:var(--radius-xl);padding:40px 32px;text-align:center;color:white;transition:var(--transition-bounce);display:block;border:2px solid transparent;">
-          <div style="font-size:4rem;margin-bottom:16px;">🎨</div>
+        <a href="shop.html?cat=Stickers" class="category-card cat-stickers">
+          <div class="category-ghibli-icon"><i class="fas fa-palette"></i></div>
           <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker Packs</h3>
-          <p style="opacity:0.8;font-size:0.9rem;margin-bottom:20px;">Birthday, kawaii, floral, themed sticker collections</p>
-          <span
-            style="background:var(--yellow);color:var(--blue-dark);padding:8px 20px;border-radius:var(--radius-pill);font-weight:700;font-size:0.85rem;">Shop Stickers →</span>
+          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Birthday, kawaii, floral, themed sticker collections</p>
+          <span class="cat-btn-pill">Shop Stickers →</span>
         </a>
-        <a href="shop.html?cat=Invitations" class="category-card"
-          style="background:linear-gradient(135deg,#00553A,#00A86B);border-radius:var(--radius-xl);padding:40px 32px;text-align:center;color:white;transition:var(--transition-bounce);display:block;border:2px solid transparent;">
-          <div style="font-size:4rem;margin-bottom:16px;">💌</div>
+        <a href="shop.html?cat=Invitations" class="category-card cat-invitations">
+          <div class="category-ghibli-icon"><i class="fas fa-envelope-open-text"></i></div>
           <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Invitation Designs</h3>
-          <p style="opacity:0.8;font-size:0.9rem;margin-bottom:20px;">Birthday, wedding, party — editable & printable</p>
-          <span
-            style="background:var(--yellow);color:var(--blue-dark);padding:8px 20px;border-radius:var(--radius-pill);font-weight:700;font-size:0.85rem;">Shop Invitations →</span>
+          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Birthday, wedding, party — editable & printable</p>
+          <span class="cat-btn-pill">Shop Invitations →</span>
         </a>
-        <a href="shop.html?cat=Sticker%20(File%20only)" class="category-card"
-          style="background:linear-gradient(135deg,#6D28D9,#8B5CF6);border-radius:var(--radius-xl);padding:40px 32px;text-align:center;color:white;transition:var(--transition-bounce);display:block;border:2px solid transparent;">
-          <div style="font-size:4rem;margin-bottom:16px;">✂️</div>
+        <a href="shop.html?cat=Sticker%20(File%20only)" class="category-card cat-cutfiles">
+          <div class="category-ghibli-icon"><i class="fas fa-scissors"></i></div>
           <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;margin-bottom:8px;">Sticker (File only)</h3>
-          <p style="opacity:0.8;font-size:0.9rem;margin-bottom:20px;">Instant download PNG cut files, SVG & printable sheets</p>
-          <span
-            style="background:var(--yellow);color:var(--blue-dark);padding:8px 20px;border-radius:var(--radius-pill);font-weight:700;font-size:0.85rem;">Shop Digital Files →</span>
+          <p style="opacity:0.9;font-size:0.9rem;margin-bottom:24px;color:rgba(255,255,255,0.92);">Instant download PNG cut files, SVG & printable sheets</p>
+          <span class="cat-btn-pill">Shop Digital Files →</span>
         </a>
       </div>
     </div>
@@ -686,7 +722,17 @@
 
   <!-- ════════════════════ CTA ════════════════════ -->
   <section class="cta-section" id="contact">
-    <div class="container">
+    <!-- Seamless Ghibli Background Crossfade Slideshow -->
+    <div class="cta-bg-slideshow">
+      <div class="cta-bg-slide cta-slide-1" style="background-image:url('images/ghibli-bg-1.jpg');"></div>
+      <div class="cta-bg-slide cta-slide-2" style="background-image:url('images/ghibli-bg-2.jpg');"></div>
+      <div class="cta-bg-slide cta-slide-3" style="background-image:url('images/ghibli-bg-3.jpg');"></div>
+      <div class="cta-bg-slide cta-slide-4" style="background-image:url('images/ghibli-bg-4.jpg');"></div>
+    </div>
+    <!-- Matching Ghibli Theme Palette Gradient Overlay -->
+    <div class="cta-overlay-gradient"></div>
+
+    <div class="container" style="position:relative;z-index:2;">
       <div class="cta-badge">🌟 Also find us on</div>
       <h2>Let's Create Something <br />Beautiful Together!</h2>
       <p>Find us on Facebook and Etsy for more designs and updates</p>
@@ -829,7 +875,22 @@
       }
     }
 
+    function applyHeroBackground() {
+      try {
+        const settings = DB.getSettings();
+        const heroBg = document.getElementById('hero-bg');
+        if (!heroBg) return;
+        const bg = settings.heroBackground || 'images/ghibli-bg-1.jpg';
+        heroBg.style.backgroundImage = `url('${bg}')`;
+      } catch (e) {
+        console.error('Error applying hero background:', e);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      // Storefront Hero Background
+      applyHeroBackground();
+
       // Featured products showcase
       renderHomepageProducts();
 
@@ -869,6 +930,7 @@
     });
 
     window.addEventListener('mbm_settings_synced', () => {
+      applyHeroBackground();
       renderCreatorBio();
       renderAnnouncement();
     });

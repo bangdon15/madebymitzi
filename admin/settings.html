@@ -70,10 +70,28 @@
       box-shadow: var(--shadow-sm);
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 1080px) {
+      .admin-tablet-menu-btn { display: inline-flex !important; }
       .settings-grid { grid-template-columns: 1fr; }
-      .admin-sidebar { display: none; }
-      .admin-main { margin-left: 0; padding: 20px 16px; }
+      .admin-sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        top: var(--nav-h);
+        left: 0;
+        bottom: 0;
+        z-index: 200;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.28);
+      }
+      .admin-sidebar.open {
+        transform: translateX(0);
+      }
+      .admin-main {
+        margin-left: 0 !important;
+        padding: 20px 16px !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
     }
   </style>
 </head>
@@ -88,7 +106,10 @@
         style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2.5px solid var(--yellow);flex-shrink:0;" />
       MadeByMitzi <span style="font-size:0.75rem;background:var(--yellow);color:var(--blue-dark);padding:2px 8px;border-radius:10px;margin-left:8px;">ADMIN</span>
     </a>
-    <div class="nav-links">
+    <div class="nav-links" style="display:flex;align-items:center;gap:10px;">
+      <button type="button" class="btn btn-secondary btn-sm admin-tablet-menu-btn" onclick="document.querySelector('.admin-sidebar')?.classList.toggle('open')" style="display:none;padding:7px 12px;font-size:0.82rem;" title="Toggle Sidebar Navigation">
+        <i class="fas fa-bars"></i> Menu
+      </button>
       <a href="../index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Live Site</a>
     </div>
   </nav>
@@ -187,6 +208,83 @@
               </button>
             </div>
           </div>
+        </div>
+
+        <!-- Storefront Main & Hero Background (Changeable) -->
+        <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
+          <div class="settings-card-title" style="color:var(--forest-deep);">
+            <i class="fas fa-image" style="color:var(--forest-moss);"></i>
+            <span>Storefront Main & Hero Background</span>
+          </div>
+          <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:18px;">
+            Customize the main background artwork displayed behind the storefront hero and artisan banners. Select one of the handcrafted Studio Ghibli presets below or upload your own custom high-resolution background.
+          </p>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:20px;">
+            <!-- Preset 1 -->
+            <div class="hero-bg-preset-card" id="preset-bg-1" onclick="selectHeroBgPreset('images/ghibli-bg-1.jpg', 'preset-bg-1')" style="border:2.5px solid var(--forest-moss);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
+              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-1.jpg') center/cover;position:relative;">
+                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:var(--forest-moss);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Artisan Studio</span>
+              </div>
+              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
+                <span>1. Craft Studio</span>
+                <i class="fas fa-check-circle" style="color:var(--forest-moss);"></i>
+              </div>
+            </div>
+
+            <!-- Preset 2 -->
+            <div class="hero-bg-preset-card" id="preset-bg-2" onclick="selectHeroBgPreset('images/ghibli-bg-2.jpg', 'preset-bg-2')" style="border:2px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
+              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-2.jpg') center/cover;position:relative;">
+                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Wildflower Hills</span>
+              </div>
+              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
+                <span>2. Rolling Hills</span>
+                <i class="fas fa-check-circle" style="color:var(--gray-300);"></i>
+              </div>
+            </div>
+
+            <!-- Preset 3 -->
+            <div class="hero-bg-preset-card" id="preset-bg-3" onclick="selectHeroBgPreset('images/ghibli-bg-3.jpg', 'preset-bg-3')" style="border:2px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
+              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-3.jpg') center/cover;position:relative;">
+                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Enchanted Forest</span>
+              </div>
+              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
+                <span>3. Forest Glade</span>
+                <i class="fas fa-check-circle" style="color:var(--gray-300);"></i>
+              </div>
+            </div>
+
+            <!-- Preset 4 -->
+            <div class="hero-bg-preset-card" id="preset-bg-4" onclick="selectHeroBgPreset('images/ghibli-bg-4.jpg', 'preset-bg-4')" style="border:2px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:white;box-shadow:0 4px 14px rgba(0,0,0,0.06);transition:all 0.25s ease;">
+              <div style="aspect-ratio:16/9;background:url('../images/ghibli-bg-4.jpg') center/cover;position:relative;">
+                <span class="preset-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:white;font-size:0.7rem;font-weight:800;padding:2px 8px;border-radius:10px;">Coastal Village</span>
+              </div>
+              <div style="padding:10px 14px;font-size:0.84rem;font-weight:700;color:var(--gray-800);display:flex;justify-content:space-between;align-items:center;">
+                <span>4. Seaside Path</span>
+                <i class="fas fa-check-circle" style="color:var(--gray-300);"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom Upload & Active URL Box -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;background:white;padding:16px 20px;border-radius:var(--radius-md);border:1.5px solid var(--cream-border);margin-bottom:16px;">
+            <div>
+              <label class="form-label" style="font-size:0.82rem;font-weight:700;">Or Upload Custom Background Image</label>
+              <input type="file" id="custom-hero-bg-file" accept="image/*" style="display:none;" onchange="handleCustomHeroBgUpload(event)" />
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('custom-hero-bg-file').click()">
+                <i class="fas fa-upload"></i> Browse Image File
+              </button>
+              <span id="custom-hero-bg-hint" style="font-size:0.75rem;color:var(--gray-500);margin-left:8px;">JPG, PNG, WEBP</span>
+            </div>
+            <div>
+              <label class="form-label" style="font-size:0.82rem;font-weight:700;">Active Background Source / URL</label>
+              <input type="text" id="hero-bg-url-input" class="form-input" style="font-size:0.82rem;" placeholder="images/ghibli-bg-1.jpg" oninput="handleManualHeroBgInput(this.value)" />
+            </div>
+          </div>
+
+          <button class="btn btn-green btn-block" style="width:100%;justify-content:center;padding:12px;font-size:0.95rem;font-weight:700;" onclick="saveHeroBgSettings()">
+            <i class="fas fa-save"></i> Save Storefront Main Background
+          </button>
         </div>
 
         <!-- GCash Settings -->
@@ -575,6 +673,85 @@
     let gcashImageBase64 = null;
     let bankImageBase64 = null;
     let creatorAvatarBase64 = null;
+    let currentHeroBgUrl = 'images/ghibli-bg-1.jpg';
+
+    function highlightHeroBgPreset(url) {
+      const presets = [
+        { id: 'preset-bg-1', path: 'images/ghibli-bg-1.jpg' },
+        { id: 'preset-bg-2', path: 'images/ghibli-bg-2.jpg' },
+        { id: 'preset-bg-3', path: 'images/ghibli-bg-3.jpg' },
+        { id: 'preset-bg-4', path: 'images/ghibli-bg-4.jpg' },
+      ];
+      presets.forEach(p => {
+        const el = document.getElementById(p.id);
+        if (!el) return;
+        const icon = el.querySelector('.fa-check-circle');
+        if (url && (url.includes(p.path) || url === p.path)) {
+          el.style.borderColor = 'var(--green)';
+          el.style.boxShadow = '0 0 0 3px rgba(74, 124, 89, 0.35)';
+          if (icon) {
+            icon.style.color = 'var(--green)';
+          }
+        } else {
+          el.style.borderColor = 'var(--gray-200)';
+          el.style.boxShadow = '0 4px 14px rgba(0,0,0,0.06)';
+          if (icon) {
+            icon.style.color = 'var(--gray-300)';
+          }
+        }
+      });
+    }
+    window.highlightHeroBgPreset = highlightHeroBgPreset;
+
+    function selectHeroBgPreset(url, cardId) {
+      currentHeroBgUrl = url;
+      const input = document.getElementById('hero-bg-url-input');
+      if (input) input.value = url;
+      highlightHeroBgPreset(url);
+      showToast('Background preset selected! Click "Save Storefront Main Background" to apply.', 'info');
+    }
+    window.selectHeroBgPreset = selectHeroBgPreset;
+
+    async function handleCustomHeroBgUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const base64 = await fileToBase64(file, 1280, 0.72);
+        currentHeroBgUrl = base64;
+        const input = document.getElementById('hero-bg-url-input');
+        if (input) input.value = 'Custom Uploaded Image (Base64)';
+        const hint = document.getElementById('custom-hero-bg-hint');
+        if (hint) hint.innerHTML = '<span style="color:var(--green);font-weight:700;"><i class="fas fa-check"></i> Image loaded!</span>';
+        highlightHeroBgPreset('');
+        showToast('Custom image loaded! Click Save to apply.', 'success');
+      } catch (err) {
+        console.error('Error reading custom background:', err);
+        showToast('Failed to load image file.', 'error');
+      }
+    }
+    window.handleCustomHeroBgUpload = handleCustomHeroBgUpload;
+
+    function handleManualHeroBgInput(val) {
+      currentHeroBgUrl = (val || '').trim();
+      highlightHeroBgPreset(currentHeroBgUrl);
+    }
+    window.handleManualHeroBgInput = handleManualHeroBgInput;
+
+    function saveHeroBgSettings() {
+      const urlInput = document.getElementById('hero-bg-url-input');
+      const chosen = (urlInput && urlInput.value.trim() !== 'Custom Uploaded Image (Base64)' && urlInput.value.trim()) 
+        ? urlInput.value.trim() 
+        : currentHeroBgUrl;
+
+      if (!chosen) {
+        showToast('Please select or enter a valid background image URL/file.', 'warning');
+        return;
+      }
+
+      DB.saveSettings({ heroBackground: chosen });
+      showToast('Storefront Main Background saved & synced! 🎨✨', 'success');
+    }
+    window.saveHeroBgSettings = saveHeroBgSettings;
 
     async function handleCreatorAvatarUpload(e) {
       const file = e.target.files?.[0];
@@ -606,6 +783,14 @@
 
     function loadCurrentSettings() {
       const settings = DB.getSettings();
+
+      // Storefront Hero Background
+      currentHeroBgUrl = settings.heroBackground || 'images/ghibli-bg-1.jpg';
+      const heroBgInput = document.getElementById('hero-bg-url-input');
+      if (heroBgInput) {
+        heroBgInput.value = currentHeroBgUrl.startsWith('data:image') ? 'Custom Uploaded Image (Base64)' : currentHeroBgUrl;
+      }
+      highlightHeroBgPreset(currentHeroBgUrl);
 
       // Creator Bio & Profile
       const bio = DB.getBio ? DB.getBio() : {};
