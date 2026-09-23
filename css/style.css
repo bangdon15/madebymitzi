@@ -1157,6 +1157,13 @@ body.has-announcement .page-header {
   background: linear-gradient(150deg, #FFFFFF 0%, #FFFCEB 100%);
   border-color: rgba(255, 223, 130, 0.55);
 }
+.category-card p {
+  color: var(--bubblegum-pink, #FF84BA) !important;
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
 .category-ghibli-icon {
   width: 82px;
   height: 82px;
