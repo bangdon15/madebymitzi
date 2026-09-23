@@ -163,7 +163,7 @@ function launchConfetti(duration = 3000) {
 window.launchConfetti = launchConfetti;
 
 // ── File to base64 with auto-compression (Tablet & Mobile Optimized) ──────────
-function fileToBase64(file, maxDimension = 560, quality = 0.68) {
+function fileToBase64(file, maxDimension = 560, quality = 0.68, maxBytes = 140000) {
   return new Promise((resolve, reject) => {
     if (!file) return resolve(null);
 
@@ -214,9 +214,13 @@ function fileToBase64(file, maxDimension = 560, quality = 0.68) {
         };
 
         let compressed = compressWith(maxDimension, quality);
-        // If still over 120KB, perform secondary pass to protect tablet localStorage & Firestore
-        if (compressed.length > 120000) {
-          compressed = compressWith(420, 0.55);
+        // If still over maxBytes, perform secondary pass to protect tablet localStorage & Firestore
+        if (compressed.length > maxBytes) {
+          if (maxDimension >= 1200) {
+            compressed = compressWith(1080, 0.65);
+          } else {
+            compressed = compressWith(420, 0.55);
+          }
         }
         cleanup();
         resolve(compressed);
