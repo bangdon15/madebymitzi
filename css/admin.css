@@ -2,7 +2,7 @@
    MadeByMitzi — Admin Panel CSS
 =================================================== */
 
-body { background: var(--gray-100); }
+body { background: var(--warm-cream, #FFEFE3); }
 
 /* ── Admin Layout ── */
 .admin-layout { display: flex; min-height: 100vh; padding-top: var(--nav-h); }
@@ -10,7 +10,7 @@ body { background: var(--gray-100); }
 /* Sidebar */
 .admin-sidebar {
   width: 260px;
-  background: var(--forest-deep);
+  background: var(--forest-deep, #23182C);
   min-height: calc(100vh - var(--nav-h));
   position: fixed;
   top: var(--nav-h); left: 0;
@@ -22,24 +22,24 @@ body { background: var(--gray-100); }
 }
 .admin-sidebar-header {
   padding: 24px 20px 16px;
-  border-bottom: 1px solid rgba(243, 232, 194, 0.15);
+  border-bottom: 1px solid rgba(255, 239, 227, 0.15);
 }
 .admin-sidebar-logo {
   font-family: var(--font-head);
   font-weight: 900;
   font-size: 1.1rem;
-  color: var(--rice-cream);
+  color: var(--rice-cream, #FFEFE3);
   margin-bottom: 4px;
 }
 .admin-sidebar-sub {
   font-size: 0.75rem;
-  color: rgba(243, 232, 194, 0.6);
+  color: rgba(255, 239, 227, 0.6);
 }
 .admin-nav { padding: 16px 12px; flex: 1; }
 .admin-nav-section {
   font-size: 0.7rem;
   font-weight: 800;
-  color: rgba(243, 232, 194, 0.4);
+  color: rgba(255, 239, 227, 0.45);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 12px 8px 6px;
@@ -50,7 +50,7 @@ body { background: var(--gray-100); }
   gap: 12px;
   padding: 11px 14px;
   border-radius: var(--radius-md);
-  color: rgba(243, 232, 194, 0.8);
+  color: rgba(255, 239, 227, 0.85);
   font-weight: 600;
   font-size: 0.88rem;
   transition: var(--transition);
@@ -59,13 +59,13 @@ body { background: var(--gray-100); }
   text-decoration: none;
 }
 .admin-nav-link:hover {
-  background: rgba(243, 232, 194, 0.12);
-  color: var(--rice-cream);
+  background: rgba(255, 239, 227, 0.12);
+  color: var(--lemon-honey, #FFDF82);
 }
 .admin-nav-link.active {
-  background: var(--forest-moss);
+  background: var(--bubblegum-pink, #FF84BA);
   color: white;
-  box-shadow: 0 4px 12px rgba(107, 142, 90, 0.3);
+  box-shadow: 0 4px 14px rgba(255, 132, 186, 0.45);
 }
 .admin-nav-link .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
 .admin-nav-link .nav-badge {
@@ -148,9 +148,9 @@ body { background: var(--gray-100); }
   border-radius: 50%;
   opacity: 0.1;
 }
-.stat-card.blue::before  { background: var(--blue); }
-.stat-card.green::before { background: var(--green); }
-.stat-card.yellow::before { background: var(--yellow); }
+.stat-card.blue::before  { background: var(--sky-candy, #99C2FF); }
+.stat-card.green::before { background: var(--bubblegum-pink, #FF84BA); }
+.stat-card.yellow::before { background: var(--lemon-honey, #FFDF82); }
 .stat-card.red::before { background: #ef4444; }
 .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 .stat-card-icon {
@@ -160,10 +160,10 @@ body { background: var(--gray-100); }
   font-size: 1.4rem;
   margin-bottom: 16px;
 }
-.stat-card.blue  .stat-card-icon { background: rgba(15,82,186,0.1); }
-.stat-card.green .stat-card-icon { background: rgba(0,168,107,0.1); }
-.stat-card.yellow .stat-card-icon { background: rgba(255,215,0,0.2); }
-.stat-card.red   .stat-card-icon { background: rgba(239,68,68,0.1); }
+.stat-card.blue  .stat-card-icon { background: rgba(153,194,255,0.22); color: #2563EB; }
+.stat-card.green .stat-card-icon { background: rgba(255,132,186,0.22); color: var(--bubblegum-pink, #FF84BA); }
+.stat-card.yellow .stat-card-icon { background: rgba(255,223,130,0.35); color: #B45309; }
+.stat-card.red   .stat-card-icon { background: rgba(239,68,68,0.15); color: #DC2626; }
 .stat-card-num {
   font-family: var(--font-head);
   font-weight: 900;
@@ -172,9 +172,9 @@ body { background: var(--gray-100); }
   line-height: 1;
   margin-bottom: 4px;
 }
-.stat-card.blue  .stat-card-num { color: var(--blue); }
-.stat-card.green .stat-card-num { color: var(--green); }
-.stat-card.yellow .stat-card-num { color: #B8860B; }
+.stat-card.blue  .stat-card-num { color: #2563EB; }
+.stat-card.green .stat-card-num { color: var(--bubblegum-pink, #FF84BA); }
+.stat-card.yellow .stat-card-num { color: #B45309; }
 .stat-card.red   .stat-card-num { color: #ef4444; }
 .stat-card-label { font-size: 0.82rem; color: var(--gray-600); font-weight: 600; }
 
