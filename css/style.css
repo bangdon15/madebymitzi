@@ -308,23 +308,24 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
 
 .hero h1 {
   font-family: var(--font-head);
-  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-size: clamp(2.3rem, 5.2vw, 4.2rem);
   font-weight: 900;
   color: #FFFFFF;
-  text-shadow: 0 2px 14px rgba(15, 23, 42, 0.55);
-  line-height: 1.1;
+  text-shadow: 0 3px 18px rgba(21, 28, 19, 0.75), 0 1px 3px rgba(0, 0, 0, 0.6);
+  line-height: 1.12;
   margin-bottom: 20px;
   animation: fadeInDown 0.7s ease 0.1s both;
 }
 
 .hero h1 span {
   color: var(--rice-cream);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 3px 18px rgba(21, 28, 19, 0.85), 0 1px 4px rgba(0, 0, 0, 0.7);
+  display: inline-block;
 }
 
 .hero p {
   color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
   font-size: clamp(1rem, 2vw, 1.15rem);
   margin-bottom: 36px;
   animation: fadeInDown 0.7s ease 0.2s both;
@@ -356,21 +357,47 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
 }
 
 .hero-float-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  background: rgba(250, 246, 234, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(168, 199, 160, 0.6);
+  box-shadow: 0 14px 34px rgba(36, 51, 30, 0.18);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 18px 14px;
   text-align: center;
   color: var(--forest-deep);
   animation: float 3s ease-in-out infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hero-float-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 18px 40px rgba(36, 51, 30, 0.24);
 }
 .hero-float-card:nth-child(2) { animation-delay: 0.5s; }
 .hero-float-card:nth-child(3) { animation-delay: 1s; }
 .hero-float-card:nth-child(4) { animation-delay: 1.5s; }
+.hero-float-card .ghibli-card-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8F2E4, #D3E7CD);
+  border: 2px solid var(--totoro-sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.45rem;
+  color: var(--forest-moss);
+  box-shadow: 0 4px 12px rgba(107, 142, 90, 0.16);
+  transition: all 0.3s ease;
+}
+.hero-float-card:hover .ghibli-card-icon {
+  background: var(--forest-moss);
+  color: #FFFFFF;
+  border-color: var(--forest-dark);
+  transform: scale(1.1) rotate(-4deg);
+}
 .hero-float-card .card-emoji { font-size: 2rem; margin-bottom: 8px; }
-.hero-float-card .card-label { font-size: 0.75rem; font-weight: 700; color: var(--forest-moss); font-family: var(--font-head); }
+.hero-float-card .card-label { font-size: 0.78rem; font-weight: 700; color: var(--forest-moss); font-family: var(--font-head); }
 
 /* ============================================================
    BUTTONS
@@ -910,37 +937,158 @@ input, textarea, select { font-family: var(--font-body); outline: none; }
 }
 .step-card {
   text-align: center;
-  padding: 32px 20px;
-  border-radius: var(--radius-lg);
-  background: white;
-  border: 2px solid var(--gray-200);
+  padding: 34px 22px;
+  border-radius: var(--radius-xl);
+  background: #FFFFFF;
+  border: 1.5px solid var(--cream-border);
+  box-shadow: 0 6px 20px rgba(36, 51, 30, 0.06);
   transition: var(--transition-bounce);
   position: relative;
 }
 .step-card:hover {
-  transform: translateY(-6px);
-  border-color: var(--yellow);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-8px);
+  border-color: var(--totoro-sage);
+  box-shadow: 0 16px 36px rgba(107, 142, 90, 0.16);
 }
 .step-num {
-  width: 52px; height: 52px;
-  background: var(--yellow);
-  color: var(--blue-dark);
+  width: 48px;
+  height: 48px;
+  background: var(--rice-cream);
+  color: var(--forest-deep);
   font-family: var(--font-head);
   font-weight: 900;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
   margin: 0 auto 16px;
+  border: 2px solid var(--cream-border);
+  box-shadow: 0 2px 8px rgba(36, 51, 30, 0.08);
 }
-.step-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.step-icon {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EBF3E8, #D8EAD2);
+  border: 2px solid var(--totoro-sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65rem;
+  color: var(--forest-moss);
+  box-shadow: 0 4px 14px rgba(107, 142, 90, 0.14);
+  transition: all 0.35s ease;
+}
+.step-card:hover .step-icon {
+  background: var(--forest-moss);
+  color: #FFFFFF;
+  border-color: var(--forest-dark);
+  transform: translateY(-4px) scale(1.08) rotate(-4deg);
+  box-shadow: 0 8px 22px rgba(107, 142, 90, 0.28);
+}
 .step-title {
   font-family: var(--font-head);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
   margin-bottom: 8px;
   color: var(--gray-800);
+}
+
+/* ============================================================
+   GHIBLI ARTISAN CATEGORIES & BADGES
+============================================================ */
+.category-card {
+  border-radius: var(--radius-xl);
+  padding: 42px 32px;
+  text-align: center;
+  color: white;
+  transition: var(--transition-bounce);
+  display: block;
+  border: 2px solid transparent;
+  box-shadow: 0 10px 30px rgba(36, 51, 30, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.category-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 45px rgba(36, 51, 30, 0.25);
+  border-color: rgba(243, 232, 194, 0.6);
+}
+.category-card.cat-stickers {
+  background: linear-gradient(135deg, #446936 0%, #638853 100%);
+}
+.category-card.cat-invitations {
+  background: linear-gradient(135deg, #2B4623 0%, #436636 100%);
+}
+.category-card.cat-cutfiles {
+  background: linear-gradient(135deg, #516C3D 0%, #739359 100%);
+}
+.category-ghibli-icon {
+  width: 82px;
+  height: 82px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: rgba(250, 246, 234, 0.18);
+  border: 2px solid rgba(250, 246, 234, 0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: var(--rice-cream);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.category-card:hover .category-ghibli-icon {
+  transform: scale(1.12) rotate(-5deg);
+  background: rgba(250, 246, 234, 0.32);
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+}
+.category-card .cat-btn-pill {
+  display: inline-block;
+  background: var(--rice-cream);
+  color: var(--forest-deep);
+  padding: 9px 24px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+.category-card:hover .cat-btn-pill {
+  background: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.ghibli-title-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EBF3E8, #D8EAD2);
+  border: 2px solid var(--totoro-sage);
+  color: var(--forest-moss);
+  font-size: 1.25rem;
+  vertical-align: middle;
+  margin-left: 8px;
+  box-shadow: 0 4px 12px rgba(107, 142, 90, 0.18);
+  transition: all 0.3s ease;
+}
+.ghibli-title-badge:hover {
+  background: var(--forest-moss);
+  color: #FFFFFF;
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.text-sage {
+  color: var(--forest-moss) !important;
+  margin-right: 6px;
 }
 .step-text { font-size: 0.88rem; color: var(--gray-600); line-height: 1.6; }
 

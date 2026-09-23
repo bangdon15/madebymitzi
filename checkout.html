@@ -657,9 +657,9 @@
           <img src="${imgSrc}" alt="${item.name}" class="mini-cart-img" onerror="this.src='${getPlaceholderSVG(category, i)}'" />
           <div>
             <div class="mini-cart-name">${item.name}</div>
-            <div class="mini-cart-qty">Qty: ${item.qty} × ${formatPrice(item.price)}</div>
+            <div class="mini-cart-qty"><span style="color:var(--forest-moss);font-weight:700;">1 Digital License</span></div>
           </div>
-          <div class="mini-cart-price">${formatPrice(item.price * item.qty)}</div>
+          <div class="mini-cart-price">${formatPrice(item.price)}</div>
         `;
         list.appendChild(div);
       });

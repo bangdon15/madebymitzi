@@ -757,16 +757,16 @@
             <span class="cart-item-unit-price">${formatPrice(item.price)} each</span>
           </div>
 
-          <!-- Quantity Controls -->
-          <div class="cart-qty-ctrl">
-            <button class="cart-qty-btn" onclick="changeQty('${item.key}', ${item.qty - 1})" title="Decrease quantity">−</button>
-            <span class="cart-qty-val">${item.qty}</span>
-            <button class="cart-qty-btn" onclick="changeQty('${item.key}', ${item.qty + 1})" title="Increase quantity">+</button>
+          <!-- Single Digital Item Badge -->
+          <div style="display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:0.78rem;font-weight:700;color:var(--forest-moss);background:var(--cream-bg, #FAF6EA);border:1px solid var(--totoro-sage);padding:4px 10px;border-radius:var(--radius-pill);white-space:nowrap;">
+              <i class="fas fa-file-download"></i> 1 License
+            </span>
           </div>
 
           <!-- Line Total -->
           <div class="cart-item-line-total">
-            ${formatPrice(item.price * item.qty)}
+            ${formatPrice(item.price)}
           </div>
 
           <!-- Delete -->
@@ -806,17 +806,6 @@
         couponRow.style.display = 'none';
       }
     }
-
-    function changeQty(key, newQty) {
-      if (newQty <= 0) {
-        deleteItem(key);
-        return;
-      }
-      DB.updateCartQty(key, newQty);
-      renderCart();
-      showToast('Cart updated! 🛒', 'cart');
-    }
-    window.changeQty = changeQty;
 
     function deleteItem(key) {
       showConfirm({

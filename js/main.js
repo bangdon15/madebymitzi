@@ -162,13 +162,13 @@ function launchConfetti(duration = 3000) {
 }
 window.launchConfetti = launchConfetti;
 
-// ── File to base64 with auto-compression ──────────
-function fileToBase64(file, maxDimension = 640, quality = 0.72) {
+// ── File to base64 with auto-compression (Tablet & Mobile Optimized) ──────────
+function fileToBase64(file, maxDimension = 560, quality = 0.68) {
   return new Promise((resolve, reject) => {
     if (!file) return resolve(null);
 
-    // If not an image or is SVG, read directly as data URL
-    if (!file.type || !file.type.startsWith('image/') || file.type.includes('svg')) {
+    // If SVG, read directly as data URL
+    if (file.type && file.type.includes('svg')) {
       const reader = new FileReader();
       reader.onload = e => resolve(e.target.result);
       reader.onerror = reject;
@@ -176,41 +176,84 @@ function fileToBase64(file, maxDimension = 640, quality = 0.72) {
       return;
     }
 
+    // Use URL.createObjectURL for memory safety on Android tablets
+    const hasObjectUrl = typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function';
+    let blobUrl = null;
+
+    const cleanup = () => {
+      if (blobUrl && hasObjectUrl) {
+        try { URL.revokeObjectURL(blobUrl); } catch (e) {}
+      }
+    };
+
+    const processImage = (img) => {
+      try {
+        const compressWith = (dim, q) => {
+          const canvas = document.createElement('canvas');
+          let { naturalWidth: width, naturalHeight: height } = img;
+          if (!width || !height) {
+            width = img.width || dim;
+            height = img.height || dim;
+          }
+          if (width > dim || height > dim) {
+            if (width > height) {
+              height = Math.round((height * dim) / width);
+              width = dim;
+            } else {
+              width = Math.round((width * dim) / height);
+              height = dim;
+            }
+          }
+          canvas.width = Math.max(1, width);
+          canvas.height = Math.max(1, height);
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+          return canvas.toDataURL('image/jpeg', q);
+        };
+
+        let compressed = compressWith(maxDimension, quality);
+        // If still over 120KB, perform secondary pass to protect tablet localStorage & Firestore
+        if (compressed.length > 120000) {
+          compressed = compressWith(420, 0.55);
+        }
+        cleanup();
+        resolve(compressed);
+      } catch (err) {
+        console.warn('Canvas compression fallback to raw dataURL:', err);
+        cleanup();
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      }
+    };
+
+    if (hasObjectUrl) {
+      try {
+        blobUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => processImage(img);
+        img.onerror = () => {
+          cleanup();
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        };
+        img.src = blobUrl;
+        return;
+      } catch (e) {
+        cleanup();
+      }
+    }
+
+    // Fallback: standard FileReader
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
-      img.onload = () => {
-        try {
-          const compressWith = (dim, q) => {
-            const canvas = document.createElement('canvas');
-            let { width, height } = img;
-            if (width > dim || height > dim) {
-              if (width > height) {
-                height = Math.round((height * dim) / width);
-                width = dim;
-              } else {
-                width = Math.round((width * dim) / height);
-                height = dim;
-              }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            return canvas.toDataURL('image/jpeg', q);
-          };
-
-          let compressed = compressWith(maxDimension, quality);
-          // If still over 180KB, do aggressive secondary pass for Firestore stability
-          if (compressed.length > 180000) {
-            compressed = compressWith(480, 0.58);
-          }
-          resolve(compressed);
-        } catch (err) {
-          console.warn('Canvas compression error, using raw dataURL:', err);
-          resolve(e.target.result);
-        }
-      };
+      img.onload = () => processImage(img);
       img.onerror = () => resolve(e.target.result);
       img.src = e.target.result;
     };
@@ -273,9 +316,13 @@ function initMarquee() {
 
 // ── Add to cart (global handler) ─────────────────
 function handleAddToCart(productId, qty = 1) {
-  DB.addToCart(productId, qty);
+  const res = DB.addToCart(productId, 1);
   updateCartBadge();
-  showToast('Added to cart! 🛒', 'cart');
+  if (res && res.alreadyExists) {
+    showToast('Item is already in your cart! 🛍️', 'info');
+  } else {
+    showToast('Added to cart! 🛍️', 'cart');
+  }
 }
 window.handleAddToCart = handleAddToCart;
 
