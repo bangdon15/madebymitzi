@@ -167,6 +167,7 @@ const DB = {
     } catch (e) { }
 
     this.setProducts([]);
+    window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: [] }));
     if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.clearAllProductsFromCloud === 'function') {
       try {
         await window.FirebaseService.clearAllProductsFromCloud();
