@@ -635,7 +635,7 @@ body.has-announcement .page-header {
   line-height: 1.2;
   margin-bottom: 12px;
 }
-.section-title span { color: var(--blue); }
+.section-title span { color: var(--blue-dark, #4A88E8); }
 .section-sub {
   color: var(--gray-600);
   font-size: 1rem;
@@ -1278,6 +1278,14 @@ body.has-announcement .page-header {
   transition: var(--transition);
 }
 .footer-links a:hover { color: var(--bubblegum-pink, #FF84BA); font-weight: 700; }
+.footer-admin-link {
+  color: #6E506B;
+  transition: var(--transition);
+}
+.footer-admin-link:hover {
+  color: var(--bubblegum-pink, #FF84BA) !important;
+  font-weight: 700;
+}
 .footer-social {
   display: flex;
   gap: 12px;
