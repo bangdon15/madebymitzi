@@ -66,14 +66,28 @@ const FirebaseService = {
         } catch (e) {}
       }
 
-      if (this.isInitialized && this.db) {
-        // 1. Initial product sync
+      if (this.isInitialized || true) {
+        // 1. Initial product sync with non-destructive local reconciliation
         this.fetchProducts().then(cloudProds => {
-          if (cloudProds && cloudProds.length && typeof window.DB !== 'undefined') {
-            window.DB.setProducts(cloudProds);
-            window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: cloudProds }));
+          if (typeof window.DB !== 'undefined' && cloudProds && cloudProds.length) {
+            const localProds = window.DB.getProducts() || [];
+            const cloudIds = new Set(cloudProds.map(p => p.id));
+            const pendingLocal = localProds.filter(lp => !cloudIds.has(lp.id));
+
+            // If any product exists locally but not in cloud, automatically push to cloud!
+            if (pendingLocal.length) {
+              console.log('🔄 Found ' + pendingLocal.length + ' pending local products. Syncing to Firestore...');
+              pendingLocal.forEach(p => {
+                this.syncProduct(p).catch(e => console.warn('Background sync failed for', p.id, e));
+              });
+            }
+
+            const merged = [...pendingLocal, ...cloudProds];
+            merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            window.DB.setProducts(merged);
+            window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
           }
-        }).catch(() => {});
+        }).catch((err) => console.warn('Initial fetchProducts error:', err));
 
         // 2. Initial orders sync
         this.fetchOrders().then(cloudOrders => {
@@ -92,53 +106,54 @@ const FirebaseService = {
         }).catch(() => {});
 
         // 4. Real-time live Firestore listener for Products
-        try {
-          this.db.collection('mbm_products').onSnapshot(snapshot => {
-            if (typeof window.DB !== 'undefined') {
-              const cloudProds = [];
-              snapshot.forEach(doc => cloudProds.push(doc.data()));
-              cloudProds.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        if (this.db) {
+          try {
+            this.db.collection('mbm_products').onSnapshot(snapshot => {
+              if (typeof window.DB !== 'undefined') {
+                const cloudProds = [];
+                snapshot.forEach(doc => cloudProds.push(doc.data()));
+                cloudProds.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
-              // Reconcile with recently added local items (< 2 min) not yet in snapshot
-              const localProds = window.DB.getProducts() || [];
-              const now = Date.now();
-              const pendingLocal = localProds.filter(lp => {
-                const age = now - new Date(lp.createdAt || 0).getTime();
-                const existsInCloud = cloudProds.some(cp => cp.id === lp.id);
-                return !existsInCloud && age < 120000;
-              });
+                const localProds = window.DB.getProducts() || [];
+                const cloudIds = new Set(cloudProds.map(p => p.id));
+                const pendingLocal = localProds.filter(lp => !cloudIds.has(lp.id));
 
-              const merged = [...pendingLocal, ...cloudProds];
-              merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-              window.DB.setProducts(merged);
-              window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
-            }
-          }, err => console.warn('Products live listener notice:', err.message));
-        } catch (e) {}
+                const merged = [...pendingLocal, ...cloudProds];
+                merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                window.DB.setProducts(merged);
+                window.dispatchEvent(new CustomEvent('mbm_products_synced', { detail: merged }));
+              }
+            }, err => console.warn('Products live listener notice:', err.message));
+          } catch (e) {}
+        }
 
         // 5. Real-time live Firestore listener for Orders
-        try {
-          this.db.collection('mbm_orders').onSnapshot(snapshot => {
-            if (!snapshot.empty && typeof window.DB !== 'undefined') {
-              const cloudOrders = [];
-              snapshot.forEach(doc => cloudOrders.push(doc.data()));
-              cloudOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-              window.DB.setOrders(cloudOrders);
-              window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders }));
-            }
-          }, err => console.warn('Orders live listener notice:', err.message));
-        } catch (e) {}
+        if (this.db) {
+          try {
+            this.db.collection('mbm_orders').onSnapshot(snapshot => {
+              if (!snapshot.empty && typeof window.DB !== 'undefined') {
+                const cloudOrders = [];
+                snapshot.forEach(doc => cloudOrders.push(doc.data()));
+                cloudOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                window.DB.setOrders(cloudOrders);
+                window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders }));
+              }
+            }, err => console.warn('Orders live listener notice:', err.message));
+          } catch (e) {}
+        }
 
         // 6. Real-time live Firestore listener for Settings
-        try {
-          this.db.collection('mbm_settings').doc('main_settings').onSnapshot(doc => {
-            if (doc.exists && typeof window.DB !== 'undefined') {
-              const current = window.DB.getSettings();
-              window.DB.set(window.DB.KEYS.SETTINGS, { ...current, ...doc.data() });
-              window.dispatchEvent(new CustomEvent('mbm_settings_synced', { detail: doc.data() }));
-            }
-          }, err => console.warn('Settings live listener notice:', err.message));
-        } catch (e) {}
+        if (this.db) {
+          try {
+            this.db.collection('mbm_settings').doc('main_settings').onSnapshot(doc => {
+              if (doc.exists && typeof window.DB !== 'undefined') {
+                const current = window.DB.getSettings();
+                window.DB.set(window.DB.KEYS.SETTINGS, { ...current, ...doc.data() });
+                window.dispatchEvent(new CustomEvent('mbm_settings_synced', { detail: doc.data() }));
+              }
+            }, err => console.warn('Settings live listener notice:', err.message));
+          } catch (e) {}
+        }
 
         return true;
       }
@@ -146,6 +161,7 @@ const FirebaseService = {
       console.warn('Firebase init error (using offline fallback):', err.message);
       this.isInitialized = false;
     }
+    return false;
     return false;
   },
 
@@ -249,25 +265,167 @@ const FirebaseService = {
     return clean;
   },
 
+  // ── FIRESTORE REST API SERIALIZERS & DIRECT HTTP ENGINE ──
+  toFirestoreValue(val) {
+    if (val === null || val === undefined) return { nullValue: null };
+    if (typeof val === 'boolean') return { booleanValue: val };
+    if (typeof val === 'number') {
+      if (Number.isInteger(val)) return { integerValue: val.toString() };
+      return { doubleValue: val };
+    }
+    if (typeof val === 'string') return { stringValue: val };
+    if (Array.isArray(val)) {
+      return {
+        arrayValue: {
+          values: val.map(item => this.toFirestoreValue(item))
+        }
+      };
+    }
+    if (typeof val === 'object') {
+      return {
+        mapValue: {
+          fields: this.toFirestoreFields(val)
+        }
+      };
+    }
+    return { stringValue: String(val) };
+  },
+
+  toFirestoreFields(obj) {
+    const fields = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (v !== undefined) {
+        fields[k] = this.toFirestoreValue(v);
+      }
+    }
+    return fields;
+  },
+
+  fromFirestoreValue(val) {
+    if (!val || typeof val !== 'object') return null;
+    if ('stringValue' in val) return val.stringValue;
+    if ('booleanValue' in val) return val.booleanValue;
+    if ('integerValue' in val) return parseInt(val.integerValue, 10);
+    if ('doubleValue' in val) return parseFloat(val.doubleValue);
+    if ('nullValue' in val) return null;
+    if ('timestampValue' in val) return val.timestampValue;
+    if ('arrayValue' in val) {
+      return (val.arrayValue.values || []).map(item => this.fromFirestoreValue(item));
+    }
+    if ('mapValue' in val) {
+      return this.fromFirestoreFields(val.mapValue.fields || {});
+    }
+    return null;
+  },
+
+  fromFirestoreFields(fields) {
+    const obj = {};
+    for (const [k, v] of Object.entries(fields || {})) {
+      obj[k] = this.fromFirestoreValue(v);
+    }
+    return obj;
+  },
+
   /**
-   * Sync a single product to Firestore
+   * Direct REST fallback: Sync single product via HTTP PATCH
+   */
+  async syncProductRest(product) {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) {
+      return { success: false, error: 'Firebase config missing' };
+    }
+    const sanitized = this.sanitizeProduct(product);
+    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_products/${product.id}?key=${config.apiKey}`;
+    try {
+      const resp = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: this.toFirestoreFields(sanitized) })
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) {
+        throw new Error(data.error?.message || `HTTP ${resp.status}`);
+      }
+      console.log('✅ Product synced via Firestore REST API:', product.id);
+      return { success: true };
+    } catch (e) {
+      console.error('REST API syncProduct error:', e);
+      return { success: false, error: e.message };
+    }
+  },
+
+  /**
+   * Direct REST fallback: Fetch products via HTTP GET
+   */
+  async fetchProductsRest() {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return null;
+    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_products?key=${config.apiKey}`;
+    try {
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (!resp.ok || !data.documents) return [];
+      const prods = data.documents.map(d => this.fromFirestoreFields(d.fields));
+      prods.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      return prods;
+    } catch (e) {
+      console.warn('REST API fetchProducts error:', e);
+      return null;
+    }
+  },
+
+  /**
+   * Direct REST fallback: Delete product via HTTP DELETE
+   */
+  async deleteProductRest(id) {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
+    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_products/${id}?key=${config.apiKey}`;
+    try {
+      const resp = await fetch(url, { method: 'DELETE' });
+      return resp.ok;
+    } catch (e) {
+      console.warn('REST API deleteProduct error:', e);
+      return false;
+    }
+  },
+
+  /**
+   * Sync a single product to Firestore (dual SDK + direct REST fallback)
    */
   async syncProduct(product) {
-    if (!this.isInitialized || !this.db) {
-      await this.init().catch(() => {});
+    const sanitized = this.sanitizeProduct(product);
+
+    // Safeguard against exceeding Firestore 1MB document limit
+    const payloadSize = JSON.stringify(sanitized).length;
+    if (payloadSize > 980000) {
+      const sizeKb = Math.round(payloadSize / 1024);
+      console.error(`Product ${product.id} exceeds Firestore 1MB limit (${sizeKb} KB).`);
+      return {
+        success: false,
+        error: `Payload size (${sizeKb} KB) exceeds Firestore 1MB limit. Please compress images.`
+      };
     }
-    if (!this.isInitialized || !this.db) {
-      return { success: false, error: 'Cloud database is currently offline' };
+
+    // Try SDK first if available
+    if (this.db) {
+      try {
+        await this.db.collection('mbm_products').doc(product.id).set(sanitized);
+        console.log('✅ Product synced via Firestore SDK:', product.id);
+        return { success: true };
+      } catch (sdkErr) {
+        console.warn('Firestore SDK sync failed, trying REST API fallback:', sdkErr.message);
+      }
     }
-    try {
-      const sanitized = this.sanitizeProduct(product);
-      await this.db.collection('mbm_products').doc(product.id).set(sanitized);
-      console.log('✅ Product synced to Firestore:', product.id);
-      return { success: true };
-    } catch (err) {
-      console.error('Error syncing single product to Firestore:', err);
-      return { success: false, error: err.message };
-    }
+
+    // Direct REST API fallback (works on any tablet/device without SDK dependency)
+    const restRes = await this.syncProductRest(sanitized);
+    if (restRes.success) return { success: true };
+
+    return {
+      success: false,
+      error: restRes.error || 'Failed to sync to cloud database'
+    };
   },
 
   /**
@@ -390,17 +548,18 @@ const FirebaseService = {
   },
 
   /**
-   * Delete a product from Firestore
+   * Delete a product from Firestore (SDK + REST fallback)
    */
   async deleteProductFromCloud(id) {
-    if (!this.isInitialized || !this.db) return false;
-    try {
-      await this.db.collection('mbm_products').doc(id).delete();
-      return true;
-    } catch (err) {
-      console.warn('Error deleting product from Firestore:', err);
-      return false;
+    if (this.db) {
+      try {
+        await this.db.collection('mbm_products').doc(id).delete();
+        return true;
+      } catch (err) {
+        console.warn('Firestore SDK delete failed, trying REST:', err.message);
+      }
     }
+    return await this.deleteProductRest(id);
   },
 
   /**
@@ -423,20 +582,21 @@ const FirebaseService = {
   },
 
   /**
-   * Fetch all products from Firestore
+   * Fetch all products from Firestore (SDK + REST fallback)
    */
   async fetchProducts() {
-    if (!this.isInitialized || !this.db) return null;
-    try {
-      const snapshot = await this.db.collection('mbm_products').get();
-      const products = [];
-      snapshot.forEach(doc => products.push(doc.data()));
-      products.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-      return products;
-    } catch (err) {
-      console.warn('Error fetching products from Firestore:', err);
-      return null;
+    if (this.db) {
+      try {
+        const snapshot = await this.db.collection('mbm_products').get();
+        const products = [];
+        snapshot.forEach(doc => products.push(doc.data()));
+        products.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        return products;
+      } catch (err) {
+        console.warn('Firestore SDK fetchProducts error, trying REST:', err.message);
+      }
     }
+    return await this.fetchProductsRest();
   },
 
   /**

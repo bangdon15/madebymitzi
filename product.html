@@ -615,6 +615,9 @@
     <div class="lightbox-caption" id="lightbox-caption"></div>
   </div>
 
+  <!-- Firebase Compat SDKs loaded directly -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
@@ -672,7 +675,7 @@
       document.getElementById('p-title').textContent = currentProduct.name;
       document.getElementById('p-cat-pill').textContent = currentProduct.category;
       document.getElementById('p-price-val').textContent = formatPrice(currentProduct.price);
-      document.getElementById('p-description').textContent = currentProduct.description || 'Premium customizable digital design.';
+      document.getElementById('p-description').innerHTML = renderMarkdown(currentProduct.description || 'Premium customizable digital design.');
 
       const imgSrc = currentProduct.images?.[0] && !currentProduct.images[0].includes('placeholder')
         ? currentProduct.images[0]
