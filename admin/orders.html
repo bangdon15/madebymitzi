@@ -161,11 +161,16 @@
           <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Order Management</h1>
           <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Inspect proof of payments and confirm customer orders</p>
         </div>
-        <div class="filter-btn-group">
-          <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-          <button class="filter-btn" onclick="setFilter('pending', this)">Pending Verification</button>
-          <button class="filter-btn" onclick="setFilter('confirmed', this)">Confirmed</button>
-          <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div class="filter-btn-group">
+            <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+            <button class="filter-btn" onclick="setFilter('pending', this)">Pending Verification</button>
+            <button class="filter-btn" onclick="setFilter('confirmed', this)">Confirmed</button>
+            <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
+          </div>
+          <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmClearAllOrders()" title="Erase all test orders from store & cloud" style="border:1.5px solid #ef4444;color:#ef4444;background:#fff;border-radius:var(--radius-pill);padding:6px 14px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+            <i class="fas fa-trash-alt"></i> Clear All Orders
+          </button>
         </div>
       </div>
 
@@ -243,7 +248,10 @@
             <i class="fas fa-envelope-open-text"></i> Review Delivery Message
           </button>
         </div>
-        <div style="display:flex;gap:10px;">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn btn-outline-danger btn-sm" id="btn-delete-order" onclick="deleteCurrentOrder()" style="border:1.5px solid #ef4444;color:#ef4444;" title="Delete this order">
+            <i class="fas fa-trash-alt"></i> Delete Order
+          </button>
           <button class="btn btn-danger btn-sm" id="btn-reject" onclick="changeCurrentOrderStatus('rejected')">
             <i class="fas fa-times"></i> Reject
           </button>
@@ -550,6 +558,44 @@
       });
     }
     window.copyEmailDraft = copyEmailDraft;
+
+    function confirmClearAllOrders() {
+      showConfirm({
+        icon: '🗑️',
+        iconClass: 'danger',
+        title: 'Clear All Orders?',
+        message: 'Are you sure you want to permanently erase all customer orders and test transactions from both this device and Cloud Firestore? This will reset your dashboard to a fresh 0-order state for live production.',
+        confirmText: 'Yes, Clear All Orders',
+        cancelText: 'Cancel',
+        onConfirm: async () => {
+          showToast('Clearing all orders from database...', 'info');
+          await DB.clearAllOrders();
+          renderOrders();
+          showToast('All orders cleared! Dashboard is fresh for live transactions. ✨', 'success');
+        }
+      });
+    }
+    window.confirmClearAllOrders = confirmClearAllOrders;
+
+    function deleteCurrentOrder() {
+      if (!selectedOrder) return;
+      const orderId = selectedOrder.id;
+      showConfirm({
+        icon: '🗑️',
+        iconClass: 'danger',
+        title: 'Delete Order ' + orderId + '?',
+        message: 'Are you sure you want to permanently delete this order from the database?',
+        confirmText: 'Yes, Delete',
+        cancelText: 'Cancel',
+        onConfirm: async () => {
+          await DB.deleteOrder(orderId);
+          closeOrderModal();
+          renderOrders();
+          showToast(`Order ${orderId} deleted successfully.`, 'info');
+        }
+      });
+    }
+    window.deleteCurrentOrder = deleteCurrentOrder;
 
     document.addEventListener('DOMContentLoaded', () => {
       renderOrders();

@@ -99,9 +99,9 @@ const FirebaseService = {
 
         // 2. Initial orders sync
         this.fetchOrders().then(cloudOrders => {
-          if (cloudOrders && cloudOrders.length && typeof window.DB !== 'undefined') {
-            window.DB.setOrders(cloudOrders);
-            window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders }));
+          if (typeof window.DB !== 'undefined') {
+            window.DB.setOrders(cloudOrders || []);
+            window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders || [] }));
           }
         }).catch(() => {});
 
@@ -149,10 +149,12 @@ const FirebaseService = {
         if (this.db) {
           try {
             this.db.collection('mbm_orders').onSnapshot(snapshot => {
-              if (!snapshot.empty && typeof window.DB !== 'undefined') {
+              if (typeof window.DB !== 'undefined') {
                 const cloudOrders = [];
-                snapshot.forEach(doc => cloudOrders.push(doc.data()));
-                cloudOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                if (!snapshot.empty) {
+                  snapshot.forEach(doc => cloudOrders.push(doc.data()));
+                  cloudOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                }
                 window.DB.setOrders(cloudOrders);
                 window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders }));
               }
@@ -673,6 +675,70 @@ const FirebaseService = {
     } catch (err) {
       console.warn('Error fetching orders from Firestore:', err);
       return null;
+    }
+  },
+
+  /**
+   * Delete an individual order from Firestore
+   */
+  async deleteOrderFromCloud(orderId) {
+    if (!orderId) return false;
+    if (this.db) {
+      try {
+        await this.db.collection('mbm_orders').doc(orderId).delete();
+        console.log('✅ Order deleted from Firestore SDK:', orderId);
+        return true;
+      } catch (err) {
+        console.warn('SDK deleteOrder error, falling back to REST:', err.message);
+      }
+    }
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
+    try {
+      const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_orders/${orderId}?key=${config.apiKey}`;
+      const res = await fetch(url, { method: 'DELETE' });
+      return res.ok;
+    } catch (e) {
+      console.warn('REST deleteOrder error:', e);
+      return false;
+    }
+  },
+
+  /**
+   * Clear all orders from Firestore (SDK + REST fallback)
+   */
+  async clearAllOrdersFromCloud() {
+    if (this.db) {
+      try {
+        const snapshot = await this.db.collection('mbm_orders').get();
+        if (!snapshot.empty) {
+          const batch = this.db.batch();
+          snapshot.forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
+        }
+        console.log('✅ Cleared all orders from Firestore SDK');
+        return true;
+      } catch (err) {
+        console.warn('SDK clearAllOrders error, falling back to REST:', err.message);
+      }
+    }
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
+    try {
+      const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_orders?key=${config.apiKey}&pageSize=100`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.documents && data.documents.length) {
+        for (const doc of data.documents) {
+          const docId = doc.name.split('/').pop();
+          await this.deleteOrderFromCloud(docId);
+        }
+      }
+      console.log('✅ Cleared all orders via Firestore REST API');
+      return true;
+    } catch (e) {
+      console.error('REST clearAllOrders error:', e);
+      return false;
     }
   },
 
