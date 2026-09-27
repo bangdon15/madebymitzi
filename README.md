@@ -241,13 +241,12 @@ Multi-tiered login portal featuring salted SHA-256 password hashing, brute-force
 
 ---
 
-## 🔑 Admin Access & Emergency Credentials
+## 🔑 Admin Access
 
 For managing the store on staging or production:
 - **Admin Portal**: [`https://madebymitziph.com/login.html`](https://madebymitziph.com/login.html)
 - **Direct Dashboard**: [`https://madebymitziph.com/admin/dashboard.html`](https://madebymitziph.com/admin/dashboard.html)
-- **Authorized Username**: `admin_madebymitzi` (or `madebymitzi26@gmail.com`)
-- **Emergency Password**: `[REDACTED]`
+- Access is restricted to authorized store administration. Credentials are configured securely within the private dashboard settings.
 - **1-Click Verified Login**: Click **"Sign In with Google (Mitzi Preset)"** on recognized store owner devices.
 
 ---

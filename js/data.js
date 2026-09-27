@@ -18,7 +18,7 @@ const DB = {
   SALT: 'mbm_salt_2026',
   DEFAULT_ADMIN: {
     username: 'admin_madebymitzi',
-    // SHA-256 of ('mbm_salt_2026' + '[REDACTED]')
+    // Salted SHA-256 admin password hash
     passwordHash: 'baefadae0d2f2e495749fa12cd1a4261c784da1e048cfa01689b31f3d2898a51',
     email: 'admin@madebymitzi.com',
     role: 'super_admin',
@@ -54,8 +54,8 @@ const DB = {
     const auth = this.getAdminAuth();
     const currentHash = await this.hashPassword(currentPassword);
 
-    // Check current password (hash or legacy fallback)
-    if (currentHash !== auth.passwordHash && currentPassword !== '[REDACTED]') {
+    // Check current password against salted hash
+    if (currentHash !== auth.passwordHash) {
       return { success: false, message: 'Current password is incorrect.' };
     }
     if (newPassword && newPassword.length < 8) {
@@ -826,9 +826,9 @@ Mitzi Santos — MadeByMitzi ✨`;
     const auth = this.getAdminAuth();
     const inputHash = await this.hashPassword(password);
 
-    // Check credentials against salted hash or legacy default
+    // Check credentials against salted hash
     const validUser = (username === auth.username || (auth.email && username === auth.email) || username === 'madebymitzi26@gmail.com');
-    const validPass = (inputHash === auth.passwordHash || (password === '[REDACTED]' && (username === auth.username || username === 'madebymitzi26@gmail.com')));
+    const validPass = (inputHash === auth.passwordHash);
 
     if (validUser && validPass) {
       sessionStorage.removeItem(attemptsKey);
