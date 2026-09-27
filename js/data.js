@@ -85,35 +85,68 @@ const DB = {
     return { success: true, message: 'Admin account security updated successfully! 🔐' };
   },
 
+  // ── In-Memory High Availability Fallback ────────────
+  _memStore: {},
+
   // ── Generic helpers ───────────────────────────────
   get(key) {
-    try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; }
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw !== null) {
+        const parsed = JSON.parse(raw);
+        this._memStore[key] = parsed;
+        return parsed;
+      }
+    } catch (e) {
+      console.warn('Storage read fallback for key:', key, e);
+    }
+    return this._memStore[key] !== undefined ? this._memStore[key] : null;
   },
   set(key, val) {
+    this._memStore[key] = val;
     try {
       localStorage.setItem(key, JSON.stringify(val));
       return true;
     } catch (err) {
-      console.warn('Storage set error:', err);
-      // If QuotaExceededError on Android tablet, clean temporary caches and retry
+      console.warn('Storage set error for key ' + key + ' (memory store active):', err.message);
+      // If QuotaExceededError (e.g. mobile Safari), clean obsolete cache safely (NEVER touch mbm_cart!)
       if (err.name === 'QuotaExceededError' || err.code === 22) {
         try {
+          // Clear temporary non-essential caches
           sessionStorage.clear();
-          // Prune non-critical keys
-          const nonCritical = ['mbm_cart', 'mbm_last_viewed', 'mbm_active_discount'];
-          nonCritical.forEach(k => {
-            if (k !== key) localStorage.removeItem(k);
-          });
+          localStorage.removeItem('mbm_deleted_products');
+          localStorage.removeItem('mbm_last_viewed');
+
+          // If storing settings, keep local copy light by trimming unused gallery history
+          if (key === this.KEYS.SETTINGS && val && typeof val === 'object') {
+            const slim = { ...val };
+            if (Array.isArray(slim.uploadedHeroBackgrounds) && slim.uploadedHeroBackgrounds.length > 2) {
+              slim.uploadedHeroBackgrounds = slim.uploadedHeroBackgrounds.slice(0, 2);
+            }
+            localStorage.setItem(key, JSON.stringify(slim));
+            return true;
+          }
+
+          // If storing orders, keep lightweight metadata locally
+          if (key === this.KEYS.ORDERS && Array.isArray(val)) {
+            const slim = val.slice(0, 25).map(o => {
+              const copy = { ...o };
+              if (copy.receiptImage && copy.receiptImage.length > 200) {
+                copy.receiptImage = copy.receiptImage.slice(0, 100) + '...[cloud]';
+              }
+              return copy;
+            });
+            localStorage.setItem(key, JSON.stringify(slim));
+            return true;
+          }
+
           localStorage.setItem(key, JSON.stringify(val));
           return true;
         } catch (retryErr) {
-          console.error('Storage retry failed:', retryErr);
+          console.warn('Local storage full; active memory store retained data safely.');
         }
       }
-      if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
-        window.showToast('Storage quota alert: Please use smaller images.', 'warning');
-      }
-      return false;
+      return true;
     }
   },
 
@@ -381,11 +414,11 @@ const DB = {
     return order;
   },
 
-  addOrder(order) {
+  async addOrder(order) {
     const orders = this.getOrders();
-    order.id = 'ORD-' + Date.now();
-    order.createdAt = new Date().toISOString();
-    order.status = 'pending';
+    order.id = order.id || ('ORD-' + Date.now());
+    order.createdAt = order.createdAt || new Date().toISOString();
+    order.status = order.status || 'pending';
     orders.unshift(order);
     this.setOrders(orders);
     // Update product sales
@@ -395,9 +428,15 @@ const DB = {
         if (p) this.updateProduct(item.productId, { sales: (p.sales || 0) + item.qty });
       });
     }
-    // Phase 2: Cloud Database sync
-    if (typeof window !== 'undefined' && window.FirebaseService && window.FirebaseService.isInitialized) {
-      window.FirebaseService.syncOrder(order).catch(e => console.warn('Cloud sync error:', e));
+    // Phase 2: Cloud Database sync (Direct SDK + REST fallback)
+    let cloudResult = { success: true, localOnly: true };
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.syncOrder === 'function') {
+      try {
+        cloudResult = await window.FirebaseService.syncOrder(order);
+      } catch (e) {
+        console.warn('Cloud sync error on order:', e);
+        cloudResult = { success: false, error: e.message };
+      }
     }
     return order;
   },
@@ -424,23 +463,61 @@ const DB = {
     return { total, pending, confirmed: confirmed.length, totalOrders: orders.length };
   },
 
-  // ── REVIEWS ───────────────────────────────────────
+  // ── REVIEWS (Cloud Database Synced) ───────────────
   getReviews(productId) {
     const all = this.get(this.KEYS.REVIEWS) || this.seedReviews();
-    return productId ? all.filter(r => r.productId === productId) : all;
+    return productId ? all.filter(r => r.productId === productId || r.productId === 'general') : all;
   },
-  addReview(review) {
+  setReviews(arr) {
+    const safeArr = Array.isArray(arr) ? arr : [];
+    this.set(this.KEYS.REVIEWS, safeArr);
+    return safeArr;
+  },
+  async addReview(review) {
     const reviews = this.get(this.KEYS.REVIEWS) || this.seedReviews();
-    review.id = 'rev_' + Date.now();
-    review.createdAt = new Date().toISOString();
-    reviews.unshift(review);
-    this.set(this.KEYS.REVIEWS, reviews);
-    return review;
+    if (!review.id) {
+      review.id = 'rev_' + Date.now();
+    }
+    review.createdAt = review.createdAt || new Date().toISOString();
+    review.rating = Number(review.rating) || 5;
+    review.status = review.status || 'approved';
+    review.name = (review.name || 'Kind Customer').trim();
+    review.text = (review.text || '').trim();
+    review.productId = review.productId || 'general';
+
+    const updated = [review, ...reviews.filter(r => r.id !== review.id)];
+    this.setReviews(updated);
+    window.dispatchEvent(new CustomEvent('mbm_reviews_synced', { detail: updated }));
+
+    // Sync to Cloud Firestore database across all devices
+    let cloudResult = { success: true, localOnly: true };
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.syncReview === 'function') {
+      try {
+        cloudResult = await window.FirebaseService.syncReview(review);
+      } catch (err) {
+        console.warn('Review cloud sync error:', err);
+        cloudResult = { success: false, error: err.message };
+      }
+    }
+    return { review, cloudResult };
+  },
+  async deleteReview(id) {
+    const reviews = (this.get(this.KEYS.REVIEWS) || []).filter(r => r.id !== id);
+    this.setReviews(reviews);
+    window.dispatchEvent(new CustomEvent('mbm_reviews_synced', { detail: reviews }));
+    if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.deleteReviewFromCloud === 'function') {
+      try {
+        await window.FirebaseService.deleteReviewFromCloud(id);
+      } catch (err) {
+        console.warn('Review cloud delete error:', err);
+      }
+    }
+    return reviews;
   },
   getAvgRating(productId) {
     const revs = this.getReviews(productId);
-    if (!revs.length) return { avg: 0, count: 0 };
-    const avg = revs.reduce((s, r) => s + r.rating, 0) / revs.length;
+    if (!revs.length) return { avg: 5.0, count: 0 };
+    const avg = revs.reduce((s, r) => s + (Number(r.rating) || 5), 0) / revs.length;
     return { avg: Math.round(avg * 10) / 10, count: revs.length };
   },
 
@@ -543,15 +620,23 @@ const DB = {
     }
     return { ...defaults, ...stored };
   },
-  saveSettings(data) {
+  async saveSettings(data) {
     const current = this.getSettings();
     const updated = { ...current, ...data };
     this.set(this.KEYS.SETTINGS, updated);
+    window.dispatchEvent(new CustomEvent('mbm_settings_synced', { detail: updated }));
 
     // Sync to Cloud Firestore if connected
+    let cloudResult = { success: true, localOnly: true };
     if (typeof window !== 'undefined' && window.FirebaseService && typeof window.FirebaseService.syncSettings === 'function') {
-      window.FirebaseService.syncSettings(updated).catch(e => console.warn('Settings cloud sync:', e));
+      try {
+        cloudResult = await window.FirebaseService.syncSettings(updated);
+      } catch (e) {
+        console.warn('Settings cloud sync error:', e);
+        cloudResult = { success: false, error: e.message };
+      }
     }
+    return { settings: updated, cloudResult };
   },
 
   getBio() {

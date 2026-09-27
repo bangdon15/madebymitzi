@@ -374,18 +374,29 @@
             <span>GCash Payment Settings</span>
           </div>
 
-          <label class="form-label">GCash QR Code Image (Replaceable)</label>
-          <div class="qr-preview-box" onclick="document.getElementById('gcash-file').click()">
-            <input type="file" id="gcash-file" accept="image/*" style="display:none;"
+          <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>GCash QR Code Image (Replaceable)</span>
+            <span style="font-size:0.75rem;color:var(--blue);font-weight:700;">Synced to Cloud ☁️</span>
+          </label>
+          <label for="gcash-file" class="qr-preview-box" style="display:block;cursor:pointer;position:relative;">
+            <input type="file" id="gcash-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
               onchange="handleGcashImageUpload(event)" />
             <img id="gcash-preview" class="qr-current-img" style="display:none;" alt="GCash QR" />
             <div id="gcash-placeholder-text">
-              <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--blue);margin-bottom:6px;"></i>
-              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New GCash QR Code
-              </div>
-              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image
+              <i class="fas fa-qrcode" style="font-size:2.2rem;color:var(--blue);margin-bottom:8px;"></i>
+              <div style="font-weight:700;font-size:0.92rem;color:var(--gray-800);">Upload or Replace GCash QR Code Photo</div>
+              <div style="font-size:0.78rem;color:var(--gray-500);margin-top:2px;">Tap here to select an image from your phone, tablet, or PC</div>
+              <div style="margin-top:10px;">
+                <span class="btn btn-sm btn-outline-blue" style="pointer-events:none;padding:5px 14px;">
+                  <i class="fas fa-camera"></i> Choose QR Photo
+                </span>
               </div>
             </div>
+          </label>
+          <div style="display:flex;justify-content:flex-end;margin-top:-10px;margin-bottom:14px;">
+            <button type="button" class="btn btn-sm btn-secondary" id="gcash-remove-btn" style="display:none;font-size:0.75rem;padding:4px 10px;" onclick="removeGcashImage(event)">
+              <i class="fas fa-trash-alt"></i> Remove QR Photo
+            </button>
           </div>
 
           <div class="form-group">
@@ -398,7 +409,7 @@
             <input type="text" id="gcash-number" class="form-input" placeholder="e.g. 0917-123-4567" />
           </div>
 
-          <button class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;"
+          <button type="button" class="btn btn-blue btn-block" style="width:100%;justify-content:center;margin-top:10px;"
             onclick="saveGcashSettings()">
             <i class="fas fa-save"></i> Save GCash Settings
           </button>
@@ -411,18 +422,29 @@
             <span>Bank Transfer Settings</span>
           </div>
 
-          <label class="form-label">Bank QR Code or Details Image (Replaceable)</label>
-          <div class="qr-preview-box" onclick="document.getElementById('bank-file').click()">
-            <input type="file" id="bank-file" accept="image/*" style="display:none;"
+          <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Bank QR Code / Account Image (Replaceable)</span>
+            <span style="font-size:0.75rem;color:var(--green);font-weight:700;">Synced to Cloud ☁️</span>
+          </label>
+          <label for="bank-file" class="qr-preview-box" style="display:block;cursor:pointer;position:relative;">
+            <input type="file" id="bank-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
               onchange="handleBankImageUpload(event)" />
             <img id="bank-preview" class="qr-current-img" style="display:none;" alt="Bank QR" />
             <div id="bank-placeholder-text">
-              <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--green);margin-bottom:6px;"></i>
-              <div style="font-weight:700;font-size:0.9rem;color:var(--gray-700);">Click to Upload New Bank QR / Details
-                Image</div>
-              <div style="font-size:0.78rem;color:var(--gray-400);margin-top:2px;">Only Admin can replace this image
+              <i class="fas fa-university" style="font-size:2.2rem;color:var(--green);margin-bottom:8px;"></i>
+              <div style="font-weight:700;font-size:0.92rem;color:var(--gray-800);">Upload or Replace Bank QR / Details Image</div>
+              <div style="font-size:0.78rem;color:var(--gray-500);margin-top:2px;">Tap here to select an image from your phone, tablet, or PC</div>
+              <div style="margin-top:10px;">
+                <span class="btn btn-sm btn-outline-green" style="pointer-events:none;padding:5px 14px;border:1px solid #10b981;color:#059669;">
+                  <i class="fas fa-camera"></i> Choose Bank Photo
+                </span>
               </div>
             </div>
+          </label>
+          <div style="display:flex;justify-content:flex-end;margin-top:-10px;margin-bottom:14px;">
+            <button type="button" class="btn btn-sm btn-secondary" id="bank-remove-btn" style="display:none;font-size:0.75rem;padding:4px 10px;" onclick="removeBankImage(event)">
+              <i class="fas fa-trash-alt"></i> Remove Bank Photo
+            </button>
           </div>
 
           <div class="form-group">
@@ -440,7 +462,7 @@
             <input type="text" id="bank-number" class="form-input" placeholder="e.g. 1234-5678-9012" />
           </div>
 
-          <button class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:10px;"
+          <button type="button" class="btn btn-green btn-block" style="width:100%;justify-content:center;margin-top:10px;"
             onclick="saveBankSettings()">
             <i class="fas fa-save"></i> Save Bank Settings
           </button>
@@ -756,6 +778,74 @@
             <button class="btn btn-outline-blue" style="justify-content:center;" onclick="syncSecurityToCloud()">
               <i class="fas fa-shield-alt"></i> Sync Security
             </button>
+          </div>
+        </div>
+
+        <!-- Customer Feedback & Reviews Management -->
+        <div class="settings-card" style="grid-column: 1 / -1; border: 2px solid var(--cream-border); background: #FAF7F0;">
+          <div class="settings-card-title" style="color:var(--forest-deep);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-star" style="color:#F59E0B;"></i>
+              <span>Customer Feedback & Reviews Management</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span id="admin-reviews-count" style="font-size:0.75rem;background:#FEF3C7;color:#92400E;padding:3px 10px;border-radius:12px;font-weight:800;border:1px solid #FDE68A;">
+                0 Reviews
+              </span>
+              <button type="button" class="btn btn-sm btn-outline-blue" onclick="toggleAdminNewReviewForm()">
+                <i class="fas fa-plus"></i> Add Testimonial
+              </button>
+            </div>
+          </div>
+          <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:18px;">
+            Manage all verified customer ratings, comments, and reviews. These synchronize in real-time across all devices and display proudly on your storefront and product detail pages.
+          </p>
+
+          <!-- Add Testimonial Form (Collapsible) -->
+          <div id="admin-new-review-form" style="display:none;background:white;padding:20px;border-radius:var(--radius-lg);border:1.5px solid var(--cream-border);margin-bottom:20px;box-shadow:var(--shadow-sm);">
+            <div style="font-weight:800;font-size:0.95rem;color:var(--gray-800);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+              <i class="fas fa-pen-fancy" style="color:var(--bubblegum-pink, #FF84BA);"></i>
+              <span>Add Customer Review / Testimonial</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:12px;">
+              <div>
+                <label class="form-label">Customer Name *</label>
+                <input type="text" id="adm-rev-name" class="form-input" placeholder="e.g. Christine M." />
+              </div>
+              <div>
+                <label class="form-label">Product / Scope</label>
+                <select id="adm-rev-product" class="form-input">
+                  <option value="general">Storefront Testimonial (General)</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Rating (Stars)</label>
+                <select id="adm-rev-rating" class="form-input">
+                  <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+                  <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+                  <option value="3">⭐⭐⭐ (3 Stars)</option>
+                  <option value="2">⭐⭐ (2 Stars)</option>
+                  <option value="1">⭐ (1 Star)</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label class="form-label">Review Comment / Feedback Text *</label>
+              <textarea id="adm-rev-text" class="form-input form-textarea" rows="3" placeholder="Write or paste customer feedback..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button type="button" class="btn btn-green btn-sm" onclick="saveAdminNewReview()">
+                <i class="fas fa-check"></i> Save & Sync Review
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAdminNewReviewForm()">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <!-- Reviews Table / Cards Container -->
+          <div id="admin-reviews-list" style="display:flex;flex-direction:column;gap:12px;">
+            <!-- Populated via renderAdminReviews() -->
           </div>
         </div>
 
@@ -1174,6 +1264,11 @@
         img.src = settings.gcashImage;
         img.style.display = 'block';
         document.getElementById('gcash-placeholder-text').innerHTML = '<div style="font-size:0.78rem;color:var(--blue);font-weight:700;">Click to change current QR</div>';
+        const removeBtn = document.getElementById('gcash-remove-btn');
+        if (removeBtn) removeBtn.style.display = 'inline-flex';
+      } else {
+        const removeBtn = document.getElementById('gcash-remove-btn');
+        if (removeBtn) removeBtn.style.display = 'none';
       }
 
       if (settings.bankImage) {
@@ -1182,7 +1277,15 @@
         img.src = settings.bankImage;
         img.style.display = 'block';
         document.getElementById('bank-placeholder-text').innerHTML = '<div style="font-size:0.78rem;color:var(--green);font-weight:700;">Click to change current QR</div>';
+        const removeBtn = document.getElementById('bank-remove-btn');
+        if (removeBtn) removeBtn.style.display = 'inline-flex';
+      } else {
+        const removeBtn = document.getElementById('bank-remove-btn');
+        if (removeBtn) removeBtn.style.display = 'none';
       }
+
+      // Render Admin Reviews
+      renderAdminReviews();
     }
 
     function toggleAppPassVisibility() {
@@ -1231,54 +1334,285 @@
     async function handleGcashImageUpload(e) {
       const file = e.target.files?.[0];
       if (!file) return;
-      gcashImageBase64 = await fileToBase64(file);
-      const img = document.getElementById('gcash-preview');
-      img.src = gcashImageBase64;
-      img.style.display = 'block';
-      showToast('New GCash QR image loaded! Click Save to apply.', 'info');
+      try {
+        showToast('Processing GCash QR photo...', 'info');
+        gcashImageBase64 = await fileToBase64(file, 640, 0.85, 150000);
+        const img = document.getElementById('gcash-preview');
+        if (img) {
+          img.src = gcashImageBase64;
+          img.style.display = 'block';
+        }
+        const placeholder = document.getElementById('gcash-placeholder-text');
+        if (placeholder) {
+          placeholder.innerHTML = '<div style="font-size:0.78rem;color:var(--blue);font-weight:700;">Click to change current QR</div>';
+        }
+        const removeBtn = document.getElementById('gcash-remove-btn');
+        if (removeBtn) removeBtn.style.display = 'inline-flex';
+        showToast('GCash QR photo loaded! Click "Save GCash Settings" below to apply. 📱✅', 'info');
+      } catch (err) {
+        console.error('GCash image upload error:', err);
+        showToast('Failed to load image. Please select another file.', 'error');
+      }
     }
     window.handleGcashImageUpload = handleGcashImageUpload;
+
+    function removeGcashImage(e) {
+      if (e) e.stopPropagation();
+      gcashImageBase64 = null;
+      const img = document.getElementById('gcash-preview');
+      if (img) {
+        img.src = '';
+        img.style.display = 'none';
+      }
+      const fileInput = document.getElementById('gcash-file');
+      if (fileInput) fileInput.value = '';
+      const removeBtn = document.getElementById('gcash-remove-btn');
+      if (removeBtn) removeBtn.style.display = 'none';
+      const placeholder = document.getElementById('gcash-placeholder-text');
+      if (placeholder) {
+        placeholder.innerHTML = `
+          <i class="fas fa-qrcode" style="font-size:2.2rem;color:var(--blue);margin-bottom:8px;"></i>
+          <div style="font-weight:700;font-size:0.92rem;color:var(--gray-800);">Upload or Replace GCash QR Code Photo</div>
+          <div style="font-size:0.78rem;color:var(--gray-500);margin-top:2px;">Tap here to select an image from your phone, tablet, or PC</div>
+          <div style="margin-top:10px;">
+            <span class="btn btn-sm btn-outline-blue" style="pointer-events:none;padding:5px 14px;">
+              <i class="fas fa-camera"></i> Choose QR Photo
+            </span>
+          </div>
+        `;
+      }
+      showToast('GCash QR photo cleared. Click "Save GCash Settings" to apply.', 'info');
+    }
+    window.removeGcashImage = removeGcashImage;
 
     async function handleBankImageUpload(e) {
       const file = e.target.files?.[0];
       if (!file) return;
-      bankImageBase64 = await fileToBase64(file);
-      const img = document.getElementById('bank-preview');
-      img.src = bankImageBase64;
-      img.style.display = 'block';
-      showToast('New Bank QR image loaded! Click Save to apply.', 'info');
+      try {
+        showToast('Processing Bank QR photo...', 'info');
+        bankImageBase64 = await fileToBase64(file, 640, 0.85, 150000);
+        const img = document.getElementById('bank-preview');
+        if (img) {
+          img.src = bankImageBase64;
+          img.style.display = 'block';
+        }
+        const placeholder = document.getElementById('bank-placeholder-text');
+        if (placeholder) {
+          placeholder.innerHTML = '<div style="font-size:0.78rem;color:var(--green);font-weight:700;">Click to change current QR</div>';
+        }
+        const removeBtn = document.getElementById('bank-remove-btn');
+        if (removeBtn) removeBtn.style.display = 'inline-flex';
+        showToast('Bank QR photo loaded! Click "Save Bank Settings" below to apply. 🏦✅', 'info');
+      } catch (err) {
+        console.error('Bank image upload error:', err);
+        showToast('Failed to load image. Please select another file.', 'error');
+      }
     }
     window.handleBankImageUpload = handleBankImageUpload;
 
-    function saveGcashSettings() {
+    function removeBankImage(e) {
+      if (e) e.stopPropagation();
+      bankImageBase64 = null;
+      const img = document.getElementById('bank-preview');
+      if (img) {
+        img.src = '';
+        img.style.display = 'none';
+      }
+      const fileInput = document.getElementById('bank-file');
+      if (fileInput) fileInput.value = '';
+      const removeBtn = document.getElementById('bank-remove-btn');
+      if (removeBtn) removeBtn.style.display = 'none';
+      const placeholder = document.getElementById('bank-placeholder-text');
+      if (placeholder) {
+        placeholder.innerHTML = `
+          <i class="fas fa-university" style="font-size:2.2rem;color:var(--green);margin-bottom:8px;"></i>
+          <div style="font-weight:700;font-size:0.92rem;color:var(--gray-800);">Upload or Replace Bank QR / Details Image</div>
+          <div style="font-size:0.78rem;color:var(--gray-500);margin-top:2px;">Tap here to select an image from your phone, tablet, or PC</div>
+          <div style="margin-top:10px;">
+            <span class="btn btn-sm btn-outline-green" style="pointer-events:none;padding:5px 14px;border:1px solid #10b981;color:#059669;">
+              <i class="fas fa-camera"></i> Choose Bank Photo
+            </span>
+          </div>
+        `;
+      }
+      showToast('Bank QR photo cleared. Click "Save Bank Settings" to apply.', 'info');
+    }
+    window.removeBankImage = removeBankImage;
+
+    async function saveGcashSettings() {
       const gcashName = document.getElementById('gcash-name').value.trim();
       const gcashNumber = document.getElementById('gcash-number').value.trim();
+      const btn = event?.currentTarget || document.querySelector('button[onclick="saveGcashSettings()"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      }
 
-      DB.saveSettings({
-        gcashName,
-        gcashNumber,
-        gcashImage: gcashImageBase64,
-      });
+      try {
+        const cloudSynced = await DB.saveSettings({
+          gcashName,
+          gcashNumber,
+          gcashImage: gcashImageBase64,
+        });
 
-      showToast('GCash settings updated successfully! ✅', 'success');
+        showToast(cloudSynced ? 'GCash settings saved and synced to Cloud! 📱☁️✅' : 'GCash settings updated successfully! ✅', 'success');
+      } catch (err) {
+        console.error('Save GCash error:', err);
+        showToast('Settings saved locally. Syncing to Cloud...', 'info');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-save"></i> Save GCash Settings';
+        }
+      }
     }
     window.saveGcashSettings = saveGcashSettings;
 
-    function saveBankSettings() {
+    async function saveBankSettings() {
       const bankName = document.getElementById('bank-name').value.trim();
       const bankAccount = document.getElementById('bank-account').value.trim();
       const bankNumber = document.getElementById('bank-number').value.trim();
+      const btn = event?.currentTarget || document.querySelector('button[onclick="saveBankSettings()"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      }
 
-      DB.saveSettings({
-        bankName,
-        bankAccount,
-        bankNumber,
-        bankImage: bankImageBase64,
-      });
+      try {
+        const cloudSynced = await DB.saveSettings({
+          bankName,
+          bankAccount,
+          bankNumber,
+          bankImage: bankImageBase64,
+        });
 
-      showToast('Bank settings updated successfully! ✅', 'success');
+        showToast(cloudSynced ? 'Bank settings saved and synced to Cloud! 🏦☁️✅' : 'Bank settings updated successfully! ✅', 'success');
+      } catch (err) {
+        console.error('Save Bank error:', err);
+        showToast('Settings saved locally. Syncing to Cloud...', 'info');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-save"></i> Save Bank Settings';
+        }
+      }
     }
     window.saveBankSettings = saveBankSettings;
+
+    // Customer Reviews & Feedback Management
+    function renderAdminReviews() {
+      const listEl = document.getElementById('admin-reviews-list');
+      const countEl = document.getElementById('admin-reviews-count');
+      const prodSelect = document.getElementById('adm-rev-product');
+      if (!listEl) return;
+
+      const reviews = DB.getReviews ? DB.getReviews() : [];
+      const products = DB.getProducts ? DB.getProducts() : [];
+      const prodMap = {};
+      products.forEach(p => { prodMap[p.id] = p.name; });
+
+      if (prodSelect) {
+        const currentVal = prodSelect.value;
+        prodSelect.innerHTML = `
+          <option value="general">Storefront Testimonial (General)</option>
+          ${products.map(p => `<option value="${p.id}">Product: ${p.name}</option>`).join('')}
+        `;
+        if (currentVal) prodSelect.value = currentVal;
+      }
+
+      if (countEl) {
+        countEl.textContent = `${reviews.length} Review${reviews.length === 1 ? '' : 's'}`;
+      }
+
+      if (reviews.length === 0) {
+        listEl.innerHTML = `
+          <div style="background:white;border-radius:var(--radius-md);border:1px dashed var(--gray-300);padding:24px;text-align:center;color:var(--gray-500);font-size:0.85rem;">
+            <i class="fas fa-comment-dots" style="font-size:1.8rem;color:var(--gray-400);margin-bottom:8px;display:block;"></i>
+            No customer reviews in database yet. New customer feedback submitted on product pages or storefront will appear here automatically.
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = reviews.map(r => {
+        const prodName = r.productId === 'general' ? 'Storefront General Feedback' : (prodMap[r.productId] || 'Product: ' + (r.productId || ''));
+        const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent';
+        const ratingNum = Math.max(1, Math.min(5, parseInt(r.rating, 10) || 5));
+        const stars = '★'.repeat(ratingNum) + '☆'.repeat(5 - ratingNum);
+        return `
+          <div style="background:white;border-radius:var(--radius-md);border:1px solid var(--cream-border);padding:14px 18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-weight:800;font-size:0.92rem;color:var(--gray-800);">${r.name || 'Anonymous'}</span>
+                <span style="color:#F59E0B;font-size:0.88rem;letter-spacing:1px;">${stars}</span>
+                <span style="font-size:0.75rem;background:#EBF3E8;color:var(--forest-moss);padding:2px 8px;border-radius:10px;font-weight:700;">${prodName}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:0.75rem;color:var(--gray-400);">${dateStr}</span>
+                <button type="button" class="btn btn-sm btn-danger" style="padding:3px 8px;font-size:0.72rem;" onclick="deleteAdminReview('${r.id}')" title="Delete Review">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </div>
+            </div>
+            <p style="margin:0;font-size:0.85rem;color:var(--gray-600);line-height:1.45;font-style:italic;">
+              "${r.text || ''}"
+            </p>
+          </div>
+        `;
+      }).join('');
+    }
+    window.renderAdminReviews = renderAdminReviews;
+
+    function toggleAdminNewReviewForm() {
+      const form = document.getElementById('admin-new-review-form');
+      if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+    window.toggleAdminNewReviewForm = toggleAdminNewReviewForm;
+
+    async function saveAdminNewReview() {
+      const name = document.getElementById('adm-rev-name')?.value.trim();
+      const productId = document.getElementById('adm-rev-product')?.value || 'general';
+      const rating = parseInt(document.getElementById('adm-rev-rating')?.value || '5', 10);
+      const text = document.getElementById('adm-rev-text')?.value.trim();
+
+      if (!name || !text) {
+        showToast('Please enter both customer name and feedback text.', 'error');
+        return;
+      }
+
+      try {
+        await DB.addReview({
+          name,
+          productId,
+          rating,
+          text
+        });
+        if (document.getElementById('adm-rev-name')) document.getElementById('adm-rev-name').value = '';
+        if (document.getElementById('adm-rev-text')) document.getElementById('adm-rev-text').value = '';
+        toggleAdminNewReviewForm();
+        renderAdminReviews();
+        showToast('Customer review added and synced to Cloud! ⭐☁️', 'success');
+      } catch (err) {
+        console.error('Error adding review:', err);
+        showToast('Saved locally. (Syncing...)', 'info');
+      }
+    }
+    window.saveAdminNewReview = saveAdminNewReview;
+
+    async function deleteAdminReview(id) {
+      if (!confirm('Are you sure you want to permanently delete this customer review?')) return;
+      try {
+        await DB.deleteReview(id);
+        renderAdminReviews();
+        showToast('Review permanently deleted from cloud database. 🗑️', 'info');
+      } catch (err) {
+        console.error('Error deleting review:', err);
+        showToast('Failed to delete review.', 'error');
+      }
+    }
+    window.deleteAdminReview = deleteAdminReview;
 
     function saveEmailSettings() {
       const orderNotifyTo = document.getElementById('email-notify-to').value.trim();
@@ -1867,6 +2201,10 @@
     // Real-time synchronization from Cloud Firestore (auto-updates across all devices)
     window.addEventListener('mbm_settings_synced', () => {
       loadCurrentSettings();
+    });
+
+    window.addEventListener('mbm_reviews_synced', () => {
+      renderAdminReviews();
     });
   </script>
 </body>

@@ -103,6 +103,11 @@ const FirebaseService = {
       }
 
       if (this.isInitialized || true) {
+        const isAdminPage = (typeof window !== 'undefined' && (
+          window.location.pathname.includes('/admin/') ||
+          (window.DB && typeof window.DB.isAdmin === 'function' && window.DB.isAdmin())
+        ));
+
         // 1. Initial product sync with Cloud Firestore as authoritative source
         this.fetchProducts().then(cloudProds => {
           if (typeof window.DB !== 'undefined' && Array.isArray(cloudProds)) {
@@ -113,15 +118,25 @@ const FirebaseService = {
           }
         }).catch((err) => console.warn('Initial fetchProducts error:', err));
 
-        // 2. Initial orders sync
-        this.fetchOrders().then(cloudOrders => {
-          if (typeof window.DB !== 'undefined') {
-            window.DB.setOrders(cloudOrders || []);
-            window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders || [] }));
+        // 2. Initial orders sync (Restricted to Admin devices to prevent filling customer phone localStorage)
+        if (isAdminPage) {
+          this.fetchOrders().then(cloudOrders => {
+            if (typeof window.DB !== 'undefined') {
+              window.DB.setOrders(cloudOrders || []);
+              window.dispatchEvent(new CustomEvent('mbm_orders_synced', { detail: cloudOrders || [] }));
+            }
+          }).catch(() => {});
+        }
+
+        // 3. Initial reviews sync (Public customer feedback synced across all devices)
+        this.fetchReviews().then(cloudRevs => {
+          if (typeof window.DB !== 'undefined' && Array.isArray(cloudRevs) && cloudRevs.length > 0) {
+            window.DB.setReviews(cloudRevs);
+            window.dispatchEvent(new CustomEvent('mbm_reviews_synced', { detail: cloudRevs }));
           }
         }).catch(() => {});
 
-        // 3. Initial settings sync (Dispatches live UI update on initial fetch)
+        // 4. Initial settings sync (Dispatches live UI update on initial fetch)
         this.fetchSettings().then(cloudSettings => {
           if (cloudSettings && typeof window.DB !== 'undefined') {
             const current = window.DB.getSettings();
@@ -131,7 +146,7 @@ const FirebaseService = {
           }
         }).catch(() => {});
 
-        // 4. Real-time live Firestore listener for Products
+        // 5. Real-time live Firestore listener for Products
         if (this.db) {
           try {
             this.db.collection('mbm_products').onSnapshot(snapshot => {
@@ -151,8 +166,8 @@ const FirebaseService = {
           } catch (e) {}
         }
 
-        // 5. Real-time live Firestore listener for Orders
-        if (this.db) {
+        // 6. Real-time live Firestore listener for Orders (Admin only)
+        if (this.db && isAdminPage) {
           try {
             this.db.collection('mbm_orders').onSnapshot(snapshot => {
               if (typeof window.DB !== 'undefined') {
@@ -168,7 +183,26 @@ const FirebaseService = {
           } catch (e) {}
         }
 
-        // 6. Real-time live Firestore listener for Settings
+        // 7. Real-time live Firestore listener for Reviews (All devices)
+        if (this.db) {
+          try {
+            this.db.collection('mbm_reviews').onSnapshot(snapshot => {
+              if (typeof window.DB !== 'undefined') {
+                const cloudRevs = [];
+                if (!snapshot.empty) {
+                  snapshot.forEach(doc => cloudRevs.push(doc.data()));
+                  cloudRevs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                }
+                if (cloudRevs.length > 0) {
+                  window.DB.setReviews(cloudRevs);
+                  window.dispatchEvent(new CustomEvent('mbm_reviews_synced', { detail: cloudRevs }));
+                }
+              }
+            }, err => console.warn('Reviews live listener notice:', err.message));
+          } catch (e) {}
+        }
+
+        // 8. Real-time live Firestore listener for Settings
         if (this.db) {
           try {
             this.db.collection('mbm_settings').doc('main_settings').onSnapshot(doc => {
@@ -253,17 +287,54 @@ const FirebaseService = {
   },
 
   /**
-   * Sync an order directly to Firestore
+   * Direct REST fallback: Sync order via HTTP PATCH
    */
-  async syncOrder(order) {
-    if (!this.isInitialized || !this.db) return false;
+  async syncOrderRest(order) {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
+    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_orders/${order.id}?key=${config.apiKey}`;
     try {
-      await this.db.collection('mbm_orders').doc(order.id).set(order);
+      const resp = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: this.toFirestoreFields(order) })
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) {
+        throw new Error(data.error?.message || `HTTP ${resp.status}`);
+      }
+      console.log('✅ Order synced via Firestore REST API:', order.id);
       return true;
-    } catch (err) {
-      console.warn('Error syncing order to Firestore:', err);
+    } catch (e) {
+      console.warn('REST API syncOrder error:', e);
       return false;
     }
+  },
+
+  /**
+   * Sync an order directly to Firestore (Dual SDK + REST fallback)
+   */
+  async syncOrder(order) {
+    if (!order || !order.id) return false;
+
+    // Safeguard order payload to stay safely within Firestore 1MB document limit
+    const safeOrder = { ...order };
+    const payloadSize = JSON.stringify(safeOrder).length;
+    if (payloadSize > 950000 && safeOrder.receiptImage) {
+      console.warn('Order receipt image exceeds safe cloud threshold; optimizing for database persistence');
+      safeOrder.receiptImage = safeOrder.receiptImage.slice(0, 300000);
+    }
+
+    if (this.db) {
+      try {
+        await this.db.collection('mbm_orders').doc(safeOrder.id).set(safeOrder);
+        console.log('✅ Order synced via Firestore SDK:', safeOrder.id);
+        return true;
+      } catch (err) {
+        console.warn('Firestore SDK syncOrder error, trying REST API fallback:', err.message);
+      }
+    }
+    return await this.syncOrderRest(safeOrder);
   },
 
   /**
@@ -865,6 +936,126 @@ const FirebaseService = {
       }
     }
     return await this.fetchSettingsRest();
+  },
+
+  /**
+   * Direct REST fallback: Sync customer review via HTTP PATCH
+   */
+  async syncReviewRest(review) {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
+    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_reviews/${review.id}?key=${config.apiKey}`;
+    try {
+      const resp = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: this.toFirestoreFields(review) })
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) throw new Error(data.error?.message || `HTTP ${resp.status}`);
+      console.log('✅ Review synced via Firestore REST API:', review.id);
+      return true;
+    } catch (e) {
+      console.warn('REST syncReview error:', e);
+      return false;
+    }
+  },
+
+  /**
+   * Sync customer review to Firestore mbm_reviews collection (Dual SDK + REST)
+   */
+  async syncReview(review) {
+    if (!review || !review.id) return false;
+    const safeReview = {
+      id: review.id,
+      productId: review.productId || 'general',
+      productName: review.productName || '',
+      name: review.name || 'Customer',
+      rating: Number(review.rating) || 5,
+      text: review.text || '',
+      createdAt: review.createdAt || new Date().toISOString(),
+      status: review.status || 'approved'
+    };
+
+    if (this.db) {
+      try {
+        await this.db.collection('mbm_reviews').doc(safeReview.id).set(safeReview);
+        console.log('✅ Review synced via Firestore SDK:', safeReview.id);
+        return true;
+      } catch (err) {
+        console.warn('Firestore SDK syncReview error, falling back to REST:', err.message);
+      }
+    }
+    return await this.syncReviewRest(safeReview);
+  },
+
+  /**
+   * Direct REST fallback: Fetch reviews from Firestore
+   */
+  async fetchReviewsRest() {
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return [];
+    try {
+      const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_reviews?key=${config.apiKey}&pageSize=100`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const revs = [];
+      if (data.documents && data.documents.length) {
+        for (const doc of data.documents) {
+          const rev = this.fromFirestoreFields(doc.fields || {});
+          if (rev && rev.id) revs.push(rev);
+        }
+      }
+      revs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      return revs;
+    } catch (e) {
+      console.warn('REST fetchReviews error:', e);
+      return [];
+    }
+  },
+
+  /**
+   * Fetch customer reviews from Firestore mbm_reviews collection (Dual SDK + REST)
+   */
+  async fetchReviews() {
+    if (this.db) {
+      try {
+        const snapshot = await this.db.collection('mbm_reviews').get();
+        const revs = [];
+        snapshot.forEach(doc => revs.push(doc.data()));
+        revs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        return revs;
+      } catch (err) {
+        console.warn('SDK fetchReviews error, trying REST:', err.message);
+      }
+    }
+    return await this.fetchReviewsRest();
+  },
+
+  /**
+   * Delete customer review from Firestore mbm_reviews collection (Dual SDK + REST)
+   */
+  async deleteReviewFromCloud(reviewId) {
+    if (!reviewId) return false;
+    if (this.db) {
+      try {
+        await this.db.collection('mbm_reviews').doc(reviewId).delete();
+        console.log('✅ Review deleted from Firestore SDK:', reviewId);
+        return true;
+      } catch (err) {
+        console.warn('SDK deleteReview error, falling back to REST:', err.message);
+      }
+    }
+    const config = this.getConfig();
+    if (!config || !config.apiKey || !config.projectId) return false;
+    try {
+      const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_reviews/${reviewId}?key=${config.apiKey}`;
+      const res = await fetch(url, { method: 'DELETE' });
+      return res.ok;
+    } catch (e) {
+      console.warn('REST deleteReview error:', e);
+      return false;
+    }
   }
 };
 

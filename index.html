@@ -420,6 +420,20 @@
         max-width: 290px;
       }
     }
+
+    .star-select-btn {
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      color: var(--gray-300);
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+    .star-select-btn.active, .star-select-btn:hover {
+      color: var(--yellow);
+    }
   </style>
 </head>
 
@@ -694,10 +708,60 @@
         </div>
       </div>
       <div class="reviews-grid" id="reviews-grid"></div>
-      <div style="text-align:center;margin-top:40px;margin-bottom:28px;" class="reveal">
+      <div style="display:flex;justify-content:center;gap:14px;margin-top:36px;margin-bottom:28px;flex-wrap:wrap;" class="reveal">
+        <button type="button" class="btn btn-secondary btn-lg" onclick="toggleStorefrontReviewForm()">
+          <i class="fas fa-pen"></i> Write Feedback / Review
+        </button>
         <a href="shop.html" class="btn btn-primary btn-lg">
-          <i class="fas fa-star"></i> Shop & Leave a Review
+          <i class="fas fa-shopping-bag"></i> Browse Shop Collection
         </a>
+      </div>
+
+      <!-- Collapsible Feedback / Review Form -->
+      <div id="storefront-review-card" style="display:none;max-width:680px;margin:0 auto 36px;background:white;padding:28px 24px;border-radius:var(--radius-xl);border:2px solid var(--cream-border);box-shadow:var(--shadow-md);">
+        <h3 style="font-family:var(--font-head);font-weight:800;font-size:1.25rem;color:var(--gray-800);margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-heart" style="color:var(--bubblegum-pink, #FF84BA);"></i>
+          <span>Share Your Feedback or Review</span>
+        </h3>
+        <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:18px;">
+          Your comment helps Mitzi create better handcrafted party designs and inspires other celebration planners!
+        </p>
+        <form id="storefront-review-form">
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-weight:700;font-size:0.85rem;margin-bottom:6px;">Your Rating:</label>
+            <div id="sf-star-picker" style="display:flex;gap:4px;">
+              <button type="button" class="star-select-btn active" onclick="setSfRating(1)">★</button>
+              <button type="button" class="star-select-btn active" onclick="setSfRating(2)">★</button>
+              <button type="button" class="star-select-btn active" onclick="setSfRating(3)">★</button>
+              <button type="button" class="star-select-btn active" onclick="setSfRating(4)">★</button>
+              <button type="button" class="star-select-btn active" onclick="setSfRating(5)">★</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:14px;margin-bottom:14px;">
+            <div>
+              <label class="form-label">Your Name *</label>
+              <input type="text" id="sf-rev-name" class="form-input" placeholder="e.g. Christine M." required />
+            </div>
+            <div>
+              <label class="form-label">Product / Experience</label>
+              <select id="sf-rev-product" class="form-input">
+                <option value="general">Storefront Experience (General)</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <label class="form-label">Your Comment or Feedback *</label>
+            <textarea id="sf-rev-text" class="form-input form-textarea" rows="3" placeholder="What did you love about your experience or design?" required></textarea>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button type="submit" class="btn btn-green btn-md">
+              <i class="fas fa-paper-plane"></i> Submit Feedback
+            </button>
+            <button type="button" class="btn btn-secondary btn-md" onclick="toggleStorefrontReviewForm()">
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </section>
@@ -991,30 +1055,132 @@
       renderAnnouncement();
 
       // Reviews
-      const reviewsGrid = document.getElementById('reviews-grid');
-      const reviews = DB.getReviews();
-      document.getElementById('total-reviews').textContent = reviews.length;
-      reviews.slice(0, 6).forEach(r => {
-        const initials = r.name.split(' ').map(n => n[0]).join('').toUpperCase();
-        const div = document.createElement('div');
-        div.className = 'review-card reveal';
-        div.innerHTML = `
-      <div class="review-header">
-        <div class="review-avatar">${initials}</div>
-        <div>
-          <div class="review-name">${r.name}</div>
-          <div class="review-date">${new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-        </div>
-        <div style="margin-left:auto;">${renderStars(r.rating)}</div>
-      </div>
-      <p class="review-text">"${r.text}"</p>
-    `;
-        reviewsGrid.appendChild(div);
-      });
+      renderStorefrontReviews();
+
+      // Hook up Storefront Feedback Form
+      const sfForm = document.getElementById('storefront-review-form');
+      if (sfForm) {
+        sfForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = document.getElementById('sf-rev-name')?.value.trim();
+          const productId = document.getElementById('sf-rev-product')?.value || 'general';
+          const text = document.getElementById('sf-rev-text')?.value.trim();
+
+          if (!name || !text) {
+            showToast('Please provide both your name and feedback.', 'error');
+            return;
+          }
+
+          const submitBtn = sfForm.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+          }
+
+          try {
+            await DB.addReview({
+              productId,
+              name,
+              text,
+              rating: selectedSfRating
+            });
+
+            showToast('Thank you so much for your feedback! ⭐☁️', 'success');
+            if (document.getElementById('sf-rev-name')) document.getElementById('sf-rev-name').value = '';
+            if (document.getElementById('sf-rev-text')) document.getElementById('sf-rev-text').value = '';
+            toggleStorefrontReviewForm();
+            renderStorefrontReviews();
+          } catch (err) {
+            console.error('Submit review error:', err);
+            showToast('Review saved! (Syncing to cloud...)', 'info');
+            renderStorefrontReviews();
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Feedback';
+            }
+          }
+        });
+      }
 
       // Re-run reveal
       initReveal();
     });
+
+    let selectedSfRating = 5;
+
+    function setSfRating(val) {
+      selectedSfRating = val;
+      const btns = document.querySelectorAll('#sf-star-picker .star-select-btn');
+      btns.forEach((btn, idx) => {
+        btn.classList.toggle('active', idx < val);
+      });
+    }
+    window.setSfRating = setSfRating;
+
+    function toggleStorefrontReviewForm() {
+      const card = document.getElementById('storefront-review-card');
+      if (card) {
+        card.style.display = card.style.display === 'none' ? 'block' : 'none';
+        if (card.style.display === 'block') {
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          document.getElementById('sf-rev-name')?.focus();
+        }
+      }
+    }
+    window.toggleStorefrontReviewForm = toggleStorefrontReviewForm;
+
+    function renderStorefrontReviews() {
+      const reviewsGrid = document.getElementById('reviews-grid');
+      const totalReviewsEl = document.getElementById('total-reviews');
+      const prodSelect = document.getElementById('sf-rev-product');
+      if (!reviewsGrid) return;
+
+      const reviews = DB.getReviews ? DB.getReviews() : [];
+      const products = DB.getProducts ? DB.getProducts() : [];
+
+      if (prodSelect) {
+        const cur = prodSelect.value;
+        prodSelect.innerHTML = `
+          <option value="general">Storefront Experience (General)</option>
+          ${products.map(p => `<option value="${p.id}">Product: ${p.name}</option>`).join('')}
+        `;
+        if (cur) prodSelect.value = cur;
+      }
+
+      if (totalReviewsEl) totalReviewsEl.textContent = reviews.length;
+
+      reviewsGrid.innerHTML = '';
+      if (reviews.length === 0) {
+        reviewsGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 36px 20px; color: var(--gray-500); background: white; border-radius: var(--radius-lg); border: 1.5px dashed var(--gray-300);">
+            <i class="fas fa-heart" style="font-size: 2rem; color: var(--bubblegum-pink, #FF84BA); margin-bottom: 8px; display: block;"></i>
+            No reviews yet. Be the first to share your experience with MadeByMitzi! ✨
+          </div>
+        `;
+        return;
+      }
+
+      reviews.slice(0, 6).forEach(r => {
+        const initials = (r.name || 'A').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        const div = document.createElement('div');
+        div.className = 'review-card reveal';
+        const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Recent';
+        div.innerHTML = `
+          <div class="review-header">
+            <div class="review-avatar">${initials}</div>
+            <div>
+              <div class="review-name">${r.name || 'Anonymous'}</div>
+              <div class="review-date">${dateStr}</div>
+            </div>
+            <div style="margin-left:auto;">${renderStars(r.rating || 5)}</div>
+          </div>
+          <p class="review-text">"${r.text || ''}"</p>
+        `;
+        reviewsGrid.appendChild(div);
+      });
+    }
+    window.renderStorefrontReviews = renderStorefrontReviews;
 
     window.addEventListener('mbm_products_synced', () => {
       renderHomepageProducts();
@@ -1027,6 +1193,10 @@
       applyGradientSettings();
       renderCreatorBio();
       renderAnnouncement();
+    });
+
+    window.addEventListener('mbm_reviews_synced', () => {
+      renderStorefrontReviews();
     });
   </script>
 </body>

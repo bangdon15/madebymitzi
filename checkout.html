@@ -622,7 +622,7 @@
       }
 
       try {
-        uploadedReceiptBase64 = await fileToBase64(file);
+        uploadedReceiptBase64 = await fileToBase64(file, 640, 0.72, 120000);
         const preview = document.getElementById('receipt-preview');
         preview.src = uploadedReceiptBase64;
         preview.style.display = 'block';
@@ -730,7 +730,7 @@
         total: finalTotal,
       };
 
-      const newOrder = DB.addOrder(order);
+      const newOrder = await DB.addOrder(order);
       DB.clearCart();
       sessionStorage.removeItem('mbm_active_discount');
 

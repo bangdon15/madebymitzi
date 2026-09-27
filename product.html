@@ -857,31 +857,54 @@
     }
 
     // Review submission
-    document.getElementById('review-form').addEventListener('submit', (e) => {
+    document.getElementById('review-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('rev-name').value.trim();
       const text = document.getElementById('rev-text').value.trim();
 
-      if (!name || !text) return;
+      if (!name || !text) {
+        showToast('Please provide your name and review feedback.', 'error');
+        return;
+      }
 
-      DB.addReview({
-        productId: currentProduct.id,
-        name,
-        text,
-        rating: selectedRating,
-      });
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+      }
 
-      showToast('Thank you! Review submitted ⭐', 'success');
-      document.getElementById('rev-name').value = '';
-      document.getElementById('rev-text').value = '';
-      toggleReviewForm();
-      loadProduct();
+      try {
+        await DB.addReview({
+          productId: currentProduct.id,
+          name,
+          text,
+          rating: selectedRating,
+        });
+
+        showToast('Thank you! Review submitted and synced ⭐☁️', 'success');
+        document.getElementById('rev-name').value = '';
+        document.getElementById('rev-text').value = '';
+        toggleReviewForm();
+        loadProduct();
+      } catch (err) {
+        console.error('Review submit error:', err);
+        showToast('Review saved! (Syncing to cloud...)', 'info');
+        loadProduct();
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Review';
+        }
+      }
     });
 
     document.addEventListener('DOMContentLoaded', () => {
       loadProduct();
     });
     window.addEventListener('mbm_products_synced', () => {
+      loadProduct();
+    });
+    window.addEventListener('mbm_reviews_synced', () => {
       loadProduct();
     });
   </script>
