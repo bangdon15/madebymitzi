@@ -38,25 +38,9 @@ const FirebaseService = {
   isTestProduct(p) {
     if (!p) return false;
     const id = p.id || '';
+    // Only filter out legacy mock demo IDs and system test pings
     if (/^prod_00[1-9]$/.test(id)) return true;
-    if (id === 'prod_test_ping' || id === 'prod_test_live_verify' || id === 'prod_1790146646399') return true;
-    if (p.images && p.images[0] && p.images[0].includes('placeholder-')) return true;
-    if (p.name && (
-      p.name.includes('Birthday Celebration Sticker Pack') ||
-      p.name.includes('Floral Birthday Invitation — Editable') ||
-      p.name.includes('Princess Party Sticker Bundle') ||
-      p.name.includes('Minimalist Wedding Invitation Set') ||
-      p.name.includes('Kawaii Food Sticker Set') ||
-      p.name.includes('Safari Adventure Birthday Invite') ||
-      p.name.includes('Cute Daily Planner Stickers') ||
-      p.name.includes('Pastel Aesthetic Doodles Cut Files') ||
-      p.name.includes('Coffee & Daily Motivation Digital Stickers') ||
-      p.name.includes('Test Live Ping') ||
-      p.name.includes('Live Sync Verification') ||
-      p.name.includes('Live Sync') ||
-      p.name.includes('Jessie Cowgirl') ||
-      p.name.includes('Toy Story Inspired')
-    )) return true;
+    if (id === 'prod_test_ping' || id === 'prod_test_live_verify') return true;
     return false;
   },
 
