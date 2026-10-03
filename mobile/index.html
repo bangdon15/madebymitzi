@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MadeByMitzi Orders — Admin Mobile App</title>
+  
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Mitzi Orders" />
+  <meta name="theme-color" content="#FF84BA" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/jpeg" href="../images/madebymitzi.jpg" />
+  <link rel="apple-touch-icon" href="../images/madebymitzi.jpg" />
+
+  <!-- FontAwesome & Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+  <!-- Main Mobile Shell -->
+  <div class="mobile-app-shell">
+
+    <!-- App Top Bar -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <img src="../images/madebymitzi.jpg" alt="Mitzi" class="brand-logo" />
+        <div>
+          <div class="brand-title">
+            MadeByMitzi
+            <span class="brand-badge">App</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--gray-subtle);font-weight:700;">Order Manager</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-btn" onclick="toggleSound()" title="Toggle Alert Sound" id="btn-sound-toggle">
+          <i class="fas fa-volume-up" id="icon-sound"></i>
+        </button>
+        <button class="icon-btn" onclick="requestNotificationPermission()" title="Enable Push Alerts">
+          <i class="fas fa-bell"></i>
+          <span class="badge-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Top Alert Sound Active Banner -->
+    <div class="sound-banner" id="sound-banner-top">
+      <span><i class="fas fa-bell"></i> Live Order Alerts Active</span>
+      <button class="sound-toggle-btn" onclick="playSweetChime()">
+        <i class="fas fa-play"></i> Test Chime
+      </button>
+    </div>
+
+    <!-- VIEW 1: ORDERS LIST (Default Tab) -->
+    <main id="view-orders">
+      <!-- Live Metrics Strip -->
+      <section class="metrics-strip">
+        <div class="metric-card highlight">
+          <div class="metric-value" id="metric-pending" style="color:var(--pink-dark);">0</div>
+          <div class="metric-label">To Approve</div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-value" id="metric-today" style="color:var(--sage);">₱0</div>
+          <div class="metric-label">Today's Sales</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-total-orders">0</div>
+          <div class="metric-label">Total Orders</div>
+        </div>
+      </section>
+
+      <!-- Filter Chips -->
+      <section class="tabs-scroll-wrap">
+        <button class="filter-chip active" onclick="setTabFilter('pending', this)">
+          <span>⏳ Pending</span>
+          <span class="chip-count" id="chip-pending-count">0</span>
+        </button>
+        <button class="filter-chip" onclick="setTabFilter('confirmed', this)">
+          <span>✓ Confirmed</span>
+        </button>
+        <button class="filter-chip" onclick="setTabFilter('rejected', this)">
+          <span>✗ Declined</span>
+        </button>
+        <button class="filter-chip" onclick="setTabFilter('all', this)">
+          <span>All Orders</span>
+        </button>
+      </section>
+
+      <!-- Search Input -->
+      <div class="search-box-wrap">
+        <input type="search" id="order-search" class="search-input-box" placeholder="Search customer, GCash ref, or order #..." />
+      </div>
+
+      <!-- Real-time Order Cards Feed -->
+      <section class="orders-feed" id="orders-feed">
+        <!-- Rendered via app.js -->
+      </section>
+    </main>
+
+    <!-- VIEW 2: STATS TAB -->
+    <main id="view-stats" style="display:none;padding:16px;">
+      <h2 style="font-family:var(--font-head);font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:14px;">
+        📊 Store Sales Overview
+      </h2>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="background:white;padding:18px;border-radius:var(--radius-md);border:1.5px solid var(--cream-border);box-shadow:var(--shadow-card);">
+          <div style="font-size:0.8rem;color:var(--gray-subtle);font-weight:700;text-transform:uppercase;">Total Confirmed Revenue</div>
+          <div style="font-family:var(--font-head);font-size:1.8rem;font-weight:900;color:var(--pink);margin-top:4px;" id="stat-total-revenue">₱0.00</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:white;padding:14px;border-radius:var(--radius-md);border:1.5px solid var(--cream-border);">
+            <div style="font-size:0.75rem;color:var(--gray-subtle);font-weight:700;">Completed Orders</div>
+            <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:800;color:var(--sage);margin-top:2px;" id="stat-confirmed-count">0</div>
+          </div>
+          <div style="background:white;padding:14px;border-radius:var(--radius-md);border:1.5px solid var(--cream-border);">
+            <div style="font-size:0.75rem;color:var(--gray-subtle);font-weight:700;">Pending In Queue</div>
+            <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:800;color:var(--yellow-dark);margin-top:2px;" id="stat-pending-rev">₱0.00</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- VIEW 3: SETTINGS TAB -->
+    <main id="view-settings" style="display:none;padding:16px;">
+      <h2 style="font-family:var(--font-head);font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:14px;">
+        ⚙️ App Preferences
+      </h2>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="background:white;border:1.5px solid var(--cream-border);border-radius:var(--radius-md);padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-weight:800;color:var(--dark);font-size:0.95rem;">Notification Chime</div>
+              <div style="font-size:0.78rem;color:var(--gray-subtle);" id="sound-toggle-status">Sound ON 🔔</div>
+            </div>
+            <button class="btn-pill btn-pill-outline" onclick="toggleSound()">Toggle</button>
+          </div>
+        </div>
+
+        <div style="background:white;border:1.5px solid var(--cream-border);border-radius:var(--radius-md);padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-weight:800;color:var(--dark);font-size:0.95rem;">Push Notifications</div>
+              <div style="font-size:0.78rem;color:var(--gray-subtle);">Lock-screen alerts</div>
+            </div>
+            <button class="btn-pill btn-pill-primary" onclick="requestNotificationPermission()">Enable</button>
+          </div>
+        </div>
+
+        <div style="background:white;border:1.5px solid var(--cream-border);border-radius:var(--radius-md);padding:14px;margin-top:8px;">
+          <div style="font-weight:800;color:var(--dark);font-size:0.92rem;margin-bottom:8px;">Quick Links</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <a href="../admin/products.html" class="btn-pill btn-pill-outline" style="text-decoration:none;justify-content:center;">
+              <i class="fas fa-box-open"></i> Product Catalog Admin
+            </a>
+            <a href="../shop.html" target="_blank" class="btn-pill btn-pill-outline" style="text-decoration:none;justify-content:center;">
+              <i class="fas fa-store"></i> View Live Storefront
+            </a>
+            <button class="btn-pill btn-pill-outline" style="justify-content:center;color:var(--danger);border-color:#FFC9C9;" onclick="DB.adminLogout();location.reload();">
+              <i class="fas fa-sign-out-alt"></i> Sign Out of App
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-tab active" onclick="switchNav('orders', this)">
+        <i class="fas fa-inbox"></i>
+        <span>Orders</span>
+        <span class="nav-badge-pill" id="nav-pending-badge" style="display:none;">0</span>
+      </button>
+      <button class="nav-tab" onclick="switchNav('stats', this)">
+        <i class="fas fa-chart-pie"></i>
+        <span>Sales</span>
+      </button>
+      <button class="nav-tab" onclick="switchNav('settings', this)">
+        <i class="fas fa-sliders-h"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ORDER DETAIL BOTTOM SHEET MODAL -->
+  <div class="modal-overlay" id="order-sheet-modal" onclick="closeOrderSheet()">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <div class="sheet-handle"></div>
+        <div>
+          <div class="sheet-title" id="sheet-order-id">Order Details</div>
+          <div style="font-size:0.75rem;color:var(--gray-subtle);" id="sheet-order-time">Placed recently</div>
+        </div>
+        <button class="icon-btn" onclick="closeOrderSheet()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <!-- Customer Details -->
+        <div style="background:var(--cream-light);padding:12px;border-radius:var(--radius-md);border:1px solid var(--cream-border);">
+          <div style="font-weight:800;font-size:0.85rem;color:var(--dark);margin-bottom:6px;">
+            <i class="fas fa-user-circle" style="color:var(--pink);"></i> Customer Information
+          </div>
+          <div style="font-size:0.88rem;color:var(--dark);font-weight:700;" id="sheet-cust-name">—</div>
+          <div style="font-size:0.82rem;color:var(--gray-subtle);margin-top:2px;">
+            <i class="fas fa-envelope"></i> <span id="sheet-cust-email">—</span>
+          </div>
+          <div style="font-size:0.82rem;color:var(--gray-subtle);margin-top:2px;">
+            <i class="fas fa-phone"></i> <span id="sheet-cust-phone">—</span>
+          </div>
+          <div style="font-size:0.8rem;color:var(--dark);margin-top:6px;font-style:italic;" id="sheet-cust-notes"></div>
+        </div>
+
+        <!-- Payment Info -->
+        <div style="background:var(--blue-light);padding:12px;border-radius:var(--radius-md);border:1px solid #BCD8FF;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <span style="font-size:0.75rem;color:var(--blue-dark);font-weight:800;text-transform:uppercase;">Method</span>
+              <div style="font-weight:800;color:var(--dark);font-size:0.95rem;" id="sheet-pay-method">GCASH</div>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:0.75rem;color:var(--blue-dark);font-weight:800;text-transform:uppercase;">Total Amount</span>
+              <div style="font-family:var(--font-head);font-weight:900;color:var(--dark);font-size:1.15rem;" id="sheet-pay-total">₱0.00</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:0.82rem;color:var(--dark);background:white;padding:6px 10px;border-radius:var(--radius-xs);">
+            Reference No: <strong id="sheet-pay-ref">—</strong>
+          </div>
+        </div>
+
+        <!-- Proof of Payment Screenshot -->
+        <div class="proof-box" id="sheet-proof-wrap">
+          <!-- Populated in JS -->
+        </div>
+
+        <!-- Items Ordered -->
+        <div>
+          <div style="font-weight:800;font-size:0.85rem;color:var(--dark);margin-bottom:8px;">
+            <i class="fas fa-shopping-bag" style="color:var(--pink);"></i> Items Ordered
+          </div>
+          <div class="modal-items-list" id="sheet-items-list">
+            <!-- Populated in JS -->
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="sheet-actions" id="sheet-actions-box">
+          <!-- Populated in JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX IMAGE ZOOM MODAL -->
+  <div class="lightbox-overlay" id="lightbox-overlay" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <img id="lightbox-img" class="lightbox-img" alt="Enlarged Proof" onclick="event.stopPropagation()" />
+  </div>
+
+  <!-- IN-APP TOAST -->
+  <div class="app-toast" id="app-toast"></div>
+
+  <!-- Firebase Compat SDKs loaded directly -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/email-service.js"></script>
+  <script src="app.js"></script>
+
+  <!-- Login Guard & Auto-Unlock -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // If admin session is active, grant access smoothly
+      if (typeof DB !== 'undefined' && !DB.isAdmin()) {
+        const password = prompt('🌸 Welcome to MadeByMitzi Mobile App!\nPlease enter Admin Password:');
+        if (password) {
+          DB.adminLogin('madebymitzi26@gmail.com', password, true).then(res => {
+            if (res.success) {
+              location.reload();
+            } else {
+              alert('Incorrect password. Please try again.');
+              window.location.href = '../login.html';
+            }
+          });
+        } else {
+          window.location.href = '../login.html';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
