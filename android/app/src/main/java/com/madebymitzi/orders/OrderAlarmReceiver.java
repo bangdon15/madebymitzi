@@ -27,49 +27,82 @@ public class OrderAlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = null;
-        if (pm != null) {
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MadeByMitzi:AlarmWakeLock");
-            wakeLock.acquire(15000); // Hold lock for max 15s to complete check
-        }
-
-        final PowerManager.WakeLock finalLock = wakeLock;
-        new Thread(() -> {
-            try {
-                checkOrders(context);
-            } catch (Throwable t) {
-                t.printStackTrace();
-            } finally {
-                // Schedule next wakeup
-                scheduleNext(context);
-                if (finalLock != null && finalLock.isHeld()) {
-                    try {
-                        finalLock.release();
-                    } catch (Exception e) {}
-                }
+        try {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = null;
+            if (pm != null) {
+                try {
+                    wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MadeByMitzi:AlarmWakeLock");
+                    wakeLock.acquire(15000); // Hold lock for max 15s to complete check
+                } catch (Throwable t) {}
             }
-        }).start();
+
+            final PowerManager.WakeLock finalLock = wakeLock;
+            new Thread(() -> {
+                try {
+                    checkOrders(context);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                } finally {
+                    // Schedule next wakeup
+                    scheduleNext(context);
+                    if (finalLock != null) {
+                        try {
+                            if (finalLock.isHeld()) finalLock.release();
+                        } catch (Throwable e) {}
+                    }
+                }
+            }).start();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            scheduleNext(context);
+        }
     }
 
     public static void scheduleNext(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (am == null) return;
+        try {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
 
-        Intent intent = new Intent(context, OrderAlarmReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(
-            context,
-            1002,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
+            Intent intent = new Intent(context, OrderAlarmReceiver.class);
+            PendingIntent pi = PendingIntent.getBroadcast(
+                context,
+                1002,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
 
-        long triggerAtMillis = System.currentTimeMillis() + ALARM_INTERVAL_MS;
+            long triggerAtMillis = System.currentTimeMillis() + ALARM_INTERVAL_MS;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
-        } else {
-            am.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
+            boolean canExact = true;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                try {
+                    canExact = am.canScheduleExactAlarms();
+                } catch (Throwable t) {
+                    canExact = false;
+                }
+            }
+
+            if (canExact) {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
+                    } else {
+                        am.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
+                    }
+                    return;
+                } catch (SecurityException se) {
+                    // Fall back if permission revoked
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
+            } else {
+                am.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 

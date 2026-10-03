@@ -684,7 +684,7 @@
           <button class="sound-toggle-btn" onclick="playSweetChime()"><i class="fas fa-play"></i> Test Ka-Ching</button>`;
       } else {
         topBanner.innerHTML = `<span><i class="fas fa-bell"></i> Live Alerts Active</span>
-          <a href="https://github.com/bangdon15/madebymitzi/releases/download/mobile-v1.2/MadeByMitzi-Orders.apk" style="font-size:0.75rem; background:#FFF; color:var(--pink-dark); padding:4px 10px; border-radius:12px; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:5px;"><i class="fab fa-android"></i> Get APK for Sleep Alerts</a>`;
+          <a href="https://github.com/bangdon15/madebymitzi/releases/download/mobile-v1.2.1/MadeByMitzi-Orders.apk" style="font-size:0.75rem; background:#FFF; color:var(--pink-dark); padding:4px 10px; border-radius:12px; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:5px;"><i class="fab fa-android"></i> Get APK for Sleep Alerts</a>`;
       }
     }
 

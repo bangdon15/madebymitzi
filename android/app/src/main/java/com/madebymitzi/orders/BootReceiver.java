@@ -8,23 +8,29 @@ import android.os.Build;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) ||
-            Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+        try {
+            if (intent != null && (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) ||
+                Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()))) {
 
-            // Schedule alarm chain
-            OrderAlarmReceiver.scheduleNext(context);
+                // Safely schedule background alarm cycle
+                OrderAlarmReceiver.scheduleNext(context);
 
-            // Start foreground service if possible
-            try {
-                Intent serviceIntent = new Intent(context, OrderNotificationService.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(serviceIntent);
-                } else {
-                    context.startService(serviceIntent);
+                // Only start service if running on older Android versions that allow background service start
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    try {
+                        Intent serviceIntent = new Intent(context, OrderNotificationService.class);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(serviceIntent);
+                        } else {
+                            context.startService(serviceIntent);
+                        }
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 }

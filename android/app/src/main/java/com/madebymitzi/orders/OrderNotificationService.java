@@ -54,14 +54,27 @@ public class OrderNotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(SERVICE_NOTIFICATION_ID, buildForegroundNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
-        } else {
-            startForeground(SERVICE_NOTIFICATION_ID, buildForegroundNotification());
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(SERVICE_NOTIFICATION_ID, buildForegroundNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+            } else {
+                startForeground(SERVICE_NOTIFICATION_ID, buildForegroundNotification());
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+            try {
+                startForeground(SERVICE_NOTIFICATION_ID, buildForegroundNotification());
+            } catch (Throwable t2) {
+                t2.printStackTrace();
+            }
         }
 
-        // Keep Alarm cycle active
-        OrderAlarmReceiver.scheduleNext(this);
+        try {
+            // Keep Alarm cycle active
+            OrderAlarmReceiver.scheduleNext(this);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
 
         if (!isRunning) {
             isRunning = true;
@@ -79,20 +92,11 @@ public class OrderNotificationService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        // Ensure alarm cycle continues even if task swiped
-        OrderAlarmReceiver.scheduleNext(this);
-
-        // If app task is swiped away from recent apps, restart service automatically
-        Intent restartIntent = new Intent(getApplicationContext(), OrderNotificationService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(
-            this,
-            1,
-            restartIntent,
-            PendingIntent.FLAG_ONE_SHOT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-        android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager != null) {
-            alarmManager.set(android.app.AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
+        try {
+            // Keep alarm receiver active when user swipes app
+            OrderAlarmReceiver.scheduleNext(this);
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 

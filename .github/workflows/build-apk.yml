@@ -55,17 +55,18 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          tag_name: mobile-v1.2
-          name: "📱 MadeByMitzi Mobile Order Manager v1.2"
+          tag_name: mobile-v1.2.1
+          name: "📱 MadeByMitzi Mobile Order Manager v1.2.1 (Crash Fix Release)"
           body: |
-            ### 🌸 MadeByMitzi Mobile App (.APK) v1.2
+            ### 🌸 MadeByMitzi Mobile App (.APK) v1.2.1
             Official Android Mobile App for instant order alerts, real-time GCash proof inspection, and 1-tap dispatching.
             
-            #### 🚀 What's New in v1.2:
+            #### 🚀 What's Fixed & Added in v1.2.1:
+            - 🛠️ **Fixed App Crashing on Launch**: Resolved Android 12/13/14 `SecurityException` by declaring `SCHEDULE_EXACT_ALARM`, checking `canScheduleExactAlarms()`, and rendering the UI layout first before background alarm scheduling.
+            - 🛡️ **Guarded Background Services**: Eliminated illegal background `startForegroundService` in `BootReceiver` for Android 12+ compatibility.
             - 🔔 **Ka-Ching! 3x Loop Sound**: Official cash register mechanical latch, dual bell harmonics, and coin jingle looped 3 times!
-            - ⚡ **24/7 Sleep & Closed Screen Monitoring**: Powered by Android `AlarmManager` with `RTC_WAKEUP`, `WakeLock`, and Battery Optimization exemption so you never miss an order even when the phone is locked, asleep, or app is swiped away!
-            - 🛠️ **Fixed Order Details Modal**: Solved the blurred screen issue on mobile & tablet WebView; bottom sheet displays immediately with customer details, GCash proof, and 1-tap Approve/Decline buttons.
-            - 📱 **Tablet & Mobile Responsive**: Centered dialog on tablets, bottom sheet on phones.
+            - ⚡ **24/7 Sleep & Closed Screen Monitoring**: Powered by Android `AlarmManager` with `RTC_WAKEUP` and Battery Optimization exemption so you never miss an order even when the phone is locked or asleep.
+            - 📱 **Fixed Order Details Modal**: Bottom sheet and dialog appear immediately on mobile & tablet WebView with GCash proof and Approve/Decline buttons.
             
             **Download the APK directly to your phone or tablet:**
             👉 Click `MadeByMitzi-Orders.apk` below to download and install.

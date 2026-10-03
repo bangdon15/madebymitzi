@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
@@ -104,24 +106,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Start background order alert service & persistent alarm cycle immediately
-        startOrderAlertService();
-        OrderAlarmReceiver.scheduleNext(this);
-
-        // Request battery optimization exemption for background sleep notifications
-        requestBatteryOptimizationExemption();
-
-        // Request notification permission on Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
-            }
-        }
-
         swipeRefresh = new SwipeRefreshLayout(this);
         webView = new WebView(this);
         swipeRefresh.addView(webView);
         setContentView(swipeRefresh);
+
+        // Safe background service initialization
+        try {
+            startOrderAlertService();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        try {
+            OrderAlarmReceiver.scheduleNext(this);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        // Request notification permission safely on Android 13+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+                }
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        // Postpone battery optimization request until UI is rendered
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                requestBatteryOptimizationExemption();
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }, 2000);
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -204,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 startService(serviceIntent);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -219,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.setData(Uri.parse("package:" + getPackageName()));
                     startActivity(intent);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
