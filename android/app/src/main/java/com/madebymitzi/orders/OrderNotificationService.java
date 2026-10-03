@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class OrderNotificationService extends Service {
-    public static final String CHANNEL_ORDERS = "madebymitzi_orders_v3";
+    public static final String CHANNEL_ORDERS = "madebymitzi_orders_v4";
     public static final String CHANNEL_SERVICE = "madebymitzi_foreground_v1";
     private static final int SERVICE_NOTIFICATION_ID = 9001;
     private static final String PREFS_NAME = "mbm_orders_prefs";
@@ -122,20 +122,20 @@ public class OrderNotificationService extends Service {
             serviceChannel.setShowBadge(false);
             nm.createNotificationChannel(serviceChannel);
 
-            // 2. High-Priority Ka-Ching Order Alert Channel
+            // 2. High-Priority Filipino "Pabili!" Order Alert Channel
             NotificationChannel orderChannel = new NotificationChannel(
                 CHANNEL_ORDERS,
-                "New Order Alerts (Ka-Ching!)",
+                "New Order Alerts (Pabili!)",
                 NotificationManager.IMPORTANCE_HIGH
             );
-            orderChannel.setDescription("Loud Ka-ching cash register notifications for new orders");
+            orderChannel.setDescription("Friendly Filipino 'Paaaah. Bi-leeeee!' voice alerts for new orders");
             orderChannel.enableLights(true);
             orderChannel.setLightColor(Color.parseColor("#FF84BA"));
             orderChannel.enableVibration(true);
-            orderChannel.setVibrationPattern(new long[]{0, 300, 150, 300, 150, 400});
+            orderChannel.setVibrationPattern(new long[]{0, 250, 150, 350});
             orderChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
-            Uri soundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kaching);
+            Uri soundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.pabili);
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
@@ -306,7 +306,7 @@ public class OrderNotificationService extends Service {
             PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.kaching);
+        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.pabili);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ORDERS)
             .setSmallIcon(R.drawable.ic_launcher)
@@ -319,7 +319,7 @@ public class OrderNotificationService extends Service {
             .setColor(Color.parseColor("#FF84BA"))
             .setAutoCancel(true)
             .setSound(soundUri)
-            .setVibrate(new long[]{0, 300, 150, 300, 150, 400})
+            .setVibrate(new long[]{0, 250, 150, 350})
             .setContentIntent(pendingIntent);
 
         int notifId = (int) (System.currentTimeMillis() % 100000);
@@ -328,8 +328,8 @@ public class OrderNotificationService extends Service {
 
     public static void playKaChing(Context context) {
         try {
-            // Play custom Ka-Ching sound
-            MediaPlayer mp = MediaPlayer.create(context, R.raw.kaching);
+            // Play custom Filipino 'Paaaah. Bi-leeeee!' sound
+            MediaPlayer mp = MediaPlayer.create(context, R.raw.pabili);
             if (mp != null) {
                 mp.setOnCompletionListener(MediaPlayer::release);
                 mp.start();
@@ -339,9 +339,9 @@ public class OrderNotificationService extends Service {
             Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 300, 150, 300, 150, 400}, -1));
+                    vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 250, 150, 350}, -1));
                 } else {
-                    vibrator.vibrate(new long[]{0, 300, 150, 300, 150, 400}, -1);
+                    vibrator.vibrate(new long[]{0, 250, 150, 350}, -1);
                 }
             }
         } catch (Exception e) {

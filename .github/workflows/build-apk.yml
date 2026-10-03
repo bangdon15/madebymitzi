@@ -55,18 +55,17 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          tag_name: mobile-v1.2.1
-          name: "📱 MadeByMitzi Mobile Order Manager v1.2.1 (Crash Fix Release)"
+          tag_name: mobile-v1.3
+          name: "📱 MadeByMitzi Mobile Order Manager v1.3 (\"Pabili!\" Voice Release)"
           body: |
-            ### 🌸 MadeByMitzi Mobile App (.APK) v1.2.1
+            ### 🌸 MadeByMitzi Mobile App (.APK) v1.3
             Official Android Mobile App for instant order alerts, real-time GCash proof inspection, and 1-tap dispatching.
             
-            #### 🚀 What's Fixed & Added in v1.2.1:
-            - 🛠️ **Fixed App Crashing on Launch**: Resolved Android 12/13/14 `SecurityException` by declaring `SCHEDULE_EXACT_ALARM`, checking `canScheduleExactAlarms()`, and rendering the UI layout first before background alarm scheduling.
-            - 🛡️ **Guarded Background Services**: Eliminated illegal background `startForegroundService` in `BootReceiver` for Android 12+ compatibility.
-            - 🔔 **Ka-Ching! 3x Loop Sound**: Official cash register mechanical latch, dual bell harmonics, and coin jingle looped 3 times!
-            - ⚡ **24/7 Sleep & Closed Screen Monitoring**: Powered by Android `AlarmManager` with `RTC_WAKEUP` and Battery Optimization exemption so you never miss an order even when the phone is locked or asleep.
-            - 📱 **Fixed Order Details Modal**: Bottom sheet and dialog appear immediately on mobile & tablet WebView with GCash proof and Approve/Decline buttons.
+            #### 🚀 What's New in v1.3:
+            - 📢 **Filipino "Paaaah. Bi-leeeee!" Voice Alert**: Replaced the Ka-Ching chime with a friendly Filipino sari-sari store buyer call!
+            - 🔇 **Fixed Notification Re-alerting**: Opening the app directly from a notification will now open the order sheet silently without re-playing the sound.
+            - ⚡ **24/7 Background & Sleep Monitoring**: AlarmManager wakeup cycle continues monitoring orders even while the app is closed or the screen is dark.
+            - 📱 **Tablet & Mobile Details Modal**: Responsive sheet and modal with 1-tap Approve & Dispatch / Decline buttons.
             
             **Download the APK directly to your phone or tablet:**
             👉 Click `MadeByMitzi-Orders.apk` below to download and install.

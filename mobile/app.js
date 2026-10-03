@@ -10,13 +10,14 @@
   let currentFilter = 'pending';
   let searchQuery = '';
   let knownOrderIds = new Set();
+  let isInitialSnapshot = true;
   let isSoundEnabled = localStorage.getItem('mbm_sound_enabled') !== 'false';
   let activeOrder = null;
   let hasUserInteracted = false;
 
   // Initialize Web Audio Chime Synthesizer & Audio Elements
   let audioCtx = null;
-  let kachingAudio = null;
+  let pabiliAudio = null;
 
   function getAudioContext() {
     if (!audioCtx) {
@@ -29,14 +30,14 @@
     return audioCtx;
   }
 
-  function getKaChingAudio() {
-    if (!kachingAudio) {
+  function getPabiliAudio() {
+    if (!pabiliAudio) {
       try {
-        kachingAudio = new Audio('sounds/kaching.wav');
-        kachingAudio.volume = 1.0;
+        pabiliAudio = new Audio('sounds/pabili.mp3');
+        pabiliAudio.volume = 1.0;
       } catch (e) {}
     }
-    return kachingAudio;
+    return pabiliAudio;
   }
 
   // Synthesize authentic cash register 'Ka-Ching' bell & coin resonance
@@ -110,9 +111,9 @@
       }
     }
 
-    // 2. Try HTML5 Audio element with local WAV file
+    // 2. Try HTML5 Audio element with local MP3 file ("Pabili!")
     try {
-      const audio = getKaChingAudio();
+      const audio = getPabiliAudio();
       if (audio) {
         audio.currentTime = 0;
         const playPromise = audio.play();
@@ -381,6 +382,16 @@
   function checkNewOrders(orders) {
     if (!orders || !Array.isArray(orders)) return;
 
+    // Guard: On first app launch or opening from notification, silently seed existing orders
+    // DO NOT play voice chime on initial load!
+    if (isInitialSnapshot) {
+      orders.forEach((o) => {
+        if (o && o.id) knownOrderIds.add(o.id);
+      });
+      isInitialSnapshot = false;
+      return;
+    }
+
     let hasNewPending = false;
     let newestOrder = null;
 
@@ -397,7 +408,7 @@
 
     if (hasNewPending && newestOrder) {
       playSweetChime();
-      showToast(`🔔 New Order #${newestOrder.id} from ${newestOrder.customer?.name || 'Buyer'}!`, '🌸');
+      showToast(`📢 Paaa-bili! New Order #${newestOrder.id} from ${newestOrder.customer?.name || 'Buyer'}!`, '🛍️');
 
       const notifTitle = `🛍️ New Order: ${formatMoney(newestOrder.total)}`;
       const notifBody = `${newestOrder.customer?.name || 'Customer'} placed order #${newestOrder.id} via ${(newestOrder.paymentMethod || 'GCash').toUpperCase()}`;
@@ -680,11 +691,11 @@
     const topBanner = document.getElementById('sound-banner-top');
     if (topBanner) {
       if (window.AndroidBridge) {
-        topBanner.innerHTML = `<span><i class="fas fa-bolt" style="color:#FFF;"></i> 24/7 Sleep Alerts Active (Ka-Ching 3x)</span>
-          <button class="sound-toggle-btn" onclick="playSweetChime()"><i class="fas fa-play"></i> Test Ka-Ching</button>`;
+        topBanner.innerHTML = `<span><i class="fas fa-bolt" style="color:#FFF;"></i> 24/7 Sleep Alerts Active ("Pabili!")</span>
+          <button class="sound-toggle-btn" onclick="playSweetChime()"><i class="fas fa-play"></i> Test "Pabili!"</button>`;
       } else {
         topBanner.innerHTML = `<span><i class="fas fa-bell"></i> Live Alerts Active</span>
-          <a href="https://github.com/bangdon15/madebymitzi/releases/download/mobile-v1.2.1/MadeByMitzi-Orders.apk" style="font-size:0.75rem; background:#FFF; color:var(--pink-dark); padding:4px 10px; border-radius:12px; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:5px;"><i class="fab fa-android"></i> Get APK for Sleep Alerts</a>`;
+          <a href="https://github.com/bangdon15/madebymitzi/releases/download/mobile-v1.3/MadeByMitzi-Orders.apk" style="font-size:0.75rem; background:#FFF; color:var(--pink-dark); padding:4px 10px; border-radius:12px; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:5px;"><i class="fab fa-android"></i> Get APK for Sleep Alerts</a>`;
       }
     }
 
