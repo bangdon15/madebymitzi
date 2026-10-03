@@ -11,14 +11,19 @@
 
 <p align="center">
   <a href="https://madebymitziph.com" target="_blank"><img src="https://img.shields.io/badge/Official%20Store-madebymitziph.com-FF84BA?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Official Store at madebymitziph.com" /></a>
+  <a href="https://madebymitziph.com/mobile/" target="_blank"><img src="https://img.shields.io/badge/Mobile%20App-PWA%20Order%20Manager-FF84BA?style=for-the-badge&logo=pwa&logoColor=white" alt="Mobile Order Manager PWA" /></a>
+  <a href="https://github.com/bangdon15/madebymitzi/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Android%20APK-v1.3.1%20Release-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" /></a>
   <a href="https://madebymitzi-web.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Vercel%20Mirror-madebymitzi--web.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Mirror" /></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Production%20Ready%20🚀-brightgreen?style=flat-square&logo=checkmarx" alt="Production Ready" />
+  <img src="https://img.shields.io/badge/Android%20Target-API%2034%20(Android%2014)-3DDC84?style=flat-square&logo=android" alt="Android 14 Ready" />
+  <img src="https://img.shields.io/badge/Voice%20Alert-Pabileeeee!%20🇵🇭-FF6B6B?style=flat-square&logo=airplayvideo" alt="Pabili Voice Alert" />
   <img src="https://img.shields.io/badge/Theme-Sweet%20Artisan%20Kawaii-FF84BA?style=flat-square&logo=sparkles" alt="Sweet Artisan Kawaii Theme" />
   <img src="https://img.shields.io/badge/Database-Firebase%20Firestore-FFA611?style=flat-square&logo=firebase" alt="Firebase Firestore" />
   <img src="https://img.shields.io/badge/Delivery-Direct%20PDF%20Upload-E11D48?style=flat-square&logo=adobeacrobatreader" alt="Direct PDF Upload" />
+  <img src="https://img.shields.io/badge/CI%2FCD-GitHub%20Actions%20Release-2088FF?style=flat-square&logo=githubactions&logoColor=white" alt="GitHub Actions Release" />
   <img src="https://img.shields.io/badge/Support-Free%20After--Sales%20Suite-99C2FF?style=flat-square&logo=messenger" alt="After-Sales Chat" />
   <img src="https://img.shields.io/badge/Hosting-Hostinger%20Production-673DE6?style=flat-square&logo=hostinger" alt="Hostinger Production" />
   <a href="https://www.facebook.com/profile.php?id=100094438778151" target="_blank"><img src="https://img.shields.io/badge/Facebook-MadeByMitzi-1877F2?style=flat-square&logo=facebook&logoColor=white" alt="Facebook" /></a>
@@ -35,6 +40,8 @@ Created for digital planners, party organizers, and stationery enthusiasts, it p
 - 💌 **Editable Canva Invitations**: 1-click Canva template links with customer customization guides.
 - 🎨 **Printable & Waterproof Sticker Packs**: High-resolution print-ready PDF files and pre-cut digital sticker books.
 - ✂️ **Digital Cut Files (File-Only)**: Transparent PNGs and vector SVGs optimized for GoodNotes, Cricut, and Silhouette.
+- 📱 **Mobile Order Manager (Native Android & PWA)**: Real-time store order feed, authentic Filipino **"Pabileeeee!"** voice alerts, 24/7 background sleep polling via `AlarmManager`, GCash proof zoom, and 1-tap dispatching.
+- 📝 **Live Markdown Product Description Editor**: Interactive split-view editor in the Admin panel supporting bold, italic, lists, badges, and emojis with real-time customer-facing rendering.
 - 🇵🇭 **Philippine Payment Integrations**: Native checkout workflows for **GCash** and **Bank Transfer** with payment screenshot uploads and reference verification.
 - ⚡ **Instant Automated Dispatch**: Real-time receipt delivery and transactional order updates powered by the **Brevo API**.
 
@@ -64,9 +71,10 @@ The application features a cheerful, warm **Sweet Artisan Kawaii** aesthetic des
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer ["Customer & Admin Clients"]
+    subgraph ClientLayer ["Customer, Admin & Mobile Clients"]
         BuyerBrowser["Customer Browser<br/>(Mobile / Tablet / Desktop)"]
-        AdminBrowser["Admin Browser<br/>(Any Device / No Master Device)"]
+        AdminBrowser["Admin Workstation<br/>(Any Device / No Master Device)"]
+        AdminMobile["📱 Mitzi Mobile App (.APK & PWA)<br/>• Native Android 14 APK (v1.3.1)<br/>• 24/7 Background Wakeup Alert<br/>• Filipino 'Pabileeeee!' Audio<br/>• 1-Tap Verification & Dispatch"]
         ChatWidget["After-Sales Widget<br/>(Order Tracker & Live Chat)"]
     end
 
@@ -88,6 +96,11 @@ flowchart TD
         AdminInbox["Admin Inbox<br/>(madebymitzi26@gmail.com)"]
     end
 
+    subgraph DevOpsPipeline ["GitHub Actions CI/CD Release Pipeline"]
+        GHActions["GitHub Actions Runner<br/>(.github/workflows/build-apk.yml)"]
+        GHReleases["GitHub Releases<br/>(MadeByMitzi-Orders.apk)"]
+    end
+
     %% Customer Purchasing Flow
     BuyerBrowser -- "1. Submits Order & Payment Proof" --> FirestoreDB
     BuyerBrowser -- "2. Triggers Email Notification" --> EmailAPI
@@ -97,6 +110,13 @@ flowchart TD
     %% Direct Delivery Flow
     BuyerBrowser -- "Downloads Printable PDF" --> ChunkedFiles
     ChunkedFiles -. "Reassembles Chunks to Blob" .-> BuyerBrowser
+
+    %% Mobile Admin Real-time Operations Flow
+    AdminMobile -- "1. Polls Orders & 24/7 Sleep Alarm" --> FirestoreDB
+    FirestoreDB -. "2. Real-time onSnapshot & REST Sync" .-> AdminMobile
+    AdminMobile -- "3. Triggers Loud 'Pabileeeee!' Alert" --> AdminMobile
+    AdminMobile -- "4. 1-Tap Approves & Dispatches" --> FirestoreDB
+    AdminMobile -- "5. Fires Brevo Receipt Delivery" --> EmailAPI
 
     %% Email Notification Flow
     EmailAPI -- "Dispatches Buyer Receipt" --> Brevo
@@ -111,6 +131,10 @@ flowchart TD
     FirestoreDB -. "Real-Time onSnapshot Sync" .-> AdminBrowser
     FirestoreDB -. "Real-Time Catalog Sync" .-> BuyerBrowser
     BuyerBrowser -. "Telemetry & Pageviews" .-> Analytics
+
+    %% CI/CD Android App Flow
+    GHActions -- "Compiles Gradle 8 & Android 14 App" --> GHReleases
+    GHReleases -. "Installs to Seller Smartphone" .-> AdminMobile
 ```
 
 ---
@@ -146,6 +170,31 @@ flowchart TD
 - **Fresh Launch State**: All mock/test transactions have been scrubbed from Cloud Firestore and localStorage.
 - **Admin Reset Safeguards**: One-click **"Clear All Orders"** and **"Clear All Products"** tools with security confirmation dialogs allow the store owner to reset test data cleanly at any time.
 
+### 7. MadeByMitzi Mobile Order Manager (Native Android APK & PWA)
+- **Native Android App (`com.madebymitzi.orders` v1.3.1)**:
+  - Built targeting Android 14 (API 34) with backwards compatibility down to Android 7.0 (API 24).
+  - Pure Java native wrapper featuring hardware acceleration, native pull-to-refresh (`SwipeRefreshLayout`), safe WebView lifecycle controls, and strict Android 12-14 alarm permission guards.
+- **24/7 Sleep & Closed Screen Monitoring**:
+  - Leverages Android's native `AlarmManager` (`OrderAlarmReceiver`) to intermittently wake up the device and query Firestore for new pending orders, even when the phone is locked, asleep, or the app is killed.
+  - Automatic re-registration upon device restart via `BootReceiver` (`RECEIVE_BOOT_COMPLETED`).
+  - High-priority notification channel (`OrderNotificationService`) delivering immediate heads-up alert banners with vibration and custom sound.
+  - Notification intent handler configured to open the order modal silently without triggering re-alert loops.
+- **Authentic Filipino "Pabileeeee!" Voice Alert**:
+  - Extracted authentic 2-second **"Pabileeeee!"** audio from actual store footage, normalized and acoustic-tuned for immediate audibility in busy or noisy environments.
+  - Native fallback chime with volume control and manual test button.
+- **1-Tap Fast Dispatch & GCash Proof Inspector**:
+  - Responsive order cards with customer names, GCash references, order items, and badge status counters.
+  - Dedicated bottom sheet / tablet modal with 1-tap **"Approve & Dispatch"** (instantly triggering Brevo digital link delivery) and **"Decline"** actions.
+  - Clickable proof-of-payment zoom modal for instant verification of GCash/Bank screenshots.
+- **Automated GitHub Actions Release Pipeline**:
+  - Full CI/CD workflow (`.github/workflows/build-apk.yml`) triggered on pushes to `android/**` or `mobile/**`.
+  - Automatically installs JDK 17 & Gradle 8.5, builds the debug APK, creates GitHub Release tag `mobile-v1.3.1`, and uploads `MadeByMitzi-Orders.apk` as a downloadable asset.
+
+### 8. Live Markdown Description Editor & Rich Product Showcase
+- **Split-Screen Markdown Editor**: Built into the Admin Products modal with quick formatting buttons for **Bold**, *Italic*, Headings (`###`), Bullet Lists (`-`), and Badges (`[badge: Text]`).
+- **Live Preview Tab**: Instant rendering preview allowing the maker to review product descriptions before publishing to the live catalog.
+- **Client-Side Markdown Engine**: Lightweight parser in `js/main.js` (`renderMarkdown()`) rendering clean typography, styled lists, and colorful badge pills on customer product pages.
+
 ---
 
 ## 🛡️ Security Risk Assessment & Production Hardening
@@ -155,8 +204,9 @@ flowchart TD
 | **Firebase API Key** | Public exposure in frontend code | Verified public client identifier by Google Cloud design. Enforced domain-level restrictions and locked backend collections via Firestore Security Rules. |
 | **Firestore Security** | Unauthorized writes/deletions | Scoped security rules (`firestore.rules`): Public catalog read; authenticated admin write for products and settings; append-only for customer orders. |
 | **Email Relay** | Spam abuse of transactional email keys | All outbound mail is routed through the serverless backend (`/api/send-email.js`). Sender domain is locked and verified to `brepublic15@gmail.com`. |
-| **Payment Verification** | Fake reference numbers or forged receipts | Digital download links are strictly withheld in `pending` status until admin manually verifies proof of payment in the Admin Orders portal. |
+| **Payment Verification** | Fake reference numbers or forged receipts | Digital download links are strictly withheld in `pending` status until admin manually verifies proof of payment in the Admin Orders portal or Mobile App. |
 | **Admin Authentication** | Brute-force attacks on admin credentials | Salted SHA-256 client password verification with progressive 60-second lockouts after 5 consecutive failed attempts. |
+| **Android Permissions** | Exact alarm and background battery restrictions | Guarded `SCHEDULE_EXACT_ALARM` checking Android 12+ capabilities with graceful inexact fallback; foreground service notification adherence for Android 14. |
 
 ---
 
@@ -219,53 +269,82 @@ Interactive drag-and-drop PDF uploader slicing files into cloud chunks, enabling
 
 ![Admin PDF Direct Uploader](screenshots/14_pdf_direct_upload.png)
 
-### 12. Cloud Settings & Dynamic Media Gallery Control
+### 12. Interactive Markdown Description Editor
+Modern split-view editor modal with formatting shortcuts (Bold, Italic, Headings, Lists, Badges) and live client preview:
+
+![Markdown Editor Write](screenshots/admin_products_markdown_editor_write.png)
+![Markdown Editor Preview](screenshots/admin_products_markdown_preview.png)
+
+### 13. Formatted Product Details on Storefront
+Richly formatted product description rendered on the customer storefront with badges, bold highlights, and clean typography:
+
+![Rendered Product Markdown](screenshots/customer_product_markdown_rendered.png)
+
+### 14. Cloud Settings & Dynamic Media Gallery Control
 Comprehensive control center for updating GCash QR codes, bank accounts, Brevo email keys, hero backgrounds, and community slideshow galleries.
 
 ![Admin Settings](screenshots/10_admin_settings.png)
 
-### 13. Customer Digital Receipt & Order Status Stepper
+### 15. Customer Digital Receipt & Order Status Stepper
 Interactive customer receipt page featuring a live verification stepper (`Pending` ➔ `Confirmed`), reference tracking, and 1-click Canva / PDF download buttons.
 
 ![Customer Digital Receipt](screenshots/11_customer_receipt.png)
 
-### 14. 100% Free After-Sales Customer Support Widget
+### 16. 100% Free After-Sales Customer Support Widget
 Floating support widget allowing buyers to track orders by ID in real time or initiate direct conversations with Mitzi on Facebook Messenger.
 
 ![After-Sales Chat Widget](screenshots/15_after_sales_chat.png)
 
-### 15. Secure Admin Authentication Portal
+### 17. Secure Admin Authentication Portal
 Multi-tiered login portal featuring salted SHA-256 password hashing, brute-force rate-limiting, and 1-click **Sign In with Google (Mitzi Preset)** for verified owner devices.
 
 ![Admin Login Portal](screenshots/12_admin_login.png)
 
 ---
 
-## 🔑 Admin Access
+## 🔑 Admin & Mobile Portals Access
 
-For managing the store on staging or production:
-- **Admin Portal**: [`https://madebymitziph.com/login.html`](https://madebymitziph.com/login.html)
-- **Direct Dashboard**: [`https://madebymitziph.com/admin/dashboard.html`](https://madebymitziph.com/admin/dashboard.html)
-- Access is restricted to authorized store administration. Credentials are configured securely within the private dashboard settings.
+For managing the store on staging, production, or mobile:
+- **Admin Web Portal**: [`https://madebymitziph.com/login.html`](https://madebymitziph.com/login.html)
+- **Direct Web Dashboard**: [`https://madebymitziph.com/admin/dashboard.html`](https://madebymitziph.com/admin/dashboard.html)
+- **Mobile Order Manager (PWA)**: [`https://madebymitziph.com/mobile/`](https://madebymitziph.com/mobile/)
+- **Download Latest Android APK**: [`GitHub Releases: MadeByMitzi-Orders.apk`](https://github.com/bangdon15/madebymitzi/releases/latest)
+- Access is restricted to authorized store administration.
 - **1-Click Verified Login**: Click **"Sign In with Google (Mitzi Preset)"** on recognized store owner devices.
 
 ---
 
-## 💻 Local Development Setup
+## 💻 Local Development & Build Setup
 
-To run and preview MadeByMitzi locally:
-
+### 1. Run Web Storefront & Admin Locally
 ```bash
-# 1. Clone the repository
+# Clone the repository
 git clone https://github.com/bangdon15/madebymitzi.git
 cd Madebymitzi-web
 
-# 2. Serve static files locally
+# Serve static files locally
 npx serve . -p 3000
 
-# 3. Open in browser
-http://localhost:3000
+# Open in browser:
+# Storefront: http://localhost:3000
+# Mobile App: http://localhost:3000/mobile/
+# Admin:      http://localhost:3000/login.html
 ```
+
+### 2. Build Android App Locally
+```bash
+# Navigate to the Android project folder
+cd android
+
+# Build the Debug APK using Gradle
+./gradlew assembleDebug
+
+# The compiled APK will be generated at:
+# android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+### 3. Automated CI/CD Android Releases
+Pushes to `main` with changes under `android/**` or `mobile/**` automatically trigger the GitHub Actions workflow (`.github/workflows/build-apk.yml`), compiling the APK and publishing a new release with the attached `MadeByMitzi-Orders.apk` asset.
 
 ---
 
