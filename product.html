@@ -617,28 +617,59 @@
   <script src="js/main.js"></script>
   <script src="js/after-sales-chat.js"></script>
   <script>
+    let currentProduct = null;
+
     function handleDetailPageAddToCart() {
-      if (!currentProduct) return;
-      handleAddToCart(currentProduct.id, 1);
+      if (!currentProduct) {
+        showToast('Please wait for product details to load...', 'info');
+        return;
+      }
+      handleAddToCart(currentProduct.id, 1, '', currentProduct);
     }
     window.handleDetailPageAddToCart = handleDetailPageAddToCart;
 
-    function handleDetailPageBuyNow() {
-      if (!currentProduct) return;
-      DB.addToCart(currentProduct.id, 1);
+    async function handleDetailPageBuyNow() {
+      if (!currentProduct) {
+        await loadProduct();
+      }
+      if (!currentProduct) {
+        showToast('Please wait for product details to load...', 'info');
+        return;
+      }
+
+      const res = DB.addToCart(currentProduct.id, 1, '', currentProduct);
       updateCartBadge();
-      window.location.href = 'checkout.html';
+
+      // Guarantee navigation to checkout with the buy_now param so checkout can load it seamlessly
+      window.location.href = `checkout.html?buy_now=${encodeURIComponent(currentProduct.id)}`;
     }
     window.handleDetailPageBuyNow = handleDetailPageBuyNow;
 
-    function loadProduct() {
+    async function loadProduct() {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
-      const allProds = DB.getProducts();
+      let allProds = DB.getProducts();
       currentProduct = id ? DB.getProduct(id) : allProds[0];
 
       if (!currentProduct && allProds.length > 0) {
         currentProduct = allProds[0];
+      }
+
+      // If not yet available in local cache, directly fetch from Cloud Firestore
+      if (!currentProduct && window.FirebaseService && typeof window.FirebaseService.fetchProducts === 'function') {
+        try {
+          const cloudProds = await window.FirebaseService.fetchProducts();
+          if (Array.isArray(cloudProds) && cloudProds.length > 0) {
+            DB.setProducts(cloudProds);
+            allProds = cloudProds;
+            currentProduct = id ? DB.getProduct(id) : allProds[0];
+            if (!currentProduct && allProds.length > 0) {
+              currentProduct = allProds[0];
+            }
+          }
+        } catch (e) {
+          console.warn('Direct loadProduct cloud fetch notice:', e);
+        }
       }
 
       if (!currentProduct) {

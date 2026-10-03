@@ -15,8 +15,6 @@ try {
         const cat = (p.category || '').trim().toLowerCase();
         const img = JSON.stringify(p.images || []).toLowerCase();
         if (/^prod_00[1-9]$/.test(id) || id === 'prod_test_ping' || id === 'prod_test_live_verify') return false;
-        if (name === 'test' || name.includes('validation test') || name.includes('rest real') || name === 'sample' || name === 'demo') return false;
-        if (cat === 'undefined' || cat === '' || cat === 'test') return false;
         if (img.includes('techxodia')) return false;
         return true;
       });
@@ -185,16 +183,10 @@ const DB = {
 
     // 1. Filter out legacy mock demo IDs and system test pings
     if (/^prod_00[1-9]$/.test(id)) return true;
-    if (id === 'prod_test_ping' || id === 'prod_test_live_verify' || id.includes('test_product')) return true;
+    if (id === 'prod_test_ping' || id === 'prod_test_live_verify') return true;
 
-    // 2. Filter out products with test titles / names
-    if (name === 'test' || name === 'testing' || name === 'sample' || name === 'demo') return true;
-    if (name.includes('validation test') || name.includes('rest real') || name.includes('test product')) return true;
-    if (name.startsWith('test ') || name.endsWith(' test')) return true;
-
-    // 3. Filter out test categories or techxodia test logos
-    if (cat === 'undefined' || cat === '' || cat === 'test') return true;
-    if (imagesStr.includes('techxodia') || desc.includes('test product') || desc.includes('validation test')) return true;
+    // 2. Filter out techxodia mock images
+    if (imagesStr.includes('techxodia')) return true;
 
     return false;
   },
@@ -236,7 +228,12 @@ const DB = {
   },
 
   getProduct(id) {
-    return this.getProducts().find(p => p.id === id) || null;
+    if (!id) return null;
+    const cleanId = String(id).trim();
+    const prods = this.getProducts();
+    return prods.find(p => String(p.id).trim() === cleanId) ||
+           prods.find(p => String(p.id).trim().toLowerCase() === cleanId.toLowerCase()) ||
+           null;
   },
   async addProduct(product) {
     const products = this.getProducts();
@@ -546,31 +543,62 @@ const DB = {
   },
 
   // ── CART ──────────────────────────────────────────
-  getCart() { return this.get(this.KEYS.CART) || []; },
-  setCart(arr) { this.set(this.KEYS.CART, arr); },
+  getCart() {
+    let cart = this.get(this.KEYS.CART);
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+      try {
+        const backup = sessionStorage.getItem('mbm_cart_backup');
+        if (backup) {
+          const parsed = JSON.parse(backup);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            cart = parsed;
+            this.set(this.KEYS.CART, cart);
+          }
+        }
+      } catch (e) {}
+    }
+    return Array.isArray(cart) ? cart : [];
+  },
+  setCart(arr) {
+    const safeArr = Array.isArray(arr) ? arr : [];
+    this.set(this.KEYS.CART, safeArr);
+    try {
+      sessionStorage.setItem('mbm_cart_backup', JSON.stringify(safeArr));
+    } catch (e) {}
+  },
 
-  addToCart(productId, qty = 1, variant = '') {
+  addToCart(productId, qty = 1, variant = '', productData = null) {
     const cart = this.getCart();
-    const key = productId + (variant ? '_' + variant : '');
-    const existing = cart.find(c => c.key === key);
+    const cleanId = String(productId || (productData && productData.id) || '').trim();
+    if (!cleanId) return { cart, alreadyExists: false, success: false };
+    const key = cleanId + (variant ? '_' + variant : '');
+    const existing = cart.find(c => c.key === key || String(c.productId).trim() === cleanId);
     if (existing) {
       existing.qty = 1; // Strict digital rule: 1 download per item
       this.setCart(cart);
-      return { cart, alreadyExists: true };
+      return { cart, alreadyExists: true, success: true };
     } else {
-      const product = this.getProduct(productId);
-      if (!product) return { cart, alreadyExists: false };
+      let product = productData || this.getProduct(cleanId);
+      if (!product) {
+        const all = this.getProducts();
+        product = all.find(p => String(p.id).trim() === cleanId) ||
+                  all.find(p => String(p.id).trim().toLowerCase() === cleanId.toLowerCase());
+      }
+      if (!product) {
+        console.warn('DB.addToCart: Product not found for ID:', cleanId);
+        return { cart, alreadyExists: false, success: false };
+      }
       cart.push({
         key,
-        productId,
+        productId: product.id || cleanId,
         qty: 1, // Digital items are always 1
-        variant,
-        name: product.name,
-        price: product.price,
+        variant: variant || '',
+        name: product.name || 'Digital Product',
+        price: Number(product.price) || 0,
         image: (product.images && product.images[0]) || product.image || ''
       });
       this.setCart(cart);
-      return { cart, alreadyExists: false };
+      return { cart, alreadyExists: false, success: true };
     }
   },
   updateCartQty(key, qty) {
@@ -586,7 +614,12 @@ const DB = {
   removeFromCart(key) {
     this.setCart(this.getCart().filter(c => c.key !== key));
   },
-  clearCart() { this.set(this.KEYS.CART, []); },
+  clearCart() {
+    this.set(this.KEYS.CART, []);
+    try {
+      sessionStorage.removeItem('mbm_cart_backup');
+    } catch (e) {}
+  },
   cartTotal() {
     return this.getCart().reduce((s, c) => s + (Number(c.price) || 0), 0);
   },

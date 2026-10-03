@@ -633,8 +633,38 @@
     }
     window.handleReceiptFile = handleReceiptFile;
 
-    function renderOrderSummary() {
-      const cart = DB.getCart();
+    async function renderOrderSummary() {
+      let cart = DB.getCart();
+
+      // Fallback: If user arrived via "Buy Now" button with buy_now query parameter
+      const params = new URLSearchParams(window.location.search);
+      const buyNowId = params.get('buy_now');
+
+      if ((!cart || cart.length === 0) && buyNowId) {
+        let prod = DB.getProduct(buyNowId);
+        if (!prod && window.FirebaseService && typeof window.FirebaseService.fetchProducts === 'function') {
+          try {
+            const cloudProds = await window.FirebaseService.fetchProducts();
+            if (Array.isArray(cloudProds) && cloudProds.length > 0) {
+              DB.setProducts(cloudProds);
+              prod = DB.getProduct(buyNowId) || cloudProds.find(p => String(p.id).trim() === String(buyNowId).trim());
+            }
+          } catch (e) {
+            console.warn('Checkout buy_now fetch error:', e);
+          }
+        }
+        if (prod) {
+          DB.addToCart(prod.id, 1, '', prod);
+          cart = DB.getCart();
+        }
+      }
+
+      // If cart is still empty, give a brief moment for storage sync before redirecting
+      if (!cart || cart.length === 0) {
+        await new Promise(r => setTimeout(r, 400));
+        cart = DB.getCart();
+      }
+
       if (!cart || cart.length === 0) {
         window.location.href = 'cart.html';
         return;
@@ -649,7 +679,7 @@
         const category = product ? product.category : 'Digital';
         const imgSrc = item.image && !item.image.includes('placeholder')
           ? item.image
-          : getPlaceholderSVG(category, i);
+          : (product?.images?.[0] || getPlaceholderSVG(category, i));
 
         const div = document.createElement('div');
         div.className = 'mini-cart-item';

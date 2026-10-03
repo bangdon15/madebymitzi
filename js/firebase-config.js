@@ -45,16 +45,10 @@ const FirebaseService = {
 
     // 1. Filter out legacy mock demo IDs and system test pings
     if (/^prod_00[1-9]$/.test(id)) return true;
-    if (id === 'prod_test_ping' || id === 'prod_test_live_verify' || id.includes('test_product')) return true;
+    if (id === 'prod_test_ping' || id === 'prod_test_live_verify') return true;
 
-    // 2. Filter out products with test titles / names
-    if (name === 'test' || name === 'testing' || name === 'sample' || name === 'demo') return true;
-    if (name.includes('validation test') || name.includes('rest real') || name.includes('test product')) return true;
-    if (name.startsWith('test ') || name.endsWith(' test')) return true;
-
-    // 3. Filter out test categories or techxodia test logos
-    if (cat === 'undefined' || cat === '' || cat === 'test') return true;
-    if (imagesStr.includes('techxodia') || desc.includes('test product') || desc.includes('validation test')) return true;
+    // 2. Filter out techxodia mock images
+    if (imagesStr.includes('techxodia')) return true;
 
     return false;
   },
@@ -457,12 +451,44 @@ const FirebaseService = {
   async fetchProductsRest() {
     const config = this.getConfig();
     if (!config || !config.apiKey || !config.projectId) return null;
-    const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_products?key=${config.apiKey}`;
     try {
-      const resp = await fetch(url);
-      const data = await resp.json();
-      if (!resp.ok || !data.documents) return [];
-      const prods = data.documents.map(d => this.fromFirestoreFields(d.fields));
+      // 1. Try runQuery first for complete batch fetching
+      const runQueryUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents:runQuery?key=${config.apiKey}`;
+      const queryResp = await fetch(runQueryUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          structuredQuery: {
+            from: [{ collectionId: 'mbm_products' }]
+          }
+        })
+      });
+      if (queryResp.ok) {
+        const queryData = await queryResp.json();
+        if (Array.isArray(queryData)) {
+          const prods = queryData
+            .filter(item => item.document && item.document.fields)
+            .map(item => this.fromFirestoreFields(item.document.fields));
+          prods.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+          return prods;
+        }
+      }
+
+      // 2. Fallback: Paginated document listing (handles nextPageToken)
+      let allDocs = [];
+      let pageToken = '';
+      let pages = 0;
+      do {
+        let url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/mbm_products?key=${config.apiKey}`;
+        if (pageToken) url += `&pageToken=${encodeURIComponent(pageToken)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.documents) allDocs = allDocs.concat(data.documents);
+        pageToken = data.nextPageToken || '';
+        pages++;
+      } while (pageToken && pages < 20);
+
+      const prods = allDocs.map(d => this.fromFirestoreFields(d.fields));
       prods.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       return prods;
     } catch (e) {

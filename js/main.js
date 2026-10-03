@@ -319,14 +319,19 @@ function initMarquee() {
 }
 
 // ── Add to cart (global handler) ─────────────────
-function handleAddToCart(productId, qty = 1) {
-  const res = DB.addToCart(productId, 1);
+function handleAddToCart(productId, qty = 1, variant = '', productData = null) {
+  const res = DB.addToCart(productId, qty, variant, productData);
   updateCartBadge();
-  if (res && res.alreadyExists) {
+  if (!res || !res.success) {
+    showToast('Could not add item to cart. Please try again.', 'error');
+    return res;
+  }
+  if (res.alreadyExists) {
     showToast('Item is already in your cart! 🛍️', 'info');
   } else {
     showToast('Added to cart! 🛍️', 'cart');
   }
+  return res;
 }
 window.handleAddToCart = handleAddToCart;
 
