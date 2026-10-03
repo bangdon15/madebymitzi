@@ -505,6 +505,9 @@
     </div>
   </footer>
 
+  <!-- Firebase Compat SDKs loaded directly -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/email-service.js"></script>
@@ -634,12 +637,23 @@
     window.handleReceiptFile = handleReceiptFile;
 
     async function renderOrderSummary() {
-      let cart = DB.getCart();
-
-      // Fallback: If user arrived via "Buy Now" button with buy_now query parameter
       const params = new URLSearchParams(window.location.search);
       const buyNowId = params.get('buy_now');
 
+      // 1. Direct transfer check from sessionStorage (fastest, guaranteed 0ms, zero quota dependency)
+      try {
+        const directRaw = sessionStorage.getItem('mbm_buy_now_product');
+        if (directRaw) {
+          const directProd = JSON.parse(directRaw);
+          if (directProd && (!buyNowId || String(directProd.id).trim() === String(buyNowId).trim())) {
+            DB.addToCart(directProd.id, 1, '', directProd);
+          }
+        }
+      } catch (e) {}
+
+      let cart = DB.getCart();
+
+      // 2. Fallback check for buy_now query parameter if cart is still empty
       if ((!cart || cart.length === 0) && buyNowId) {
         let prod = DB.getProduct(buyNowId);
         if (!prod && window.FirebaseService && typeof window.FirebaseService.fetchProducts === 'function') {
@@ -659,18 +673,28 @@
         }
       }
 
-      // If cart is still empty, give a brief moment for storage sync before redirecting
-      if (!cart || cart.length === 0) {
-        await new Promise(r => setTimeout(r, 400));
-        cart = DB.getCart();
-      }
+      const list = document.getElementById('checkout-items-list');
 
+      // If cart is still empty, display in-page message rather than force-redirecting to empty cart
       if (!cart || cart.length === 0) {
-        window.location.href = 'cart.html';
+        list.innerHTML = `
+          <div style="text-align:center;padding:28px 12px;background:var(--gray-50);border-radius:var(--radius-lg);border:1.5px dashed var(--gray-300);">
+            <div style="font-size:2rem;margin-bottom:8px;">🛒</div>
+            <div style="font-weight:800;color:var(--gray-800);margin-bottom:6px;">Your Cart is Currently Empty</div>
+            <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:16px;">Please choose a design from our shop to complete an order.</p>
+            <a href="shop.html" class="btn btn-blue btn-sm"><i class="fas fa-store"></i> Browse Catalog</a>
+          </div>
+        `;
+        document.getElementById('co-subtotal').textContent = '₱0';
+        document.getElementById('co-total').textContent = '₱0';
+        const submitBtn = document.querySelector('#checkout-form button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
         return;
       }
 
-      const list = document.getElementById('checkout-items-list');
+      const submitBtn = document.querySelector('#checkout-form button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = false;
+
       list.innerHTML = '';
       const subtotal = DB.cartTotal();
 

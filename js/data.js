@@ -132,13 +132,27 @@ const DB = {
       return true;
     } catch (err) {
       console.warn('Storage set error for key ' + key + ' (memory store active):', err.message);
-      // If QuotaExceededError (e.g. mobile Safari), clean obsolete cache safely (NEVER touch mbm_cart!)
       if (err.name === 'QuotaExceededError' || err.code === 22) {
         try {
-          // Clear temporary non-essential caches
-          sessionStorage.clear();
+          // DO NOT clear sessionStorage - sessionStorage is our vital backup!
           localStorage.removeItem('mbm_deleted_products');
           localStorage.removeItem('mbm_last_viewed');
+
+          // If writing cart, CART IS CRITICAL: Evict bloated products cache to guarantee cart saves!
+          if (key === this.KEYS.CART) {
+            try {
+              // Free up space from product image bloat in localStorage
+              const prods = this._memStore[this.KEYS.PRODUCTS] || [];
+              const slimProds = prods.map(p => ({ id: p.id, name: p.name, price: p.price, category: p.category, status: p.status, featured: p.featured }));
+              localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify(slimProds));
+              localStorage.setItem(key, JSON.stringify(val));
+              return true;
+            } catch (eCart) {
+              localStorage.removeItem(this.KEYS.PRODUCTS);
+              localStorage.setItem(key, JSON.stringify(val));
+              return true;
+            }
+          }
 
           // If storing settings, keep local copy light by trimming unused gallery history
           if (key === this.KEYS.SETTINGS && val && typeof val === 'object') {
@@ -156,6 +170,19 @@ const DB = {
               const copy = { ...o };
               if (copy.receiptImage && copy.receiptImage.length > 200) {
                 copy.receiptImage = copy.receiptImage.slice(0, 100) + '...[cloud]';
+              }
+              return copy;
+            });
+            localStorage.setItem(key, JSON.stringify(slim));
+            return true;
+          }
+
+          // If storing products, strip massive multi-image base64 bloat
+          if (key === this.KEYS.PRODUCTS && Array.isArray(val)) {
+            const slim = val.map(p => {
+              const copy = { ...p };
+              if (Array.isArray(copy.images) && copy.images.length > 1) {
+                copy.images = [copy.images[0]];
               }
               return copy;
             });
@@ -193,19 +220,52 @@ const DB = {
 
   // ── PRODUCTS ──────────────────────────────────────
   getProducts() {
+    if (this._memStore[this.KEYS.PRODUCTS] && Array.isArray(this._memStore[this.KEYS.PRODUCTS]) && this._memStore[this.KEYS.PRODUCTS].length > 0) {
+      return this._memStore[this.KEYS.PRODUCTS];
+    }
     const prods = this.get(this.KEYS.PRODUCTS);
     if (prods !== null && Array.isArray(prods)) {
-      // Purge any lingering dummy test products from localStorage
       const cleaned = prods.filter(p => !this.isTestProduct(p));
-      if (cleaned.length !== prods.length) {
-        this.setProducts(cleaned);
-      }
+      this._memStore[this.KEYS.PRODUCTS] = cleaned;
       return cleaned;
     }
-    // Return empty catalog until Cloud Firestore syncs
     return [];
   },
-  setProducts(arr) { return this.set(this.KEYS.PRODUCTS, arr); },
+  setProducts(arr) {
+    if (!Array.isArray(arr)) return false;
+    this._memStore[this.KEYS.PRODUCTS] = arr;
+
+    // Build a storage-optimized version for localStorage to prevent 4MB bloat
+    const storageArr = arr.map(p => {
+      const copy = { ...p };
+      // If product has multiple large base64 images, keep only primary image in localStorage cache
+      if (Array.isArray(copy.images) && copy.images.length > 1) {
+        copy.images = [copy.images[0]];
+      }
+      return copy;
+    });
+
+    try {
+      localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify(storageArr));
+      return true;
+    } catch (e) {
+      console.warn('Notice: localStorage full, writing minimal products manifest to preserve cart space.');
+      try {
+        const minimal = arr.map(p => ({
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          category: p.category,
+          status: p.status,
+          featured: p.featured,
+          sales: p.sales,
+          createdAt: p.createdAt
+        }));
+        localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify(minimal));
+      } catch (e2) {}
+    }
+    return true;
+  },
 
   async clearAllProducts() {
     const products = this.getProducts();
@@ -544,7 +604,19 @@ const DB = {
 
   // ── CART ──────────────────────────────────────────
   getCart() {
-    let cart = this.get(this.KEYS.CART);
+    // 1. In-memory check (instant, lossless)
+    if (Array.isArray(this._memStore[this.KEYS.CART]) && this._memStore[this.KEYS.CART].length > 0) {
+      return this._memStore[this.KEYS.CART];
+    }
+
+    // 2. localStorage check
+    let cart = null;
+    try {
+      const raw = localStorage.getItem(this.KEYS.CART);
+      if (raw) cart = JSON.parse(raw);
+    } catch (e) {}
+
+    // 3. sessionStorage backup check
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
       try {
         const backup = sessionStorage.getItem('mbm_cart_backup');
@@ -552,19 +624,76 @@ const DB = {
           const parsed = JSON.parse(backup);
           if (Array.isArray(parsed) && parsed.length > 0) {
             cart = parsed;
-            this.set(this.KEYS.CART, cart);
           }
         }
       } catch (e) {}
     }
-    return Array.isArray(cart) ? cart : [];
+
+    // 4. Buy-Now direct session transfer check
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+      try {
+        const directRaw = sessionStorage.getItem('mbm_buy_now_product');
+        if (directRaw) {
+          const p = JSON.parse(directRaw);
+          if (p && p.id) {
+            cart = [{
+              key: p.id,
+              productId: p.id,
+              qty: 1,
+              variant: '',
+              name: p.name || 'Digital Product',
+              price: Number(p.price) || 0,
+              image: (p.images && p.images[0] && !p.images[0].startsWith('data:')) ? p.images[0] : (p.image && !p.image.startsWith('data:') ? p.image : '')
+            }];
+          }
+        }
+      } catch (e) {}
+    }
+
+    const safeCart = Array.isArray(cart) ? cart : [];
+    this._memStore[this.KEYS.CART] = safeCart;
+    return safeCart;
   },
+
   setCart(arr) {
-    const safeArr = Array.isArray(arr) ? arr : [];
-    this.set(this.KEYS.CART, safeArr);
+    const rawArr = Array.isArray(arr) ? arr : [];
+    // Optimization: NEVER store multi-hundred-kilobyte data URIs inside cart items!
+    // Cart display already falls back to DB.getProduct(item.productId)?.images?.[0]
+    const safeArr = rawArr.map(item => {
+      const copy = { ...item };
+      if (copy.image && copy.image.startsWith('data:') && copy.image.length > 500) {
+        copy.image = '';
+      }
+      return copy;
+    });
+
+    this._memStore[this.KEYS.CART] = safeArr;
+
+    // Guaranteed persistence to sessionStorage
     try {
       sessionStorage.setItem('mbm_cart_backup', JSON.stringify(safeArr));
     } catch (e) {}
+
+    // Guaranteed persistence to localStorage with storage-relief fallback
+    try {
+      localStorage.setItem(this.KEYS.CART, JSON.stringify(safeArr));
+    } catch (err) {
+      console.warn('Storage set error for cart; freeing space and retrying...', err.message);
+      try {
+        localStorage.removeItem('mbm_deleted_products');
+        localStorage.removeItem('mbm_last_viewed');
+        // Slim down products in localStorage so cart can always fit
+        const prods = this._memStore[this.KEYS.PRODUCTS] || [];
+        const slim = prods.map(p => ({ id: p.id, name: p.name, price: p.price, category: p.category, status: p.status }));
+        localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify(slim));
+        localStorage.setItem(this.KEYS.CART, JSON.stringify(safeArr));
+      } catch (e2) {
+        try {
+          localStorage.removeItem(this.KEYS.PRODUCTS);
+          localStorage.setItem(this.KEYS.CART, JSON.stringify(safeArr));
+        } catch (e3) {}
+      }
+    }
   },
 
   addToCart(productId, qty = 1, variant = '', productData = null) {
@@ -588,6 +717,11 @@ const DB = {
         console.warn('DB.addToCart: Product not found for ID:', cleanId);
         return { cart, alreadyExists: false, success: false };
       }
+
+      // Keep image lightweight (only keep normal URL, or empty if massive base64)
+      const rawImg = (product.images && product.images[0]) || product.image || '';
+      const safeImg = (rawImg && !rawImg.startsWith('data:')) ? rawImg : '';
+
       cart.push({
         key,
         productId: product.id || cleanId,
@@ -595,7 +729,7 @@ const DB = {
         variant: variant || '',
         name: product.name || 'Digital Product',
         price: Number(product.price) || 0,
-        image: (product.images && product.images[0]) || product.image || ''
+        image: safeImg
       });
       this.setCart(cart);
       return { cart, alreadyExists: false, success: true };
@@ -615,9 +749,10 @@ const DB = {
     this.setCart(this.getCart().filter(c => c.key !== key));
   },
   clearCart() {
-    this.set(this.KEYS.CART, []);
+    this.setCart([]);
     try {
       sessionStorage.removeItem('mbm_cart_backup');
+      sessionStorage.removeItem('mbm_buy_now_product');
     } catch (e) {}
   },
   cartTotal() {

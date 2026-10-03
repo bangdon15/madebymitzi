@@ -637,10 +637,15 @@
         return;
       }
 
-      const res = DB.addToCart(currentProduct.id, 1, '', currentProduct);
+      // Store in sessionStorage as instant direct transfer for checkout
+      try {
+        sessionStorage.setItem('mbm_buy_now_product', JSON.stringify(currentProduct));
+      } catch (e) {}
+
+      DB.addToCart(currentProduct.id, 1, '', currentProduct);
       updateCartBadge();
 
-      // Guarantee navigation to checkout with the buy_now param so checkout can load it seamlessly
+      // Navigate to checkout
       window.location.href = `checkout.html?buy_now=${encodeURIComponent(currentProduct.id)}`;
     }
     window.handleDetailPageBuyNow = handleDetailPageBuyNow;
@@ -648,29 +653,28 @@
     async function loadProduct() {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
-      let allProds = DB.getProducts();
-      currentProduct = id ? DB.getProduct(id) : allProds[0];
+      let prod = id ? DB.getProduct(id) : null;
 
-      if (!currentProduct && allProds.length > 0) {
-        currentProduct = allProds[0];
-      }
-
-      // If not yet available in local cache, directly fetch from Cloud Firestore
-      if (!currentProduct && window.FirebaseService && typeof window.FirebaseService.fetchProducts === 'function') {
+      // If not yet in cache and an ID was requested, fetch directly from Cloud Firestore
+      if (!prod && id && window.FirebaseService && typeof window.FirebaseService.fetchProducts === 'function') {
         try {
           const cloudProds = await window.FirebaseService.fetchProducts();
           if (Array.isArray(cloudProds) && cloudProds.length > 0) {
             DB.setProducts(cloudProds);
-            allProds = cloudProds;
-            currentProduct = id ? DB.getProduct(id) : allProds[0];
-            if (!currentProduct && allProds.length > 0) {
-              currentProduct = allProds[0];
-            }
+            prod = DB.getProduct(id) || cloudProds.find(p => String(p.id).trim() === String(id).trim());
           }
         } catch (e) {
           console.warn('Direct loadProduct cloud fetch notice:', e);
         }
       }
+
+      // Fallback: If no id was specified in URL, use first active product
+      if (!prod && !id) {
+        const all = DB.getProducts();
+        if (all.length > 0) prod = all[0];
+      }
+
+      currentProduct = prod;
 
       if (!currentProduct) {
         const titleEl = document.getElementById('p-title');
