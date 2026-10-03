@@ -782,7 +782,8 @@ const DB = {
       emailDeliverySubject: '[MadeByMitzi] Your Digital Order #{orderId} is Ready! 🎉',
       emailDeliveryNote: 'Thank you for your order! Here are your digital download links and Canva editable templates below. If you need any assistance with printing or editing, feel free to reply directly to this email or message our Facebook page.',
       shopFacebook: 'https://www.facebook.com/profile.php?id=100094438778151',
-      shopEtsy: 'https://www.etsy.com/shop/MadeBymitzidigital',
+      shopPayhip: 'https://payhip.com/madebymitzidigital',
+      shopEtsy: 'https://payhip.com/madebymitzidigital',
       web3FormsKey: '3a8a2077-18e1-4a7c-a3aa-8a3b08b341e7',
       gmailAppPassword: '',
       brevoApiKey: '',
@@ -842,7 +843,8 @@ const DB = {
       announcement: s.shopAnnouncement || s.announcementText || '',
       facebook: s.shopFacebook || '',
       messenger: s.shopMessenger || 'https://m.me/100094438778151',
-      etsy: s.shopEtsy || ''
+      payhip: s.shopPayhip || 'https://payhip.com/madebymitzidigital',
+      etsy: s.shopPayhip || s.shopEtsy || 'https://payhip.com/madebymitzidigital'
     };
   },
 
