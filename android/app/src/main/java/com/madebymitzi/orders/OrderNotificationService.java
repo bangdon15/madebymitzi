@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class OrderNotificationService extends Service {
-    public static final String CHANNEL_ORDERS = "madebymitzi_orders_v4";
+    public static final String CHANNEL_ORDERS = "madebymitzi_orders_v5";
     public static final String CHANNEL_SERVICE = "madebymitzi_foreground_v1";
     private static final int SERVICE_NOTIFICATION_ID = 9001;
     private static final String PREFS_NAME = "mbm_orders_prefs";

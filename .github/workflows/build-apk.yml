@@ -55,16 +55,16 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          tag_name: mobile-v1.3
-          name: "📱 MadeByMitzi Mobile Order Manager v1.3 (\"Pabili!\" Voice Release)"
+          tag_name: mobile-v1.3.1
+          name: "📱 MadeByMitzi Mobile Order Manager v1.3.1 (\"Pabileeeee!\" Voice Release)"
           body: |
-            ### 🌸 MadeByMitzi Mobile App (.APK) v1.3
+            ### 🌸 MadeByMitzi Mobile App (.APK) v1.3.1
             Official Android Mobile App for instant order alerts, real-time GCash proof inspection, and 1-tap dispatching.
             
-            #### 🚀 What's New in v1.3:
-            - 📢 **Filipino "Paaaah. Bi-leeeee!" Voice Alert**: Replaced the Ka-Ching chime with a friendly Filipino sari-sari store buyer call!
-            - 🔇 **Fixed Notification Re-alerting**: Opening the app directly from a notification will now open the order sheet silently without re-playing the sound.
-            - ⚡ **24/7 Background & Sleep Monitoring**: AlarmManager wakeup cycle continues monitoring orders even while the app is closed or the screen is dark.
+            #### 🚀 What's New in v1.3.1:
+            - 📢 **Exact "Pabileeeeeee!" Video Audio**: Extracted the authentic 2-second audio from the requested video (normalized and tuned for loud notification alerts)!
+            - 🔇 **Fixed Notification Re-alerting**: Opening the app directly from a notification opens the order sheet silently without replaying the alert.
+            - ⚡ **24/7 Sleep & Closed Screen Monitoring**: AlarmManager wakeup cycle continues monitoring orders even while the app is closed or the screen is dark.
             - 📱 **Tablet & Mobile Details Modal**: Responsive sheet and modal with 1-tap Approve & Dispatch / Decline buttons.
             
             **Download the APK directly to your phone or tablet:**
