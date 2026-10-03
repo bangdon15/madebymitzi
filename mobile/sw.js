@@ -1,10 +1,11 @@
 // MadeByMitzi Mobile Order Manager — Service Worker
-const CACHE_NAME = 'mbm-mobile-v1';
+const CACHE_NAME = 'mbm-mobile-v2';
 const ASSETS_TO_CACHE = [
   './index.html',
   './app.css',
   './app.js',
   './manifest.json',
+  './sounds/kaching.wav',
   '../images/madebymitzi.jpg'
 ];
 

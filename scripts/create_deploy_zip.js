@@ -28,6 +28,8 @@ const rootDir = path.join(__dirname, '..');
 const exclude = new Set([
   '.git',
   '.vercel',
+  '.github',
+  'android',
   'node_modules',
   'screenshots',
   'scripts',

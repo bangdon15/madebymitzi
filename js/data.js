@@ -2,6 +2,31 @@
    MadeByMitzi — Data Layer (localStorage)
 =================================================== */
 
+// Immediate device storage purge for any legacy test or dummy products
+try {
+  const _storedProds = localStorage.getItem('mbm_products');
+  if (_storedProds) {
+    const _pList = JSON.parse(_storedProds);
+    if (Array.isArray(_pList)) {
+      const _cleaned = _pList.filter(p => {
+        if (!p) return false;
+        const id = (p.id || '').toLowerCase();
+        const name = (p.name || p.title || '').trim().toLowerCase();
+        const cat = (p.category || '').trim().toLowerCase();
+        const img = JSON.stringify(p.images || []).toLowerCase();
+        if (/^prod_00[1-9]$/.test(id) || id === 'prod_test_ping' || id === 'prod_test_live_verify') return false;
+        if (name === 'test' || name.includes('validation test') || name.includes('rest real') || name === 'sample' || name === 'demo') return false;
+        if (cat === 'undefined' || cat === '' || cat === 'test') return false;
+        if (img.includes('techxodia')) return false;
+        return true;
+      });
+      if (_cleaned.length !== _pList.length) {
+        localStorage.setItem('mbm_products', JSON.stringify(_cleaned));
+      }
+    }
+  }
+} catch (e) {}
+
 const DB = {
   // ── Keys ──────────────────────────────────────────
   KEYS: {
@@ -152,10 +177,25 @@ const DB = {
 
   isTestProduct(p) {
     if (!p) return false;
-    const id = p.id || '';
-    // Only filter out legacy mock demo IDs and system test pings
+    const id = (p.id || '').toLowerCase();
+    const name = (p.name || p.title || '').trim().toLowerCase();
+    const cat = (p.category || '').trim().toLowerCase();
+    const desc = (p.description || '').toLowerCase();
+    const imagesStr = JSON.stringify(p.images || []).toLowerCase();
+
+    // 1. Filter out legacy mock demo IDs and system test pings
     if (/^prod_00[1-9]$/.test(id)) return true;
-    if (id === 'prod_test_ping' || id === 'prod_test_live_verify') return true;
+    if (id === 'prod_test_ping' || id === 'prod_test_live_verify' || id.includes('test_product')) return true;
+
+    // 2. Filter out products with test titles / names
+    if (name === 'test' || name === 'testing' || name === 'sample' || name === 'demo') return true;
+    if (name.includes('validation test') || name.includes('rest real') || name.includes('test product')) return true;
+    if (name.startsWith('test ') || name.endsWith(' test')) return true;
+
+    // 3. Filter out test categories or techxodia test logos
+    if (cat === 'undefined' || cat === '' || cat === 'test') return true;
+    if (imagesStr.includes('techxodia') || desc.includes('test product') || desc.includes('validation test')) return true;
+
     return false;
   },
 
@@ -170,8 +210,8 @@ const DB = {
       }
       return cleaned;
     }
-    // In production, return empty catalog until Cloud Firestore syncs
-    return this.seedProducts();
+    // Return empty catalog until Cloud Firestore syncs
+    return [];
   },
   setProducts(arr) { return this.set(this.KEYS.PRODUCTS, arr); },
 

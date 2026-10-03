@@ -14,8 +14,10 @@
   let activeOrder = null;
   let hasUserInteracted = false;
 
-  // Initialize Web Audio Chime Synthesizer (No external MP3 required)
+  // Initialize Web Audio Chime Synthesizer & Audio Elements
   let audioCtx = null;
+  let kachingAudio = null;
+
   function getAudioContext() {
     if (!audioCtx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -27,44 +29,108 @@
     return audioCtx;
   }
 
-  // Pleasant kawaii artisan notification chime (F#6 -> A#6 -> C#7 chime)
-  function playSweetChime() {
-    if (!isSoundEnabled) return;
+  function getKaChingAudio() {
+    if (!kachingAudio) {
+      try {
+        kachingAudio = new Audio('sounds/kaching.wav');
+        kachingAudio.volume = 1.0;
+      } catch (e) {}
+    }
+    return kachingAudio;
+  }
+
+  // Synthesize authentic cash register 'Ka-Ching' bell & coin resonance
+  function synthesizeKaChingChime() {
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
-
       const now = ctx.currentTime;
-      const notes = [
-        { freq: 739.99, time: 0.00, dur: 0.15 }, // F#5
-        { freq: 932.33, time: 0.12, dur: 0.18 }, // A#5
-        { freq: 1108.73, time: 0.24, dur: 0.35 } // C#6
-      ];
 
-      notes.forEach((n) => {
+      // 1. Mechanical Register Latch ('Ka')
+      const clickOsc = ctx.createOscillator();
+      const clickGain = ctx.createGain();
+      clickOsc.type = 'sawtooth';
+      clickOsc.frequency.setValueAtTime(950, now);
+      clickOsc.frequency.exponentialRampToValueAtTime(180, now + 0.04);
+      clickGain.gain.setValueAtTime(0.35, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      clickOsc.connect(clickGain);
+      clickGain.connect(ctx.destination);
+      clickOsc.start(now);
+      clickOsc.stop(now + 0.04);
+
+      // 2. High Brass Bell Chime ('Ching!!')
+      const bellFreqs = [1864.66, 2793.99, 3729.31, 2217.46];
+      bellFreqs.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + 0.035);
 
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(n.freq, now + n.time);
-
-        gain.gain.setValueAtTime(0, now + n.time);
-        gain.gain.linearRampToValueAtTime(0.3, now + n.time + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + n.time + n.dur);
+        const decay = idx === 0 ? 0.95 : 0.65;
+        gain.gain.setValueAtTime(0, now + 0.035);
+        gain.gain.linearRampToValueAtTime(0.35 / (idx + 1), now + 0.045);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035 + decay);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
-
-        osc.start(now + n.time);
-        osc.stop(now + n.time + n.dur);
+        osc.start(now + 0.035);
+        osc.stop(now + 0.035 + decay);
       });
 
-      // Phone vibration if supported
-      if (navigator.vibrate) {
-        navigator.vibrate([150, 80, 200]);
+      // 3. Coin Jingle Shimmer
+      [4186, 4698].forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + 0.06);
+        gain.gain.setValueAtTime(0.18, now + 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + 0.06);
+        osc.stop(now + 0.35);
+      });
+    } catch (e) {
+      console.warn('Web Audio synthesis notice:', e);
+    }
+  }
+
+  // Play Etsy-style Ka-Ching sound
+  function playSweetChime() {
+    if (!isSoundEnabled) return;
+
+    // 1. If running inside Android wrapper, trigger native audio with hardware volume
+    if (window.AndroidBridge && typeof window.AndroidBridge.playKaChing === 'function') {
+      try {
+        window.AndroidBridge.playKaChing();
+        return;
+      } catch (e) {
+        console.warn('AndroidBridge playKaChing notice:', e);
+      }
+    }
+
+    // 2. Try HTML5 Audio element with local WAV file
+    try {
+      const audio = getKaChingAudio();
+      if (audio) {
+        audio.currentTime = 0;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            synthesizeKaChingChime();
+          });
+        }
+      } else {
+        synthesizeKaChingChime();
       }
     } catch (e) {
-      console.warn('Audio chime notice:', e);
+      synthesizeKaChingChime();
+    }
+
+    // Phone vibration if supported
+    if (navigator.vibrate) {
+      navigator.vibrate([150, 80, 250]);
     }
   }
 
@@ -81,23 +147,48 @@
 
   // Enable Notifications
   async function requestNotificationPermission() {
-    if (!('Notification' in window)) {
-      showToast('Notifications not supported by this browser', 'ℹ️');
-      return;
-    }
-    try {
-      const perm = await Notification.requestPermission();
-      if (perm === 'granted') {
-        showToast('Push Notifications enabled! 🔔', '🎉');
-        new Notification('MadeByMitzi Orders Active 🌸', {
-          body: 'You will receive immediate alerts when new orders arrive!',
-          icon: '../images/madebymitzi.jpg'
-        });
-      } else {
-        showToast('Notifications permission was ' + perm, '⚠️');
+    // 1. If running in Android APK app
+    if (window.AndroidBridge) {
+      try {
+        if (typeof window.AndroidBridge.requestNotificationPermission === 'function') {
+          window.AndroidBridge.requestNotificationPermission();
+        }
+        showToast('Etsy-style Push Alerts active via Android App! 🔔💰', '🎉');
+        playSweetChime();
+        if (typeof window.AndroidBridge.postNotification === 'function') {
+          window.AndroidBridge.postNotification(
+            'MadeByMitzi Orders Active 🌸',
+            'You will receive immediate Ka-Ching alerts for new orders!',
+            'test_ping'
+          );
+        }
+        return;
+      } catch (e) {
+        console.warn('AndroidBridge notification error:', e);
       }
-    } catch (e) {
-      console.warn('Notification permission error:', e);
+    }
+
+    // 2. Standard Web Browser Notifications (Chrome / Safari / Edge)
+    if ('Notification' in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        if (perm === 'granted') {
+          showToast('Push Notifications enabled! 🔔', '🎉');
+          playSweetChime();
+          new Notification('MadeByMitzi Orders Active 🌸', {
+            body: 'You will receive immediate Ka-Ching alerts when new orders arrive!',
+            icon: '../images/madebymitzi.jpg'
+          });
+        } else {
+          showToast('Notifications permission was ' + perm, '⚠️');
+        }
+      } catch (e) {
+        console.warn('Notification permission error:', e);
+      }
+    } else {
+      // In-app alert fallback
+      showToast('In-app Ka-Ching alerts are active! 🔔 (Install Android APK for background alerts)', '🌸');
+      playSweetChime();
     }
   }
 
@@ -306,11 +397,16 @@
 
     if (hasNewPending && newestOrder) {
       playSweetChime();
-      showToast(`🔔 New Order ${newestOrder.id} from ${newestOrder.customer?.name || 'Buyer'}!`, '🌸');
+      showToast(`🔔 New Order #${newestOrder.id} from ${newestOrder.customer?.name || 'Buyer'}!`, '🌸');
 
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(`New Order # ${newestOrder.id}! 🛍️`, {
-          body: `${newestOrder.customer?.name || 'Customer'} placed an order for ${formatMoney(newestOrder.total)} via ${(newestOrder.paymentMethod || 'GCash').toUpperCase()}`,
+      const notifTitle = `🛍️ New Order: ${formatMoney(newestOrder.total)}`;
+      const notifBody = `${newestOrder.customer?.name || 'Customer'} placed order #${newestOrder.id} via ${(newestOrder.paymentMethod || 'GCash').toUpperCase()}`;
+
+      if (window.AndroidBridge && typeof window.AndroidBridge.postNotification === 'function') {
+        window.AndroidBridge.postNotification(notifTitle, notifBody, newestOrder.id);
+      } else if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(notifTitle, {
+          body: notifBody,
           icon: '../images/madebymitzi.jpg'
         });
       }
@@ -319,23 +415,42 @@
 
   // Open Order Detail Bottom Sheet
   function openOrderSheet(id) {
-    if (typeof DB === 'undefined') return;
-    activeOrder = DB.getOrder(id);
-    if (!activeOrder) return;
+    try {
+      if (typeof DB === 'undefined') return;
+      activeOrder = DB.getOrder(id);
+      if (!activeOrder) {
+        const all = DB.getOrders ? DB.getOrders() : [];
+        activeOrder = all.find(o => o.id === id) || null;
+      }
+      if (!activeOrder) {
+        showToast('Could not find order details for #' + id, '⚠️');
+        return;
+      }
 
-    const overlay = document.getElementById('order-sheet-modal');
-    if (!overlay) return;
+      const overlay = document.getElementById('order-sheet-modal');
+      if (!overlay) return;
 
-    document.getElementById('sheet-order-id').textContent = activeOrder.id;
-    document.getElementById('sheet-order-time').textContent = new Date(activeOrder.createdAt).toLocaleString('en-PH');
-    document.getElementById('sheet-cust-name').textContent = activeOrder.customer?.name || 'Customer';
-    document.getElementById('sheet-cust-email').textContent = activeOrder.customer?.email || '—';
-    document.getElementById('sheet-cust-phone').textContent = activeOrder.customer?.phone || '—';
-    document.getElementById('sheet-cust-notes').textContent = activeOrder.customer?.notes ? `"${activeOrder.customer.notes}"` : 'None';
+      const orderTimeStr = activeOrder.createdAt ? new Date(activeOrder.createdAt).toLocaleString('en-PH') : 'Placed recently';
+      const orderIdEl = document.getElementById('sheet-order-id');
+      const orderTimeEl = document.getElementById('sheet-order-time');
+      const custNameEl = document.getElementById('sheet-cust-name');
+      const custEmailEl = document.getElementById('sheet-cust-email');
+      const custPhoneEl = document.getElementById('sheet-cust-phone');
+      const custNotesEl = document.getElementById('sheet-cust-notes');
+      const payMethodEl = document.getElementById('sheet-pay-method');
+      const payRefEl = document.getElementById('sheet-pay-ref');
+      const payTotalEl = document.getElementById('sheet-pay-total');
 
-    document.getElementById('sheet-pay-method').textContent = (activeOrder.paymentMethod || 'GCash').toUpperCase();
-    document.getElementById('sheet-pay-ref').textContent = activeOrder.refNumber || '—';
-    document.getElementById('sheet-pay-total').textContent = formatMoney(activeOrder.total);
+      if (orderIdEl) orderIdEl.textContent = activeOrder.id || 'Order';
+      if (orderTimeEl) orderTimeEl.textContent = orderTimeStr;
+      if (custNameEl) custNameEl.textContent = activeOrder.customer?.name || 'Customer';
+      if (custEmailEl) custEmailEl.textContent = activeOrder.customer?.email || '—';
+      if (custPhoneEl) custPhoneEl.textContent = activeOrder.customer?.phone || '—';
+      if (custNotesEl) custNotesEl.textContent = activeOrder.customer?.notes ? `"${activeOrder.customer.notes}"` : 'None';
+
+      if (payMethodEl) payMethodEl.textContent = (activeOrder.paymentMethod || 'GCash').toUpperCase();
+      if (payRefEl) payRefEl.textContent = activeOrder.refNumber || '—';
+      if (payTotalEl) payTotalEl.textContent = formatMoney(activeOrder.total || 0);
 
     // Proof of Payment Box
     const proofWrap = document.getElementById('sheet-proof-wrap');
@@ -398,7 +513,11 @@
       `;
     }
 
-    overlay.classList.add('open');
+      overlay.classList.add('open');
+    } catch (err) {
+      console.error('Error opening order sheet:', err);
+      showToast('Error displaying order: ' + err.message, '⚠️');
+    }
   }
 
   function closeOrderSheet() {
@@ -553,6 +672,17 @@
 
     loadAndRender();
 
+    // Check for direct order ID in URL (e.g. tapped from system notification)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const deepOrderId = urlParams.get('orderId');
+      if (deepOrderId) {
+        setTimeout(() => {
+          openOrderSheet(deepOrderId);
+        }, 350);
+      }
+    } catch (e) {}
+
     // Listen to real-time events from Cloud Firestore Sync
     window.addEventListener('mbm_orders_synced', (e) => {
       const orders = e.detail || [];
@@ -581,6 +711,7 @@
     window.switchNav = switchNav;
     window.toggleSound = toggleSound;
     window.playSweetChime = playSweetChime;
+    window.playKaChing = playSweetChime;
     window.requestNotificationPermission = requestNotificationPermission;
   });
 })();

@@ -55,13 +55,20 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          tag_name: mobile-v1.0
-          name: "📱 MadeByMitzi Mobile Order Manager v1.0"
+          tag_name: mobile-v1.1
+          name: "📱 MadeByMitzi Mobile Order Manager v1.1"
           body: |
-            ### 🌸 MadeByMitzi Mobile App (.APK)
+            ### 🌸 MadeByMitzi Mobile App (.APK) v1.1
             Official Android Mobile App for instant order alerts, real-time GCash proof inspection, and 1-tap dispatching.
             
-            **Download the APK directly to your phone:**
+            #### 🚀 What's New in v1.1:
+            - 🔔 **Ka-Ching! Sound Alert**: Authentic cash register chime whenever a new order arrives!
+            - ⚡ **Background & Closed App Alerts**: Active order listener service notifies you even when the app is in the background or closed!
+            - 📱 **Tablet & Landscape Optimization**: Optimized dual-column layout and centered modal dialog for tablets and POS displays.
+            - 🛠️ **Fixed Order Details Modal**: Pinned action buttons (Approve & Dispatch / Decline) so they are always visible without scrolling issues.
+            - 🔗 **Native Notification Bridge**: Direct Android status-bar heads-up notifications with tap-to-open.
+            
+            **Download the APK directly to your phone or tablet:**
             👉 Click `MadeByMitzi-Orders.apk` below to download and install.
           files: build-output/MadeByMitzi-Orders.apk
         env:

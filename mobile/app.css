@@ -590,39 +590,43 @@ body {
   box-shadow: 0 2px 6px rgba(255, 132, 186, 0.4);
 }
 
-/* Modal Bottom Sheet */
+/* Modal Bottom Sheet & Tablet Dialog */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(38, 21, 43, 0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 300;
+  background: rgba(38, 21, 43, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
   display: flex;
   align-items: flex-end;
+  justify-content: center;
+  visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .modal-overlay.open {
+  visibility: visible;
   opacity: 1;
   pointer-events: auto;
 }
 
 .bottom-sheet {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   margin: 0 auto;
   background: var(--white);
   border-radius: 24px 24px 0 0;
-  max-height: 90vh;
+  max-height: 86vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
-  padding-bottom: calc(14px + env(safe-area-inset-bottom, 16px));
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+  z-index: 1001;
 }
 
 .modal-overlay.open .bottom-sheet {
@@ -630,12 +634,14 @@ body {
 }
 
 .sheet-header {
-  padding: 12px 18px;
+  padding: 14px 18px;
   border-bottom: 1.5px solid var(--cream-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
+  background: white;
+  flex-shrink: 0;
 }
 
 .sheet-handle {
@@ -643,7 +649,7 @@ body {
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 36px;
+  width: 40px;
   height: 4px;
   background: var(--cream-border);
   border-radius: var(--radius-full);
@@ -651,18 +657,27 @@ body {
 
 .sheet-title {
   font-family: var(--font-head);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--dark);
-  margin-top: 6px;
 }
 
 .sheet-body {
   padding: 16px 18px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.sheet-footer {
+  padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 16px)) 18px;
+  background: white;
+  border-top: 1.5px solid var(--cream-border);
+  flex-shrink: 0;
 }
 
 /* Proof of Payment Box in Modal */
@@ -719,12 +734,11 @@ body {
   padding-bottom: 0;
 }
 
-/* Sheet Action Buttons */
+/* Sheet Action Buttons — High Visibility Approve & Decline */
 .sheet-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 8px;
 }
 
 .btn-big-approve {
@@ -741,24 +755,35 @@ body {
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(91, 140, 81, 0.3);
+  box-shadow: 0 4px 14px rgba(91, 140, 81, 0.35);
   transition: all 0.15s ease;
 }
 
 .btn-big-approve:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
+  filter: brightness(0.95);
 }
 
 .btn-big-decline {
-  background: white;
-  color: var(--danger);
-  border: 1.5px solid #FFC9C9;
-  padding: 11px 20px;
+  background: #FFF1F1;
+  color: #D32F2F;
+  border: 1.5px solid #FFCDD2;
+  padding: 12px 20px;
   border-radius: var(--radius-md);
   font-family: var(--font-head);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-big-decline:active {
+  background: #FFEBEE;
+  transform: scale(0.98);
 }
 
 /* Fullscreen Zoom Lightbox */
@@ -822,4 +847,149 @@ body {
 
 .app-toast.show {
   transform: translateX(-50%) translateY(0);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TABLET & LANDSCAPE RESPONSIVE OVERHAUL (Wide Screens & Tablets)
+   ══════════════════════════════════════════════════════════════════ */
+@media (min-width: 680px) {
+  .mobile-app-shell {
+    max-width: 860px;
+    box-shadow: 0 0 60px rgba(68, 45, 72, 0.1);
+    border-left: 1.5px solid var(--cream-border);
+    border-right: 1.5px solid var(--cream-border);
+  }
+
+  .app-header {
+    padding: 16px 28px;
+  }
+
+  .brand-title {
+    font-size: 1.35rem;
+  }
+
+  .metrics-strip {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    padding: 18px 24px;
+  }
+
+  .metric-card {
+    padding: 14px 16px;
+  }
+
+  .metric-num {
+    font-size: 1.45rem;
+  }
+
+  .tab-filters {
+    padding: 12px 24px;
+    gap: 10px;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    font-size: 0.92rem;
+  }
+
+  .search-wrap {
+    padding: 6px 24px 16px 24px;
+  }
+
+  .orders-container {
+    padding: 12px 24px 24px 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .order-card {
+    margin-bottom: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(68, 45, 72, 0.12);
+  }
+
+  /* Centered Tablet Modal Dialog */
+  .modal-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+  }
+
+  .bottom-sheet {
+    max-width: 640px;
+    border-radius: 28px;
+    max-height: 82vh;
+    transform: scale(0.92);
+    opacity: 0;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    box-shadow: 0 24px 60px rgba(38, 21, 43, 0.35);
+  }
+
+  .modal-overlay.open .bottom-sheet {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .sheet-handle {
+    display: none;
+  }
+
+  .sheet-header {
+    padding: 16px 24px;
+  }
+
+  .sheet-body {
+    padding: 20px 24px;
+  }
+
+  .sheet-footer {
+    padding: 16px 24px;
+  }
+
+  .sheet-actions {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .btn-big-approve {
+    flex: 2;
+  }
+
+  .btn-big-decline {
+    flex: 1;
+  }
+
+  .bottom-nav {
+    max-width: 860px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 24px 24px 0 0;
+    border-left: 1.5px solid var(--cream-border);
+    border-right: 1.5px solid var(--cream-border);
+    padding: 8px 24px;
+  }
+
+  .nav-item {
+    font-size: 0.82rem;
+  }
+}
+
+@media (min-width: 1080px) {
+  .mobile-app-shell {
+    max-width: 1000px;
+  }
+
+  .bottom-nav {
+    max-width: 1000px;
+  }
 }
