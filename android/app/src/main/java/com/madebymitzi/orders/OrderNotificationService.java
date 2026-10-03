@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class OrderNotificationService extends Service {
-    public static final String CHANNEL_ORDERS = "madebymitzi_orders_v2";
+    public static final String CHANNEL_ORDERS = "madebymitzi_orders_v3";
     public static final String CHANNEL_SERVICE = "madebymitzi_foreground_v1";
     private static final int SERVICE_NOTIFICATION_ID = 9001;
     private static final String PREFS_NAME = "mbm_orders_prefs";
@@ -60,6 +60,9 @@ public class OrderNotificationService extends Service {
             startForeground(SERVICE_NOTIFICATION_ID, buildForegroundNotification());
         }
 
+        // Keep Alarm cycle active
+        OrderAlarmReceiver.scheduleNext(this);
+
         if (!isRunning) {
             isRunning = true;
             startPollingLoop();
@@ -76,6 +79,9 @@ public class OrderNotificationService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
+        // Ensure alarm cycle continues even if task swiped
+        OrderAlarmReceiver.scheduleNext(this);
+
         // If app task is swiped away from recent apps, restart service automatically
         Intent restartIntent = new Intent(getApplicationContext(), OrderNotificationService.class);
         PendingIntent pendingIntent = PendingIntent.getService(
@@ -122,7 +128,7 @@ public class OrderNotificationService extends Service {
             orderChannel.enableLights(true);
             orderChannel.setLightColor(Color.parseColor("#FF84BA"));
             orderChannel.enableVibration(true);
-            orderChannel.setVibrationPattern(new long[]{0, 250, 100, 350});
+            orderChannel.setVibrationPattern(new long[]{0, 300, 150, 300, 150, 400});
             orderChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
             Uri soundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kaching);
@@ -309,7 +315,7 @@ public class OrderNotificationService extends Service {
             .setColor(Color.parseColor("#FF84BA"))
             .setAutoCancel(true)
             .setSound(soundUri)
-            .setVibrate(new long[]{0, 250, 100, 350})
+            .setVibrate(new long[]{0, 300, 150, 300, 150, 400})
             .setContentIntent(pendingIntent);
 
         int notifId = (int) (System.currentTimeMillis() % 100000);
@@ -329,9 +335,9 @@ public class OrderNotificationService extends Service {
             Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 250, 100, 350}, -1));
+                    vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 300, 150, 300, 150, 400}, -1));
                 } else {
-                    vibrator.vibrate(new long[]{0, 250, 100, 350}, -1);
+                    vibrator.vibrate(new long[]{0, 300, 150, 300, 150, 400}, -1);
                 }
             }
         } catch (Exception e) {

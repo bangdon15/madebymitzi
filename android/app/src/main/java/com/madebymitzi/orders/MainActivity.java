@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -81,6 +83,20 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         }
+
+        @JavascriptInterface
+        public void requestBatteryExemption() {
+            requestBatteryOptimizationExemption();
+        }
+
+        @JavascriptInterface
+        public boolean isBatteryOptimized() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                return pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName());
+            }
+            return false;
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -88,8 +104,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Start background order alert service immediately
+        // Start background order alert service & persistent alarm cycle immediately
         startOrderAlertService();
+        OrderAlarmReceiver.scheduleNext(this);
+
+        // Request battery optimization exemption for background sleep notifications
+        requestBatteryOptimizationExemption();
 
         // Request notification permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -186,6 +206,22 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @SuppressLint("BatteryLife")
+    private void requestBatteryOptimizationExemption() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

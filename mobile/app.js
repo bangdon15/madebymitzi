@@ -513,6 +513,7 @@
       `;
     }
 
+      overlay.style.display = 'flex';
       overlay.classList.add('open');
     } catch (err) {
       console.error('Error opening order sheet:', err);
@@ -522,7 +523,10 @@
 
   function closeOrderSheet() {
     const overlay = document.getElementById('order-sheet-modal');
-    if (overlay) overlay.classList.remove('open');
+    if (overlay) {
+      overlay.classList.remove('open');
+      overlay.style.display = 'none';
+    }
   }
 
   // Quick Approve Order from list card
@@ -671,6 +675,18 @@
     }
 
     loadAndRender();
+
+    // Configure live alert banner based on environment (Native Android APK vs Browser)
+    const topBanner = document.getElementById('sound-banner-top');
+    if (topBanner) {
+      if (window.AndroidBridge) {
+        topBanner.innerHTML = `<span><i class="fas fa-bolt" style="color:#FFF;"></i> 24/7 Sleep Alerts Active (Ka-Ching 3x)</span>
+          <button class="sound-toggle-btn" onclick="playSweetChime()"><i class="fas fa-play"></i> Test Ka-Ching</button>`;
+      } else {
+        topBanner.innerHTML = `<span><i class="fas fa-bell"></i> Live Alerts Active</span>
+          <a href="https://github.com/bangdon15/madebymitzi/releases/download/mobile-v1.2/MadeByMitzi-Orders.apk" style="font-size:0.75rem; background:#FFF; color:var(--pink-dark); padding:4px 10px; border-radius:12px; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:5px;"><i class="fab fa-android"></i> Get APK for Sleep Alerts</a>`;
+      }
+    }
 
     // Check for direct order ID in URL (e.g. tapped from system notification)
     try {

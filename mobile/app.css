@@ -594,43 +594,45 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(38, 21, 43, 0.65);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 1000;
-  display: flex;
+  background: rgba(38, 21, 43, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
   align-items: flex-end;
   justify-content: center;
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .modal-overlay.open {
-  visibility: visible;
-  opacity: 1;
-  pointer-events: auto;
+  display: flex !important;
 }
 
 .bottom-sheet {
   width: 100%;
   max-width: 520px;
   margin: 0 auto;
-  background: var(--white);
+  background: #FFFFFF !important;
   border-radius: 24px 24px 0 0;
-  max-height: 86vh;
+  max-height: 88vh;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
-  z-index: 1001;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
+  z-index: 2001;
+  position: relative;
+  animation: modalSheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.modal-overlay.open .bottom-sheet {
-  transform: translateY(0);
+@keyframes modalSheetSlideUp {
+  from {
+    transform: translateY(60px);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .sheet-header {
@@ -928,11 +930,20 @@ body {
   .bottom-sheet {
     max-width: 640px;
     border-radius: 28px;
-    max-height: 82vh;
-    transform: scale(0.92);
-    opacity: 0;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
-    box-shadow: 0 24px 60px rgba(38, 21, 43, 0.35);
+    max-height: 84vh;
+    box-shadow: 0 24px 60px rgba(38, 21, 43, 0.45);
+    animation: modalTabletPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes modalTabletPop {
+    from {
+      transform: scale(0.92);
+      opacity: 0.6;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   .modal-overlay.open .bottom-sheet {
