@@ -3,6 +3,8 @@ node_modules/
 .system_generated/
 take-screenshots.js
 *.zip
+*.apk
+apk-builds/
 
 # Environment variables & credentials
 .env
