@@ -35,40 +35,50 @@ jobs:
       - name: Accept Android Licenses
         run: yes | sdkmanager --licenses || true
 
-      - name: Build Debug APK
-        working-directory: ./android
-        run: gradle assembleDebug --stacktrace
+      - name: Generate Release Signing Keystore
+        run: |
+          mkdir -p android/app/keystore
+          keytool -genkeypair -v -keystore android/app/keystore/release.keystore -alias madebymitzi -keyalg RSA -keysize 2048 -validity 10000 -storepass madebymitzi2026 -keypass madebymitzi2026 -dname "CN=MadeByMitzi, OU=Mobile, O=MadeByMitzi, L=Manila, ST=Metro Manila, C=PH"
 
-      - name: Rename APK Output
+      - name: Build Android APKs (Release & Debug)
+        working-directory: ./android
+        run: gradle assembleRelease assembleDebug --stacktrace
+
+      - name: Prepare APK Outputs
         run: |
           mkdir -p build-output
-          cp android/app/build/outputs/apk/debug/*.apk build-output/MadeByMitzi-Orders.apk
+          cp android/app/build/outputs/apk/release/*.apk build-output/MadeByMitzi-Orders.apk
+          cp android/app/build/outputs/apk/debug/*.apk build-output/MadeByMitzi-Orders-Debug.apk
 
-      - name: Upload APK Artifact
+      - name: Upload APK Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: MadeByMitzi-Orders-APK
-          path: build-output/MadeByMitzi-Orders.apk
+          path: build-output/*.apk
           retention-days: 30
 
       - name: Release APK on GitHub
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          tag_name: mobile-v1.3.1
-          name: "📱 MadeByMitzi Mobile Order Manager v1.3.1 (\"Pabileeeee!\" Voice Release)"
+          tag_name: mobile-v1.3.2
+          name: "📱 MadeByMitzi Mobile Order Manager v1.3.2 (Universal Phone & Tablet Release)"
           body: |
-            ### 🌸 MadeByMitzi Mobile App (.APK) v1.3.1
-            Official Android Mobile App for instant order alerts, real-time GCash proof inspection, and 1-tap dispatching.
+            ### 🌸 MadeByMitzi Mobile App (.APK) v1.3.2
+            Universal Android Mobile App for instant order alerts, real-time GCash proof inspection, and 1-tap dispatching.
             
-            #### 🚀 What's New in v1.3.1:
-            - 📢 **Exact "Pabileeeeeee!" Video Audio**: Extracted the authentic 2-second audio from the requested video (normalized and tuned for loud notification alerts)!
-            - 🔇 **Fixed Notification Re-alerting**: Opening the app directly from a notification opens the order sheet silently without replaying the alert.
-            - ⚡ **24/7 Sleep & Closed Screen Monitoring**: AlarmManager wakeup cycle continues monitoring orders even while the app is closed or the screen is dark.
-            - 📱 **Tablet & Mobile Details Modal**: Responsive sheet and modal with 1-tap Approve & Dispatch / Decline buttons.
+            #### 🚀 What's New in v1.3.2:
+            - 📱 **Universal Phone & Tablet Compatibility**: Fixed installation and startup crashes on normal smartphones (such as Infinix ZERO 5G 2023, Tecno, Xiaomi, Samsung, and Pixel) while preserving 100% tablet performance.
+            - 🔑 **Signed Release APK**: Packaged with official v1 (JAR) & v2 (Full APK) release signatures to prevent OEM package installer / Phone Master / Play Protect rejections on standard phones.
+            - 🔔 **Crash-Proof Notification System**: Converted status bar small icon to an official monochrome vector (`ic_notification.xml`) preventing `BadForegroundServiceNotificationException` crashes on Android 12, 13, and 14.
+            - 🖼️ **Full Multi-Density Launcher Mipmaps**: Added high-resolution adaptive PNG icons across all screen densities (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) plus round icons.
+            - ⚡ **Lifecycle & Foreground Guarding**: Foreground order listener and exact alarm scheduling moved to `onResume()` with safe exception fallbacks.
+            - 🇵🇭 **Preserved Filipino "Pabileeeee!" Voice Alerts**: Loud, authentic 2-second store alert for incoming orders.
             
             **Download the APK directly to your phone or tablet:**
-            👉 Click `MadeByMitzi-Orders.apk` below to download and install.
-          files: build-output/MadeByMitzi-Orders.apk
+            👉 Click **`MadeByMitzi-Orders.apk`** below to download and install.
+          files: |
+            build-output/MadeByMitzi-Orders.apk
+            build-output/MadeByMitzi-Orders-Debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

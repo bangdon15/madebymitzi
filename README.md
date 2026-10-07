@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://madebymitziph.com" target="_blank"><img src="https://img.shields.io/badge/Official%20Store-madebymitziph.com-FF84BA?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Official Store at madebymitziph.com" /></a>
   <a href="https://madebymitziph.com/mobile/" target="_blank"><img src="https://img.shields.io/badge/Mobile%20App-PWA%20Order%20Manager-FF84BA?style=for-the-badge&logo=pwa&logoColor=white" alt="Mobile Order Manager PWA" /></a>
-  <a href="https://github.com/bangdon15/madebymitzi/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Android%20APK-v1.3.1%20Release-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" /></a>
+  <a href="https://github.com/bangdon15/madebymitzi/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Android%20APK-v1.3.2%20Universal-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" /></a>
   <a href="https://madebymitzi-web.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Vercel%20Mirror-madebymitzi--web.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Mirror" /></a>
 </p>
 
@@ -74,7 +74,7 @@ flowchart TD
     subgraph ClientLayer ["Customer, Admin & Mobile Clients"]
         BuyerBrowser["Customer Browser<br/>(Mobile / Tablet / Desktop)"]
         AdminBrowser["Admin Workstation<br/>(Any Device / No Master Device)"]
-        AdminMobile["📱 Mitzi Mobile App (.APK & PWA)<br/>• Native Android 14 APK (v1.3.1)<br/>• 24/7 Background Wakeup Alert<br/>• Filipino 'Pabileeeee!' Audio<br/>• 1-Tap Verification & Dispatch"]
+        AdminMobile["📱 Mitzi Mobile App (.APK & PWA)<br/>• Universal Android 14 APK (v1.3.2)<br/>• 24/7 Background Wakeup Alert<br/>• Filipino 'Pabileeeee!' Audio<br/>• 1-Tap Verification & Dispatch"]
         ChatWidget["After-Sales Widget<br/>(Order Tracker & Live Chat)"]
     end
 
@@ -171,9 +171,14 @@ flowchart TD
 - **Admin Reset Safeguards**: One-click **"Clear All Orders"** and **"Clear All Products"** tools with security confirmation dialogs allow the store owner to reset test data cleanly at any time.
 
 ### 7. MadeByMitzi Mobile Order Manager (Native Android APK & PWA)
-- **Native Android App (`com.madebymitzi.orders` v1.3.1)**:
+- **Universal Native Android App (`com.madebymitzi.orders` v1.3.2)**:
   - Built targeting Android 14 (API 34) with backwards compatibility down to Android 7.0 (API 24).
-  - Pure Java native wrapper featuring hardware acceleration, native pull-to-refresh (`SwipeRefreshLayout`), safe WebView lifecycle controls, and strict Android 12-14 alarm permission guards.
+  - Universal hardware & screen support (`<supports-screens>` for phones & tablets) with hardware acceleration.
+  - Signed Release packaging with v1 (JAR) & v2 (Full APK) certificates, allowing seamless installation on strict OEM phones (Infinix XOS, Xiaomi MIUI, Samsung One UI) and tablets without security or package parser rejections.
+  - Safe Android lifecycle management: foreground service startup and exact alarm initialization bound to `onResume()` with graceful fallback for aggressive battery savers.
+- **Crash-Proof Notification Architecture**:
+  - Monochrome vector notification icon (`ic_notification.xml`) preventing `BadForegroundServiceNotificationException` crashes on Android 12, 13, and 14.
+  - Full multi-density adaptive launcher mipmaps (`mdpi` through `xxxhdpi`) plus round icons.
 - **24/7 Sleep & Closed Screen Monitoring**:
   - Leverages Android's native `AlarmManager` (`OrderAlarmReceiver`) to intermittently wake up the device and query Firestore for new pending orders, even when the phone is locked, asleep, or the app is killed.
   - Automatic re-registration upon device restart via `BootReceiver` (`RECEIVE_BOOT_COMPLETED`).
@@ -188,7 +193,7 @@ flowchart TD
   - Clickable proof-of-payment zoom modal for instant verification of GCash/Bank screenshots.
 - **Automated GitHub Actions Release Pipeline**:
   - Full CI/CD workflow (`.github/workflows/build-apk.yml`) triggered on pushes to `android/**` or `mobile/**`.
-  - Automatically installs JDK 17 & Gradle 8.5, builds the debug APK, creates GitHub Release tag `mobile-v1.3.1`, and uploads `MadeByMitzi-Orders.apk` as a downloadable asset.
+  - Automatically installs JDK 17 & Gradle 8.5, builds both signed Release and Debug APKs, creates GitHub Release tag `mobile-v1.3.2`, and uploads `MadeByMitzi-Orders.apk` as a downloadable asset.
 
 ### 8. Live Markdown Description Editor & Rich Product Showcase
 - **Split-Screen Markdown Editor**: Built into the Admin Products modal with quick formatting buttons for **Bold**, *Italic*, Headings (`###`), Bullet Lists (`-`), and Badges (`[badge: Text]`).

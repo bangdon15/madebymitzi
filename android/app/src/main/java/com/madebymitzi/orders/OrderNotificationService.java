@@ -155,15 +155,25 @@ public class OrderNotificationService extends Service {
             PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        return new NotificationCompat.Builder(this, CHANNEL_SERVICE)
+        android.graphics.Bitmap largeIcon = null;
+        try {
+            largeIcon = android.graphics.BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        } catch (Throwable t) {}
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_SERVICE)
             .setContentTitle("🌸 MadeByMitzi Order Alerts Active")
             .setContentText("Listening for incoming orders & payments in background...")
-            .setSmallIcon(R.drawable.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setColor(Color.parseColor("#FF84BA"))
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build();
+            .setPriority(NotificationCompat.PRIORITY_LOW);
+
+        if (largeIcon != null) {
+            builder.setLargeIcon(largeIcon);
+        }
+
+        return builder.build();
     }
 
     private void startPollingLoop() {
@@ -308,16 +318,26 @@ public class OrderNotificationService extends Service {
 
         Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.pabili);
 
+        android.graphics.Bitmap largeIcon = null;
+        try {
+            largeIcon = android.graphics.BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
+        } catch (Throwable t) {}
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ORDERS)
-            .setSmallIcon(R.drawable.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_EVENT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setColor(Color.parseColor("#FF84BA"))
-            .setAutoCancel(true)
+            .setColor(Color.parseColor("#FF84BA"));
+
+        if (largeIcon != null) {
+            builder.setLargeIcon(largeIcon);
+        }
+
+        builder.setAutoCancel(true)
             .setSound(soundUri)
             .setVibrate(new long[]{0, 250, 150, 350})
             .setContentIntent(pendingIntent);

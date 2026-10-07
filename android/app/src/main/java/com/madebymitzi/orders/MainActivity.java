@@ -111,13 +111,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefresh.addView(webView);
         setContentView(swipeRefresh);
 
-        // Safe background service initialization
-        try {
-            startOrderAlertService();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-
+        // Safe background alarm schedule
         try {
             OrderAlarmReceiver.scheduleNext(this);
         } catch (Throwable t) {
@@ -134,15 +128,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Throwable t) {
             t.printStackTrace();
         }
-
-        // Postpone battery optimization request until UI is rendered
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            try {
-                requestBatteryOptimizationExemption();
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-        }, 2000);
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -217,6 +202,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean serviceStarted = false;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!serviceStarted) {
+            serviceStarted = true;
+            startOrderAlertService();
+        }
+    }
+
     private void startOrderAlertService() {
         try {
             Intent serviceIntent = new Intent(this, OrderNotificationService.class);
@@ -238,7 +234,9 @@ public class MainActivity extends AppCompatActivity {
                 if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
                     Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                     intent.setData(Uri.parse("package:" + getPackageName()));
-                    startActivity(intent);
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
