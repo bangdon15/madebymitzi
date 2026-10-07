@@ -61,18 +61,18 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          tag_name: mobile-v1.3.2
-          name: "📱 MadeByMitzi Mobile Order Manager v1.3.2 (Universal Phone & Tablet Release)"
+          tag_name: mobile-v1.3.3
+          name: "📱 MadeByMitzi Mobile Order Manager v1.3.3 (Launcher Icon & Universal Release)"
           body: |
-            ### 🌸 MadeByMitzi Mobile App (.APK) v1.3.2
+            ### 🌸 MadeByMitzi Mobile App (.APK) v1.3.3
             Universal Android Mobile App for instant order alerts, real-time GCash proof inspection, and 1-tap dispatching.
             
-            #### 🚀 What's New in v1.3.2:
-            - 📱 **Universal Phone & Tablet Compatibility**: Fixed installation and startup crashes on normal smartphones (such as Infinix ZERO 5G 2023, Tecno, Xiaomi, Samsung, and Pixel) while preserving 100% tablet performance.
+            #### 🚀 What's New in v1.3.3:
+            - 🎨 **Restored App Launcher Icon**: Resolved the missing/blank app icon issue on Android 12-14 home screens and launchers (such as Infinix XOS, Xiaomi, Samsung, and Pixel) by eliminating adaptive icon circular resource references and deploying full high-resolution PNG mipmap suites (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) plus round icons.
+            - 📱 **Universal Phone & Tablet Compatibility**: 100% verified working on smartphones (Infinix ZERO 5G 2023, etc.) and tablets.
             - 🔑 **Signed Release APK**: Packaged with official v1 (JAR) & v2 (Full APK) release signatures to prevent OEM package installer / Phone Master / Play Protect rejections on standard phones.
-            - 🔔 **Crash-Proof Notification System**: Converted status bar small icon to an official monochrome vector (`ic_notification.xml`) preventing `BadForegroundServiceNotificationException` crashes on Android 12, 13, and 14.
-            - 🖼️ **Full Multi-Density Launcher Mipmaps**: Added high-resolution adaptive PNG icons across all screen densities (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) plus round icons.
-            - ⚡ **Lifecycle & Foreground Guarding**: Foreground order listener and exact alarm scheduling moved to `onResume()` with safe exception fallbacks.
+            - 🔔 **Crash-Proof Notification System**: Monochrome vector notification icon (`ic_notification.xml`) preventing `BadForegroundServiceNotificationException` crashes on Android 12, 13, and 14.
+            - ⚡ **Lifecycle & Foreground Guarding**: Foreground order listener and exact alarm scheduling bound to `onResume()` with safe exception fallbacks.
             - 🇵🇭 **Preserved Filipino "Pabileeeee!" Voice Alerts**: Loud, authentic 2-second store alert for incoming orders.
             
             **Download the APK directly to your phone or tablet:**

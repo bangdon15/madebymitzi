@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://madebymitziph.com" target="_blank"><img src="https://img.shields.io/badge/Official%20Store-madebymitziph.com-FF84BA?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Official Store at madebymitziph.com" /></a>
   <a href="https://madebymitziph.com/mobile/" target="_blank"><img src="https://img.shields.io/badge/Mobile%20App-PWA%20Order%20Manager-FF84BA?style=for-the-badge&logo=pwa&logoColor=white" alt="Mobile Order Manager PWA" /></a>
-  <a href="https://github.com/bangdon15/madebymitzi/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Android%20APK-v1.3.2%20Universal-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" /></a>
+  <a href="https://github.com/bangdon15/madebymitzi/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Android%20APK-v1.3.3%20Universal-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" /></a>
   <a href="https://madebymitzi-web.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Vercel%20Mirror-madebymitzi--web.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Mirror" /></a>
 </p>
 
@@ -74,7 +74,7 @@ flowchart TD
     subgraph ClientLayer ["Customer, Admin & Mobile Clients"]
         BuyerBrowser["Customer Browser<br/>(Mobile / Tablet / Desktop)"]
         AdminBrowser["Admin Workstation<br/>(Any Device / No Master Device)"]
-        AdminMobile["📱 Mitzi Mobile App (.APK & PWA)<br/>• Universal Android 14 APK (v1.3.2)<br/>• 24/7 Background Wakeup Alert<br/>• Filipino 'Pabileeeee!' Audio<br/>• 1-Tap Verification & Dispatch"]
+        AdminMobile["📱 Mitzi Mobile App (.APK & PWA)<br/>• Universal Android 14 APK (v1.3.3)<br/>• 24/7 Background Wakeup Alert<br/>• Filipino 'Pabileeeee!' Audio<br/>• 1-Tap Verification & Dispatch"]
         ChatWidget["After-Sales Widget<br/>(Order Tracker & Live Chat)"]
     end
 
@@ -171,7 +171,7 @@ flowchart TD
 - **Admin Reset Safeguards**: One-click **"Clear All Orders"** and **"Clear All Products"** tools with security confirmation dialogs allow the store owner to reset test data cleanly at any time.
 
 ### 7. MadeByMitzi Mobile Order Manager (Native Android APK & PWA)
-- **Universal Native Android App (`com.madebymitzi.orders` v1.3.2)**:
+- **Universal Native Android App (`com.madebymitzi.orders` v1.3.3)**:
   - Built targeting Android 14 (API 34) with backwards compatibility down to Android 7.0 (API 24).
   - Universal hardware & screen support (`<supports-screens>` for phones & tablets) with hardware acceleration.
   - Signed Release packaging with v1 (JAR) & v2 (Full APK) certificates, allowing seamless installation on strict OEM phones (Infinix XOS, Xiaomi MIUI, Samsung One UI) and tablets without security or package parser rejections.
