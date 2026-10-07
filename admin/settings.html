@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Settings — MadeByMitzi Admin</title>
+  <title>General Settings — MadeByMitzi Admin</title>
   <link rel="icon" type="image/jpeg" href="../images/madebymitzi.jpg" />
   <link rel="apple-touch-icon" href="../images/madebymitzi.jpg" />
   <link rel="stylesheet" href="../css/style.css" />
@@ -155,8 +155,8 @@
         </a>
         <div class="admin-nav-section">Configuration</div>
         <a href="settings.html" class="admin-nav-link active">
-          <span class="nav-icon"><i class="fas fa-qrcode"></i></span>
-          <span>Payment QR Settings</span>
+          <span class="nav-icon"><i class="fas fa-cog"></i></span>
+          <span>General Settings</span>
         </a>
         <div class="admin-nav-section">Mobile & Real-Time</div>
         <a href="../mobile/index.html" class="admin-nav-link" target="_blank" style="color:#FF84BA;font-weight:700;">
@@ -174,10 +174,9 @@
     <!-- Main Content -->
     <main class="admin-main">
       <div>
-        <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">Shop & Payment
-          Settings</h1>
+        <h1 style="font-family:var(--font-head);font-weight:900;font-size:1.8rem;color:var(--gray-800);">General Settings</h1>
         <p style="color:var(--gray-500);font-size:0.92rem;margin-top:4px;">Customize storefront announcement banner,
-          creator profile, background artwork, and payment QR codes</p>
+          creator profile, background artwork, customer feedback & reviews, and payment QR settings</p>
       </div>
 
       <div class="settings-grid">
@@ -839,6 +838,12 @@
             <div style="margin-bottom:14px;">
               <label class="form-label">Review Comment / Feedback Text *</label>
               <textarea id="adm-rev-text" class="form-input form-textarea" rows="3" placeholder="Write or paste customer feedback..."></textarea>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;font-weight:700;color:var(--gray-800);">
+                <input type="checkbox" id="adm-rev-show" checked style="cursor:pointer;width:17px;height:17px;accent-color:var(--forest-moss);" />
+                <span>Display on Storefront (Live Customer Testimonial)</span>
+              </label>
             </div>
             <div style="display:flex;gap:10px;">
               <button type="button" class="btn btn-green btn-sm" onclick="saveAdminNewReview()">
@@ -1553,6 +1558,10 @@
                 <span style="font-weight:800;font-size:0.92rem;color:var(--gray-800);">${r.name || 'Anonymous'}</span>
                 <span style="color:#F59E0B;font-size:0.88rem;letter-spacing:1px;">${stars}</span>
                 <span style="font-size:0.75rem;background:#EBF3E8;color:var(--forest-moss);padding:2px 8px;border-radius:10px;font-weight:700;">${prodName}</span>
+                <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:0.75rem;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid ${r.showOnStorefront !== false ? '#A7F3D0' : '#E5E7EB'};background:${r.showOnStorefront !== false ? '#ECFDF5' : '#F9FAFB'};color:${r.showOnStorefront !== false ? '#065F46' : '#6B7280'};">
+                  <input type="checkbox" ${r.showOnStorefront !== false ? 'checked' : ''} onchange="toggleAdminReviewStorefront('${r.id}', this.checked)" style="cursor:pointer;" />
+                  <span>${r.showOnStorefront !== false ? 'Storefront: Visible' : 'Storefront: Hidden'}</span>
+                </label>
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:0.75rem;color:var(--gray-400);">${dateStr}</span>
@@ -1572,6 +1581,22 @@
       }).join('');
     }
     window.renderAdminReviews = renderAdminReviews;
+
+    async function toggleAdminReviewStorefront(id, isChecked) {
+      const reviews = DB.getReviews ? DB.getReviews() : [];
+      const review = reviews.find(r => r.id === id);
+      if (!review) return;
+      review.showOnStorefront = isChecked;
+      try {
+        await DB.addReview(review);
+        renderAdminReviews();
+        showToast(isChecked ? 'Review set to display on Storefront! ⭐' : 'Review hidden from Storefront.', 'info');
+      } catch (err) {
+        console.error('Toggle storefront display error:', err);
+        showToast('Error updating review display.', 'error');
+      }
+    }
+    window.toggleAdminReviewStorefront = toggleAdminReviewStorefront;
 
     function toggleAdminNewReviewForm(forceOpen = false) {
       const form = document.getElementById('admin-new-review-form');
@@ -1599,6 +1624,7 @@
       const prodEl = document.getElementById('adm-rev-product');
       const rateEl = document.getElementById('adm-rev-rating');
       const textEl = document.getElementById('adm-rev-text');
+      const showEl = document.getElementById('adm-rev-show');
       const titleEl = document.getElementById('adm-rev-form-title');
       const btnEl = document.getElementById('adm-rev-submit-text');
 
@@ -1608,6 +1634,7 @@
       if (prodEl) prodEl.value = 'general';
       if (rateEl) rateEl.value = '5';
       if (textEl) textEl.value = '';
+      if (showEl) showEl.checked = true;
       if (titleEl) titleEl.textContent = 'Add Customer Review / Testimonial';
       if (btnEl) btnEl.textContent = 'Save & Sync Review';
     }
@@ -1627,6 +1654,7 @@
       const prodEl = document.getElementById('adm-rev-product');
       const rateEl = document.getElementById('adm-rev-rating');
       const textEl = document.getElementById('adm-rev-text');
+      const showEl = document.getElementById('adm-rev-show');
       const titleEl = document.getElementById('adm-rev-form-title');
       const btnEl = document.getElementById('adm-rev-submit-text');
 
@@ -1636,6 +1664,7 @@
       if (prodEl) prodEl.value = review.productId || 'general';
       if (rateEl) rateEl.value = String(review.rating || 5);
       if (textEl) textEl.value = review.text || '';
+      if (showEl) showEl.checked = review.showOnStorefront !== false;
       if (titleEl) titleEl.textContent = 'Customize / Edit Customer Review';
       if (btnEl) btnEl.textContent = 'Update & Sync Review';
 
@@ -1655,6 +1684,7 @@
       const productId = document.getElementById('adm-rev-product')?.value || 'general';
       const rating = parseInt(document.getElementById('adm-rev-rating')?.value || '5', 10);
       const text = document.getElementById('adm-rev-text')?.value.trim();
+      const showOnStorefront = document.getElementById('adm-rev-show')?.checked !== false;
 
       if (!name || !text) {
         showToast('Please enter both customer name and feedback text.', 'error');
@@ -1665,7 +1695,8 @@
         name,
         productId,
         rating,
-        text
+        text,
+        showOnStorefront
       };
 
       if (editingId) {

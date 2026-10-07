@@ -999,7 +999,8 @@ const FirebaseService = {
       rating: Number(review.rating) || 5,
       text: review.text || '',
       createdAt: review.createdAt || new Date().toISOString(),
-      status: review.status || 'approved'
+      status: review.status || 'approved',
+      showOnStorefront: review.showOnStorefront !== false
     };
 
     if (this.db) {

@@ -1207,15 +1207,18 @@
         if (cur) prodSelect.value = cur;
       }
 
-      if (totalReviewsEl) totalReviewsEl.textContent = reviews.length;
+      const visibleReviews = reviews.filter(r => r.showOnStorefront !== false);
+      const displayed = visibleReviews.slice(0, 8);
+
+      if (totalReviewsEl) totalReviewsEl.textContent = displayed.length;
       const overallRatingEl = document.getElementById('overall-rating-num');
-      if (overallRatingEl && reviews.length > 0) {
-        const avg = reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviews.length;
+      if (overallRatingEl && displayed.length > 0) {
+        const avg = displayed.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / displayed.length;
         overallRatingEl.textContent = (Math.round(avg * 10) / 10).toFixed(1);
       }
 
       reviewsGrid.innerHTML = '';
-      if (reviews.length === 0) {
+      if (displayed.length === 0) {
         reviewsGrid.innerHTML = `
           <div style="grid-column: 1 / -1; text-align: center; padding: 36px 20px; color: var(--gray-500); background: white; border-radius: var(--radius-lg); border: 1.5px dashed var(--gray-300);">
             <i class="fas fa-heart" style="font-size: 2rem; color: var(--bubblegum-pink, #FF84BA); margin-bottom: 8px; display: block;"></i>
@@ -1225,10 +1228,10 @@
         return;
       }
 
-      reviews.slice(0, 12).forEach(r => {
+      displayed.forEach(r => {
         const initials = (r.name || 'A').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
         const div = document.createElement('div');
-        div.className = 'review-card reveal';
+        div.className = 'review-card';
         const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Recent';
         div.innerHTML = `
           <div class="review-header">

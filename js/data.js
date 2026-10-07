@@ -568,6 +568,7 @@ const DB = {
     review.createdAt = review.createdAt || new Date().toISOString();
     review.rating = Number(review.rating) || 5;
     review.status = review.status || 'approved';
+    review.showOnStorefront = review.showOnStorefront !== false;
     review.name = (review.name || 'Kind Customer').trim();
     review.text = (review.text || '').trim();
     review.productId = review.productId || 'general';
@@ -1115,7 +1116,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: 'Super ganda ng designs! Natuwa talaga ang anak ko sa mga stickers. Very high quality and waterproof! ✨',
         createdAt: '2026-09-15T10:30:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       },
       {
         id: 'rev_002',
@@ -1125,7 +1127,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: 'The invitation was absolutely beautiful! Easy to edit in Canva and the colors were exactly as shown. Will definitely order again! 💖',
         createdAt: '2026-09-18T14:20:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       },
       {
         id: 'rev_003',
@@ -1135,7 +1138,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: 'Very cute stickers! Ang bilis pa ng delivery and responsive si seller sa questions. Highly recommended! 🌸',
         createdAt: '2026-09-22T09:15:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       },
       {
         id: 'rev_004',
@@ -1145,7 +1149,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: 'Our guests loved the invitations! So elegant and classy. Mitzi was very accommodating with our customizations. 💕',
         createdAt: '2026-09-25T16:45:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       },
       {
         id: 'rev_005',
@@ -1155,7 +1160,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: 'The kawaii stickers are so adorable! Perfect for my bullet journal. The quality is amazing — very durable! 🎀',
         createdAt: '2026-09-28T11:10:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       },
       {
         id: 'rev_006',
@@ -1165,7 +1171,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: 'My daughter loved the stickers for her party! Lahat ng bisita nagtatanong kung saan nabili. So worth it! ⭐',
         createdAt: '2026-10-01T13:30:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       },
       {
         id: 'rev_007',
@@ -1175,7 +1182,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: '10/10 service! The Canva editable link worked instantly after checkout. Saved me so much time for my baby\'s birthday party! 🥳',
         createdAt: '2026-10-03T15:20:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       },
       {
         id: 'rev_008',
@@ -1185,7 +1193,8 @@ Mitzi Santos — MadeByMitzi ✨`;
         productName: 'Storefront Experience',
         text: 'High resolution and very easy to print. Ang linaw ng printout kahit sa ordinary glossy sticker paper lang. Thank you Mitzi! 🥰',
         createdAt: '2026-10-05T08:40:00.000Z',
-        status: 'approved'
+        status: 'approved',
+        showOnStorefront: true
       }
     ];
     this.set(this.KEYS.REVIEWS, reviews);
