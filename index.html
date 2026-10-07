@@ -40,7 +40,7 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background-image: var(--current-hero-bg, url('images/background.jpg'));
+      background-image: var(--current-hero-bg, url('images/hero-active.jpg'));
       background-size: cover;
       background-position: center bottom;
       z-index: 0;
@@ -1040,7 +1040,7 @@
         const settings = DB.getSettings();
         const heroBg = document.getElementById('hero-bg');
         if (!heroBg) return;
-        const bg = settings.heroBackground || 'images/background.jpg';
+        const bg = settings.heroBackground || 'images/hero-active.jpg';
         heroBg.style.backgroundImage = `url('${bg}')`;
       } catch (e) {
         console.error('Error applying hero background:', e);
@@ -1055,7 +1055,7 @@
 
         let images = Array.isArray(settings.ctaSlideshowImages) && settings.ctaSlideshowImages.length > 0
           ? settings.ctaSlideshowImages
-          : (settings.heroBackground ? [settings.heroBackground] : ['images/background.jpg']);
+          : (settings.heroBackground ? [settings.heroBackground] : ['images/hero-active.jpg']);
 
         const N = images.length;
         if (N === 1) {

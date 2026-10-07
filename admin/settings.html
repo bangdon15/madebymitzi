@@ -947,7 +947,7 @@
     let gcashImageBase64 = null;
     let bankImageBase64 = null;
     let creatorAvatarBase64 = null;
-    let currentHeroBgUrl = 'images/background.jpg';
+    let currentHeroBgUrl = 'images/hero-active.jpg';
 
     function renderUploadedHeroBackgrounds() {
       const grid = document.getElementById('uploaded-hero-bgs-grid');
@@ -1027,7 +1027,7 @@
 
       let newActive = settings.heroBackground;
       if (settings.heroBackground === url) {
-        newActive = list.length > 0 ? list[0] : 'images/background.jpg';
+        newActive = list.length > 0 ? list[0] : 'images/hero-active.jpg';
         currentHeroBgUrl = newActive;
       }
 
@@ -1211,7 +1211,7 @@
       const settings = DB.getSettings();
 
       // Storefront Hero Background & Gradient Toggles
-      currentHeroBgUrl = settings.heroBackground || 'images/background.jpg';
+      currentHeroBgUrl = settings.heroBackground || 'images/hero-active.jpg';
       const toggleHeroGrad = document.getElementById('toggle-hero-gradient');
       if (toggleHeroGrad) toggleHeroGrad.checked = (settings.heroGradientEnabled !== false);
       const toggleCtaGrad = document.getElementById('toggle-cta-gradient');

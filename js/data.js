@@ -804,7 +804,7 @@ const DB = {
       creatorBio: 'Welcome to MadeByMitzi! 🌿 I specialize in creating aesthetic birthday invitation templates, printable party stationery, and waterproof sticker packs crafted with love. Every design is carefully hand-drawn and curated to make your celebrations personal, magical, and unforgettable.',
       shopAnnouncement: '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.',
       announcementText: '✨ Welcome to our artisan storefront! Get instant digital downloads & free Canva editable links with every invitation.',
-      heroBackground: 'images/background.jpg',
+      heroBackground: 'images/hero-active.jpg',
       heroGradientEnabled: true,
       ctaGradientEnabled: true,
       uploadedHeroBackgrounds: [],
