@@ -292,7 +292,7 @@ body.has-announcement .page-header {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('../images/background.jpg');
+  background-image: var(--current-hero-bg, url('../images/background.jpg'));
   background-size: cover;
   background-position: center bottom;
   z-index: 0;

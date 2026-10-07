@@ -4,18 +4,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MadeByMitzi — Designs That Tell Your Story ✨</title>
+  <title>MadeByMitzi — Little designs for your special moments ✨</title>
   <meta name="description"
     content="MadeByMitzi — Premium sticker designs and birthday invitation designs. Shop beautiful, customizable digital designs perfect for any occasion." />
   <meta name="keywords"
     content="stickers, birthday invitations, digital designs, custom stickers, party invitations, MadeByMitzi" />
-  <meta property="og:title" content="MadeByMitzi — Designs That Tell Your Story" />
+  <meta property="og:title" content="MadeByMitzi — Little designs for your special moments" />
   <meta property="og:description"
     content="Premium sticker designs and birthday invitation designs. Shop beautiful, customizable digital designs." />
   <link rel="icon" type="image/jpeg" href="images/madebymitzi.jpg" />
   <link rel="apple-touch-icon" href="images/madebymitzi.jpg" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script>
+    (function() {
+      try {
+        var s = localStorage.getItem('mbm_settings');
+        if (s) {
+          var cfg = JSON.parse(s);
+          if (cfg && cfg.heroBackground) {
+            document.documentElement.style.setProperty('--current-hero-bg', 'url("' + cfg.heroBackground + '")');
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
     /* ── Hero Artisan Layout ── */
     .hero {
@@ -27,7 +40,7 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('images/background.jpg');
+      background-image: var(--current-hero-bg, url('images/background.jpg'));
       background-size: cover;
       background-position: center bottom;
       z-index: 0;

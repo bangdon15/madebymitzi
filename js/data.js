@@ -781,7 +781,7 @@ const DB = {
       bankAccount: '',
       bankNumber: '',
       shopName: 'MadeByMitzi',
-      shopTagline: 'Designs That Tell Your Story ✨',
+      shopTagline: 'Little designs for your special moments ✨',
       shopEmail: 'madebymitzi26@gmail.com',
       orderNotifyTo: 'madebymitzi26@gmail.com',
       orderNotifyCc: 'madebymitzi26@gmail.com',
