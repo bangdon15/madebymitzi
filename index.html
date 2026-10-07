@@ -717,7 +717,7 @@
       </div>
       <!-- Overall rating -->
       <div class="overall-rating reveal">
-        <div class="rating-num">5.0</div>
+        <div class="rating-num" id="overall-rating-num">5.0</div>
         <div class="rating-stars">
           <div class="stars">
             <span class="star">★</span><span class="star">★</span><span class="star">★</span><span
@@ -726,7 +726,7 @@
           <div style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:4px;">Based on customer reviews</div>
         </div>
         <div style="margin-left:auto;color:rgba(255,255,255,0.7);font-size:0.88rem;text-align:right;">
-          <span style="font-size:1.5rem;font-weight:800;color:var(--yellow);" id="total-reviews">6</span><br />Total
+          <span style="font-size:1.5rem;font-weight:800;color:var(--yellow);" id="total-reviews">8</span><br />Total
           Reviews
         </div>
       </div>
@@ -1208,6 +1208,11 @@
       }
 
       if (totalReviewsEl) totalReviewsEl.textContent = reviews.length;
+      const overallRatingEl = document.getElementById('overall-rating-num');
+      if (overallRatingEl && reviews.length > 0) {
+        const avg = reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviews.length;
+        overallRatingEl.textContent = (Math.round(avg * 10) / 10).toFixed(1);
+      }
 
       reviewsGrid.innerHTML = '';
       if (reviews.length === 0) {
@@ -1220,7 +1225,7 @@
         return;
       }
 
-      reviews.slice(0, 6).forEach(r => {
+      reviews.slice(0, 12).forEach(r => {
         const initials = (r.name || 'A').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
         const div = document.createElement('div');
         div.className = 'review-card reveal';

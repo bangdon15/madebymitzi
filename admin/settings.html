@@ -806,11 +806,13 @@
             Manage all verified customer ratings, comments, and reviews. These synchronize in real-time across all devices and display proudly on your storefront and product detail pages.
           </p>
 
-          <!-- Add Testimonial Form (Collapsible) -->
+          <!-- Add / Edit Testimonial Form (Collapsible) -->
           <div id="admin-new-review-form" style="display:none;background:white;padding:20px;border-radius:var(--radius-lg);border:1.5px solid var(--cream-border);margin-bottom:20px;box-shadow:var(--shadow-sm);">
+            <input type="hidden" id="adm-rev-id" value="" />
+            <input type="hidden" id="adm-rev-created" value="" />
             <div style="font-weight:800;font-size:0.95rem;color:var(--gray-800);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <i class="fas fa-pen-fancy" style="color:var(--bubblegum-pink, #FF84BA);"></i>
-              <span>Add Customer Review / Testimonial</span>
+              <span id="adm-rev-form-title">Add Customer Review / Testimonial</span>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:12px;">
               <div>
@@ -840,7 +842,7 @@
             </div>
             <div style="display:flex;gap:10px;">
               <button type="button" class="btn btn-green btn-sm" onclick="saveAdminNewReview()">
-                <i class="fas fa-check"></i> Save & Sync Review
+                <i class="fas fa-check"></i> <span id="adm-rev-submit-text">Save & Sync Review</span>
               </button>
               <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAdminNewReviewForm()">
                 Cancel
@@ -1552,8 +1554,11 @@
                 <span style="color:#F59E0B;font-size:0.88rem;letter-spacing:1px;">${stars}</span>
                 <span style="font-size:0.75rem;background:#EBF3E8;color:var(--forest-moss);padding:2px 8px;border-radius:10px;font-weight:700;">${prodName}</span>
               </div>
-              <div style="display:flex;align-items:center;gap:12px;">
+              <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:0.75rem;color:var(--gray-400);">${dateStr}</span>
+                <button type="button" class="btn btn-sm btn-outline-blue" style="padding:3px 8px;font-size:0.72rem;" onclick="editAdminReview('${r.id}')" title="Edit / Customize Review">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
                 <button type="button" class="btn btn-sm btn-danger" style="padding:3px 8px;font-size:0.72rem;" onclick="deleteAdminReview('${r.id}')" title="Delete Review">
                   <i class="fas fa-trash-alt"></i> Delete
                 </button>
@@ -1568,15 +1573,84 @@
     }
     window.renderAdminReviews = renderAdminReviews;
 
-    function toggleAdminNewReviewForm() {
+    function toggleAdminNewReviewForm(forceOpen = false) {
       const form = document.getElementById('admin-new-review-form');
-      if (form) {
-        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      if (!form) return;
+      if (forceOpen) {
+        form.style.display = 'block';
+        return;
+      }
+      const isVisible = form.style.display === 'block';
+      if (isVisible) {
+        form.style.display = 'none';
+        resetAdminReviewForm();
+      } else {
+        resetAdminReviewForm();
+        form.style.display = 'block';
+        document.getElementById('adm-rev-name')?.focus();
       }
     }
     window.toggleAdminNewReviewForm = toggleAdminNewReviewForm;
 
+    function resetAdminReviewForm() {
+      const idEl = document.getElementById('adm-rev-id');
+      const crEl = document.getElementById('adm-rev-created');
+      const nameEl = document.getElementById('adm-rev-name');
+      const prodEl = document.getElementById('adm-rev-product');
+      const rateEl = document.getElementById('adm-rev-rating');
+      const textEl = document.getElementById('adm-rev-text');
+      const titleEl = document.getElementById('adm-rev-form-title');
+      const btnEl = document.getElementById('adm-rev-submit-text');
+
+      if (idEl) idEl.value = '';
+      if (crEl) crEl.value = '';
+      if (nameEl) nameEl.value = '';
+      if (prodEl) prodEl.value = 'general';
+      if (rateEl) rateEl.value = '5';
+      if (textEl) textEl.value = '';
+      if (titleEl) titleEl.textContent = 'Add Customer Review / Testimonial';
+      if (btnEl) btnEl.textContent = 'Save & Sync Review';
+    }
+    window.resetAdminReviewForm = resetAdminReviewForm;
+
+    function editAdminReview(id) {
+      const reviews = DB.getReviews ? DB.getReviews() : [];
+      const review = reviews.find(r => r.id === id);
+      if (!review) {
+        showToast('Review not found.', 'error');
+        return;
+      }
+
+      const idEl = document.getElementById('adm-rev-id');
+      const crEl = document.getElementById('adm-rev-created');
+      const nameEl = document.getElementById('adm-rev-name');
+      const prodEl = document.getElementById('adm-rev-product');
+      const rateEl = document.getElementById('adm-rev-rating');
+      const textEl = document.getElementById('adm-rev-text');
+      const titleEl = document.getElementById('adm-rev-form-title');
+      const btnEl = document.getElementById('adm-rev-submit-text');
+
+      if (idEl) idEl.value = review.id;
+      if (crEl) crEl.value = review.createdAt || '';
+      if (nameEl) nameEl.value = review.name || '';
+      if (prodEl) prodEl.value = review.productId || 'general';
+      if (rateEl) rateEl.value = String(review.rating || 5);
+      if (textEl) textEl.value = review.text || '';
+      if (titleEl) titleEl.textContent = 'Customize / Edit Customer Review';
+      if (btnEl) btnEl.textContent = 'Update & Sync Review';
+
+      const form = document.getElementById('admin-new-review-form');
+      if (form) {
+        form.style.display = 'block';
+        form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      nameEl?.focus();
+    }
+    window.editAdminReview = editAdminReview;
+
     async function saveAdminNewReview() {
+      const editingId = document.getElementById('adm-rev-id')?.value.trim();
+      const existingCreatedAt = document.getElementById('adm-rev-created')?.value.trim();
       const name = document.getElementById('adm-rev-name')?.value.trim();
       const productId = document.getElementById('adm-rev-product')?.value || 'general';
       const rating = parseInt(document.getElementById('adm-rev-rating')?.value || '5', 10);
@@ -1587,20 +1661,27 @@
         return;
       }
 
+      const reviewPayload = {
+        name,
+        productId,
+        rating,
+        text
+      };
+
+      if (editingId) {
+        reviewPayload.id = editingId;
+        if (existingCreatedAt) reviewPayload.createdAt = existingCreatedAt;
+      }
+
       try {
-        await DB.addReview({
-          name,
-          productId,
-          rating,
-          text
-        });
-        if (document.getElementById('adm-rev-name')) document.getElementById('adm-rev-name').value = '';
-        if (document.getElementById('adm-rev-text')) document.getElementById('adm-rev-text').value = '';
-        toggleAdminNewReviewForm();
+        await DB.addReview(reviewPayload);
+        resetAdminReviewForm();
+        const form = document.getElementById('admin-new-review-form');
+        if (form) form.style.display = 'none';
         renderAdminReviews();
-        showToast('Customer review added and synced to Cloud! ⭐☁️', 'success');
+        showToast(editingId ? 'Customer review updated and synced to Cloud! ⭐☁️' : 'Customer review added and synced to Cloud! ⭐☁️', 'success');
       } catch (err) {
-        console.error('Error adding review:', err);
+        console.error('Error saving review:', err);
         showToast('Saved locally. (Syncing...)', 'info');
       }
     }
